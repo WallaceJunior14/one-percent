@@ -48,9 +48,13 @@ def collect(
     return CollectResult(items=tuple(items), failed_sources=tuple(failed))
 
 
-def build_sources(config: PipelineConfig, client: httpx.Client) -> list[ContentSource]:
+def build_sources(
+    config: PipelineConfig,
+    client: httpx.Client,
+    arxiv_interval: float = MIN_INTERVAL_SECONDS,
+) -> list[ContentSource]:
     """Instancia o adapter de cada fonte da configuração."""
-    arxiv_limiter = RateLimiter(MIN_INTERVAL_SECONDS)
+    arxiv_limiter = RateLimiter(arxiv_interval)
     sources: list[ContentSource] = []
     for source in config.sources:
         match source.type:

@@ -233,3 +233,4 @@ ADRs a registrar com `dev-docs` na fase de setup: **0001** conteúdo estático p
 | 2026-10-31 | Aprovado: Expo, Haiku 5.5 + Batch API, repositório público com GitHub Pages | Decisão do autor |
 | 2026-10-31 | Rotas em `app/src/app/` (convenção do Expo SDK 58 com pasta `src`) | Documentação do Expo Router |
 | 2026-11-01 | zod para validar o contrato no app | Compatibilidade com Hermes; tipos inferidos do mesmo schema |
+| 2026-11-01 | `latest.json` é uma cópia completa do dia (não um ponteiro); cota de tipo no ranking; G1 Ciência e Saúde trocado por Drauzio Varella, Medical Xpress e ScienceDaily | Uma requisição no app; balanço notícias/artigos; feed do G1 abandonado |

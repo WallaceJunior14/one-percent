@@ -69,10 +69,10 @@ areas:
         keywords: []
       - id: health.nutrition
         name: Nutrição
-        keywords: [alimentação, alimento, dieta, nutrição, nutricional, açúcar, obesidade, vitamina, ultraprocessados]
+        keywords: [alimentação, alimento, dieta, nutrição, nutricional, açúcar, obesidade, vitamina, ultraprocessados, diet, nutrition, food, obesity, sugar, vitamin]
       - id: health.mental
         name: Saúde mental
-        keywords: [saúde mental, ansiedade, depressão, burnout, estresse, sono, insônia, suicídio, psicólogo, psiquiatria]
+        keywords: [saúde mental, ansiedade, depressão, burnout, estresse, sono, insônia, suicídio, psicólogo, psiquiatria, mental health, anxiety, depression, stress, sleep, insomnia, psychiatry]
 
 sources:
   # --- Notícias (RSS) ---
@@ -83,7 +83,9 @@ sources:
   - {id: agenciabrasil-internacional, name: Agência Brasil, kind: news, type: rss, url: "https://agenciabrasil.ebc.com.br/rss/internacional/feed.xml", area: economy, default_subarea: economy.world, weight: 0.9}
   - {id: infomoney, name: InfoMoney, kind: news, type: rss, url: "https://www.infomoney.com.br/feed/", area: finance, default_subarea: finance.markets, weight: 1.0}
   - {id: moneytimes, name: Money Times, kind: news, type: rss, url: "https://www.moneytimes.com.br/feed/", area: finance, default_subarea: finance.markets, weight: 0.9}
-  - {id: g1-ciencia-saude, name: G1, kind: news, type: rss, url: "https://g1.globo.com/rss/g1/ciencia-e-saude/", area: health, default_subarea: health.medicine, weight: 1.0}
+  - {id: drauzio, name: Drauzio Varella, kind: news, type: rss, url: "https://drauziovarella.uol.com.br/feed/", area: health, default_subarea: health.medicine, weight: 1.0}
+  - {id: medicalxpress, name: Medical Xpress, kind: news, type: rss, url: "https://medicalxpress.com/rss-feed/", area: health, default_subarea: health.medicine, weight: 0.9}
+  - {id: sciencedaily-health, name: ScienceDaily, kind: news, type: rss, url: "https://www.sciencedaily.com/rss/health_medicine.xml", area: health, default_subarea: health.medicine, weight: 0.9}
   - {id: agenciabrasil-saude, name: Agência Brasil, kind: news, type: rss, url: "https://agenciabrasil.ebc.com.br/rss/saude/feed.xml", area: health, default_subarea: health.medicine, weight: 1.0}
   - {id: fiocruz, name: Agência Fiocruz, kind: news, type: rss, url: "https://agencia.fiocruz.br/rss.xml", area: health, default_subarea: health.medicine, weight: 1.0}
 

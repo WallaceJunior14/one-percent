@@ -39,6 +39,32 @@ def test_keeps_top_8_per_subarea() -> None:
     assert sum(r.item.subarea_id == "health.mental" for r in ranked) == 3
 
 
+def test_mixed_subarea_keeps_news_and_papers_balanced() -> None:
+    fresh_papers = [make_item(kind="paper", hours_ago=h) for h in range(1, 11)]
+    older_news = [make_item(kind="news", hours_ago=20 + h) for h in range(1, 11)]
+
+    ranked = select_top(fresh_papers + older_news, NOW)
+
+    kinds = [r.item.kind for r in ranked]
+    assert (kinds.count("news"), kinds.count("paper")) == (5, 3)
+
+
+def test_unused_quota_is_filled_by_the_other_kind() -> None:
+    papers = [make_item(kind="paper", hours_ago=h) for h in range(1, 11)]
+    one_news = [make_item(kind="news", hours_ago=1)]
+
+    ranked = select_top(papers + one_news, NOW)
+
+    kinds = [r.item.kind for r in ranked]
+    assert (kinds.count("news"), kinds.count("paper")) == (1, 7)
+
+
+def test_single_kind_subarea_fills_all_slots() -> None:
+    papers = [make_item(kind="paper", subarea_id="science.ml", hours_ago=h) for h in range(1, 11)]
+
+    assert len(select_top(papers, NOW)) == 8
+
+
 def test_ranks_start_at_1_within_each_subarea() -> None:
     items = [make_item(subarea_id="tech.ai", hours_ago=h) for h in (1, 2)]
     items += [make_item(subarea_id="tech.dev", hours_ago=h) for h in (1, 2, 3)]

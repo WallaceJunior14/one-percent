@@ -11,6 +11,17 @@ NOW = datetime(2026, 11, 1, 8, 0, tzinfo=UTC)
 _counter = 0
 
 
+def _word(n: int) -> str:
+    """Palavra única por número (ex.: 1 -> 'bab'), para títulos que o dedupe não funda."""
+    letters = "abcdefghijklmnopqrstuvwxyz"
+    word = ""
+    while True:
+        n, remainder = divmod(n, 26)
+        word = letters[remainder] + word
+        if n == 0:
+            return f"ba{word}"
+
+
 def make_item(
     *,
     kind: ContentKind = "news",
@@ -28,7 +39,7 @@ def make_item(
         kind=kind,
         area_id=area_id,
         subarea_id=subarea_id,
-        title=title or f"Assunto número {_counter} sobre um tema qualquer",
+        title=title or f"Notícia {_word(_counter)} sobre {_word(_counter * 7919)}",
         url=f"https://example.com/item-{_counter}",
         published_at=NOW - timedelta(hours=hours_ago),
         summary="Resumo do item.",

@@ -1,6 +1,6 @@
 # Fontes de conteúdo — verificação (T030, RNF-008)
 
-Verificado em 2026-11-01. Cada fonte foi acessada com o User-Agent do projeto (`one-percent-pipeline/0.1 (+https://github.com/WallaceJunior14/one-percent)`).
+Verificado em 2026-11-01. Além de status HTTP e número de itens, a verificação mede **quantos itens têm até 36 horas**: um feed pode responder normalmente e estar abandonado (caso do G1 Ciência e Saúde). Cada fonte foi acessada com o User-Agent do projeto (`one-percent-pipeline/0.1 (+https://github.com/WallaceJunior14/one-percent)`).
 
 ## Política de uso adotada para todas as fontes
 
@@ -30,12 +30,16 @@ Verificado em 2026-11-01. Cada fonte foi acessada com o User-Agent do projeto (`
 | Agência Brasil — Saúde | `agenciabrasil.ebc.com.br/rss/saude/feed.xml` | ✅ 10 itens | Idem |
 | InfoMoney | `infomoney.com.br/feed/` | ✅ 10 itens | |
 | Money Times | `moneytimes.com.br/feed/` | ✅ 10 itens | |
-| G1 Ciência e Saúde | `g1.globo.com/rss/g1/ciencia-e-saude/` | ✅ 100 itens | |
+| Drauzio Varella | `drauziovarella.uol.com.br/feed/` | ✅ 30 itens (5 nas últimas 36h) | Cobre nutrição e saúde mental |
+| Medical Xpress | `medicalxpress.com/rss-feed/` | ✅ 30 itens (30 nas últimas 36h) | Em inglês |
+| ScienceDaily — Health | `sciencedaily.com/rss/health_medicine.xml` | ✅ 60 itens (4 nas últimas 36h) | Em inglês |
 | Agência Fiocruz | `agencia.fiocruz.br/rss.xml` | ✅ 10 itens | |
 | G1 Tecnologia / Economia | `g1.globo.com/rss/g1/tecnologia/`, `/economia/` | ❌ Excluída | Feeds responderam vazios (0 itens) |
+| G1 Ciência e Saúde / Bem Estar | `g1.globo.com/rss/g1/ciencia-e-saude/`, `/bemestar/` | ❌ Excluída | Feeds desatualizados: item mais recente com ~2 anos / ~3 dias |
+| Ministério da Saúde (gov.br) | `gov.br/saude/.../noticias/RSS` | ❌ Excluída | Item mais recente com ~4 meses |
 | Hacker News API | `hacker-news.firebaseio.com` | ⏸️ Adiada | Itens só têm título e link, sem descrição para resumir |
 
 ## Riscos residuais
 
-- Os termos de uso dos veículos de notícia (Tecnoblog, TechCrunch, Ars Technica, InfoMoney, Money Times, G1, Agência Brasil) **não foram verificados individualmente**. O uso adotado é o de um leitor de feeds (manchete + resumo próprio + link), comum e de baixo risco para uso pessoal. **Antes de distribuir o app publicamente** (ex.: Play Store), revisar os termos de cada veículo ou pedir autorização.
+- Os termos de uso dos veículos de notícia (Tecnoblog, TechCrunch, Ars Technica, InfoMoney, Money Times, Agência Brasil, Drauzio Varella, Medical Xpress, ScienceDaily) **não foram verificados individualmente**. O uso adotado é o de um leitor de feeds (manchete + resumo próprio + link), comum e de baixo risco para uso pessoal. **Antes de distribuir o app publicamente** (ex.: Play Store), revisar os termos de cada veículo ou pedir autorização.
 - Fontes podem mudar o formato ou sair do ar; o pipeline tolera falha de fontes individuais (T035).

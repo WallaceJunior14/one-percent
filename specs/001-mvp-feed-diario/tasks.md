@@ -45,6 +45,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
   - Cobre: RF-004
 - [x] T023 [P] Ranking por recência, peso da fonte e popularidade; top 8 por subárea
   - Teste: `tests/unit/test_ranking.py` — `newer_item_ranks_higher_all_else_equal`, `story_covered_by_more_sources_ranks_higher`, `keeps_top_8_per_subarea`
+  - Ajuste (2026-11-01): cota de 5 notícias + 3 artigos por subárea mista — sem ela, artigos (meia-vida 48h) dominavam o pool (86 de 105 cards na primeira execução real)
   - Cobre: RF-005
 
 - [x] T024 [P] Classificar notícias de feeds gerais na subárea por palavras-chave (configuradas em `areas.yaml`)
@@ -79,12 +80,12 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
   - Cobre: RF-006, RF-008, RNF-005
 
 ### Publicação
-- [ ] T050 Montagem do JSON do dia + stories (top 3–5 por área) + validação no schema
+- [x] T050 Montagem do JSON do dia + stories (top 3–5 por área) + validação no schema
   - Teste: `tests/unit/test_publish.py` — `output_passes_schema`, `stories_reference_existing_cards`
-- [ ] T051 Regra de segurança: não publicar com menos de 15 cards válidos; manter o `latest.json` anterior
+- [x] T051 Regra de segurança: não publicar com menos de 15 cards válidos; manter o `latest.json` anterior
   - Teste: `tests/unit/test_publish.py` — `does_not_publish_below_15_cards`
   - Cobre: RNF-006
-- [ ] T052 CLI `run --date` + pipeline completo com `FakeSummarizer`
+- [x] T052 CLI `run --date` + pipeline completo com `FakeSummarizer`
   - Teste: `tests/integration/test_pipeline_e2e.py` — fixtures de todas as fontes → JSON válido com ≥ 15 cards
 - [ ] T053 Workflow `daily-content.yml`: cron 08:00 UTC + `workflow_dispatch`, retry, `ANTHROPIC_API_KEY` em secrets, `permissions` mínimas, publica em `gh-pages`
   - Pronto quando: um disparo manual publica `latest.json` acessível via HTTPS
