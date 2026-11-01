@@ -1,0 +1,54 @@
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Editores ---
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+
+# --- Segredos ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.keystore
+*.jks
+!debug.keystore
+
+# --- Node ---
+node_modules/
+dist/
+coverage/
+*.log
+npm-debug.log*
+.eslintcache
+*.tsbuildinfo
+
+# --- Expo / React Native ---
+.expo/
+web-build/
+expo-env.d.ts
+*.apk
+*.aab
+app/android/
+app/ios/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+
+# --- Saída local do pipeline ---
+pipeline/out/
