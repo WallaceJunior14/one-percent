@@ -35,15 +35,15 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 ## Fase 2 — Pipeline (conteúdo diário)
 
 ### Domínio
-- [ ] T020 [P] `ContentItem` e normalização: URL canônica sem `utm_*`, datas em UTC, limpeza de texto
+- [x] T020 [P] `ContentItem` e normalização: URL canônica sem `utm_*`, datas em UTC, limpeza de texto
   - Teste: `tests/unit/test_normalize.py` — `strips_tracking_params`, `converts_dates_to_utc`, `strips_html_from_summary`
-- [ ] T021 [P] Filtro de janela de tempo (notícias ≤ 36h, artigos ≤ 7 dias)
+- [x] T021 [P] Filtro de janela de tempo (notícias ≤ 36h, artigos ≤ 7 dias)
   - Teste: `tests/unit/test_window.py` — `drops_news_older_than_36h`, `keeps_paper_from_6_days_ago`
   - Cobre: RF-003
-- [ ] T022 [P] Deduplicação por URL canônica e similaridade de título
+- [x] T022 [P] Deduplicação por URL canônica e similaridade de título
   - Teste: `tests/unit/test_dedupe.py` — `same_url_is_duplicate`, `same_story_different_sources_is_duplicate`, `different_stories_are_kept`
   - Cobre: RF-004
-- [ ] T023 [P] Ranking por recência, peso da fonte e popularidade; top 8 por subárea
+- [x] T023 [P] Ranking por recência, peso da fonte e popularidade; top 8 por subárea
   - Teste: `tests/unit/test_ranking.py` — `newer_item_ranks_higher_all_else_equal`, `story_covered_by_more_sources_ranks_higher`, `keeps_top_8_per_subarea`
   - Cobre: RF-005
 
