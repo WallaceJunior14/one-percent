@@ -68,9 +68,9 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
   - Teste: `tests/unit/test_collect.py` — `one_failing_source_does_not_stop_others`
 
 ### Resumo (LLM)
-- [ ] T040 Porta `Summarizer` + `FakeSummarizer` determinístico
+- [x] T040 Porta `Summarizer` + `FakeSummarizer` determinístico
   - Teste: `tests/unit/test_fake_summarizer.py`
-- [ ] T041 Montagem do card: campos de texto vêm do summarizer; URL, autores, datas e fonte vêm do item original
+- [x] T041 Montagem do card: campos de texto vêm do summarizer; URL, autores, datas e fonte vêm do item original
   - Teste: `tests/unit/test_build_card.py` — `url_comes_from_source_not_llm`, `paper_card_has_method_result_limitations`, `invalid_summary_is_discarded`
   - Cobre: RF-002, RF-006, H2-3
 - [ ] T042 `AnthropicSummarizer`: Haiku 5.5, saída estruturada por JSON Schema, prompt em PT-BR restrito ao título + abstract, conteúdo delimitado como dado, Batch API, teto de tokens por execução — `claude-api`
