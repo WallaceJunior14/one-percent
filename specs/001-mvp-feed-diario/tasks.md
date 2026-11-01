@@ -18,8 +18,9 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [x] T004 [P] Setup do app: projeto Expo com TypeScript e expo-router, Jest + RNTL, ESLint + Prettier
   - Pronto quando: `npm test` roda um teste trivial verde; o app abre no celular via Expo Go com uma tela "Olá"
   - Nota: testes, lint, typecheck e format verdes; abertura no Expo Go pendente de verificação no celular
-- [ ] T005 Workflow `ci.yml`: lint + testes do pipeline e do app em cada push
+- [x] T005 Workflow `ci.yml`: lint + testes do pipeline e do app em cada push
   - Pronto quando: o primeiro push mostra os dois jobs verdes no GitHub
+  - Nota: run 41266851197 — Pipeline (Python) e App (Expo) verdes
 
 ## Fase 1 — Contrato de dados
 
