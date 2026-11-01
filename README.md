@@ -2,7 +2,7 @@
 
 App Android que entrega, todo dia, uma dose finita de conhecimento: os principais assuntos de tecnologia, economia, finanças, saúde e ciência, incluindo artigos científicos explicados em linguagem simples, em cards no estilo de uma rede social.
 
-> Status: em desenvolvimento (MVP, spec 001 — Fase 0 concluída).
+> Status: em desenvolvimento (MVP, spec 001 — pipeline pronto; app em construção).
 
 ## Como funciona
 
@@ -55,6 +55,8 @@ pip install -e ".[dev]"
 
 | Comando | O que faz |
 |---|---|
+| `python -m one_percent run --fake --out out` | roda o pipeline com fontes reais e resumos falsos (sem custo); gera `out/latest.json` |
+| `python -m one_percent run --limit 3 --out out` | roda com o LLM real em só 3 itens (exige `ANTHROPIC_API_KEY`) |
 | `pytest` | testes |
 | `ruff check .` / `ruff format .` | lint / formatação |
 | `mypy` | checagem de tipos (strict) |

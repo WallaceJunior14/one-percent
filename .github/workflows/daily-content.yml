@@ -1,0 +1,85 @@
+name: Daily content
+
+on:
+  schedule:
+    - cron: "0 8 * * *" # 05:00 em Brasília; 2 h de folga para o prazo das 7 h (RF-001)
+  workflow_dispatch:
+    inputs:
+      fake:
+        description: "Usar resumos falsos (sem chamar o LLM, sem custo)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write # publicar no branch gh-pages
+
+concurrency:
+  group: daily-content
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      FAKE: ${{ github.event_name == 'workflow_dispatch' && inputs.fake }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/pyproject.toml
+
+      - name: Install pipeline
+        run: pip install -e pipeline
+
+      - name: Require API key for real runs
+        if: env.FAKE != 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error::Secret ANTHROPIC_API_KEY não configurado (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+
+      - name: Check out published site (gh-pages)
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin gh-pages > /dev/null; then
+            git fetch --depth=1 origin gh-pages:gh-pages
+            git worktree add site gh-pages
+          else
+            git worktree add --orphan -b gh-pages site
+          fi
+
+      - name: Generate content (up to 2 attempts)
+        working-directory: pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          args="run --out ../site"
+          if [ "$FAKE" = "true" ]; then args="$args --fake"; fi
+          for attempt in 1 2; do
+            if python -m one_percent $args; then exit 0; fi
+            echo "::warning::Tentativa $attempt não publicou o dia."
+            [ "$attempt" = 2 ] || sleep 300
+          done
+          exit 1
+
+      - name: Publish to gh-pages
+        working-directory: site
+        run: |
+          mkdir -p schemas
+          cp ../contracts/daily-content.schema.json schemas/daily-content-v1.json
+          touch .nojekyll
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nada novo para publicar."
+            exit 0
+          fi
+          git commit -m "content: $(jq -r .date latest.json)$([ "$FAKE" = "true" ] && echo ' (fake)')"
+          git push origin gh-pages
