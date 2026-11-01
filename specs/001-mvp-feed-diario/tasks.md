@@ -24,12 +24,12 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 
 ## Fase 1 — Contrato de dados
 
-- [ ] T010 Escrever `contracts/daily-content.schema.json` conforme o plan (cards `news`/`paper`, quiz, stories, áreas)
+- [x] T010 Escrever `contracts/daily-content.schema.json` conforme o plan (cards `news`/`paper`, quiz, stories, áreas)
   - Teste: `pipeline/tests/unit/test_contract.py` — `valid_sample_passes`, `paper_without_method_fails`, `quiz_requires_four_options`, `url_must_be_https`
   - Cobre: RF-002, RF-008
-- [ ] T011 Criar `contracts/examples/sample-day.json` (≥ 20 cards, todas as áreas, inclui preprint) usado pelos testes e pelo app em desenvolvimento
+- [x] T011 Criar `contracts/examples/sample-day.json` (≥ 20 cards, todas as áreas, inclui preprint) usado pelos testes e pelo app em desenvolvimento
   - Teste: o exemplo passa no schema (mesmo arquivo de teste do T010)
-- [ ] T012 Tipos TypeScript do contrato + validação ao carregar no app
+- [x] T012 Tipos TypeScript do contrato + validação ao carregar no app
   - Teste: `app/src/features/content/contract.test.ts` — `parses_sample_day`, `rejects_invalid_payload`
 
 ## Fase 2 — Pipeline (conteúdo diário)

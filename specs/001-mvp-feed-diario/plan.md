@@ -27,6 +27,7 @@ Decisão central: **o conteúdo é gerado uma vez por dia para todos os usuário
 |---|---|---|
 | App | **Expo (React Native) + TypeScript**, expo-router | Testar no celular via Expo Go em minutos, ecossistema grande, TS facilita TDD e contratos tipados |
 | Estado do app | Zustand | Simples, testável fora da UI |
+| Validação do contrato no app | zod (espelho do JSON Schema, testado com os mesmos exemplos do pipeline) | Valida em runtime e gera os tipos TS; validadores de JSON Schema em JS (ajv) geram código com `new Function`, mal suportado pelo Hermes |
 | Armazenamento local | AsyncStorage atrás de uma interface `KeyValueStore` | Funciona no Expo Go; pode ser trocado por MMKV depois sem mexer no domínio |
 | Feed vertical | FlatList com paginação vertical (`pagingEnabled`) | Nativo e suficiente para 15 itens; FlashList só se necessário |
 | Notificações | expo-notifications (agendamento **local**) | Não exige servidor de push (H8) |
@@ -231,3 +232,4 @@ ADRs a registrar com `dev-docs` na fase de setup: **0001** conteúdo estático p
 | 2026-10-31 | Criação | — |
 | 2026-10-31 | Aprovado: Expo, Haiku 5.5 + Batch API, repositório público com GitHub Pages | Decisão do autor |
 | 2026-10-31 | Rotas em `app/src/app/` (convenção do Expo SDK 58 com pasta `src`) | Documentação do Expo Router |
+| 2026-11-01 | zod para validar o contrato no app | Compatibilidade com Hermes; tipos inferidos do mesmo schema |

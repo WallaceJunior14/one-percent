@@ -1,0 +1,657 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-01",
+  "generatedAt": "2026-11-01T08:12:00Z",
+  "areas": [
+    {
+      "id": "tech",
+      "name": "Tecnologia",
+      "subareas": [
+        { "id": "tech.ai", "name": "IA" },
+        { "id": "tech.dev", "name": "Desenvolvimento de software" },
+        { "id": "tech.security", "name": "Segurança" },
+        { "id": "tech.hardware", "name": "Hardware" }
+      ]
+    },
+    {
+      "id": "science",
+      "name": "Ciência",
+      "subareas": [
+        { "id": "science.ml", "name": "IA/ML" },
+        { "id": "science.computing", "name": "Computação" },
+        { "id": "science.physics", "name": "Física" },
+        { "id": "science.biology", "name": "Biologia" }
+      ]
+    },
+    {
+      "id": "economy",
+      "name": "Economia",
+      "subareas": [
+        { "id": "economy.brazil", "name": "Brasil" },
+        { "id": "economy.world", "name": "Mundo" }
+      ]
+    },
+    {
+      "id": "finance",
+      "name": "Finanças",
+      "subareas": [
+        { "id": "finance.markets", "name": "Mercado" },
+        { "id": "finance.investing", "name": "Investimentos" },
+        { "id": "finance.personal", "name": "Finanças pessoais" }
+      ]
+    },
+    {
+      "id": "health",
+      "name": "Saúde",
+      "subareas": [
+        { "id": "health.medicine", "name": "Medicina" },
+        { "id": "health.nutrition", "name": "Nutrição" },
+        { "id": "health.mental", "name": "Saúde mental" }
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "id": "c_000000000001",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.ai",
+      "rank": 1,
+      "title": "Empresa lança modelo de linguagem aberto focado em português",
+      "summary": "Uma startup brasileira fictícia publicou os pesos de um modelo de linguagem treinado majoritariamente em textos em português. O modelo roda em uma única GPU de consumo e foi liberado com licença permissiva.",
+      "whyItMatters": "Modelos abertos em português reduzem a dependência de APIs estrangeiras para produtos locais.",
+      "sourceName": "Exemplo Tech",
+      "url": "https://example.com/tech/modelo-aberto-portugues",
+      "publishedAt": "2026-10-31T14:00:00Z",
+      "quiz": {
+        "question": "Qual é o diferencial do modelo lançado?",
+        "options": [
+          "Foco em português e pesos abertos",
+          "Funciona apenas na nuvem",
+          "É exclusivo para imagens",
+          "Exige um supercomputador"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_000000000002",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.ai",
+      "rank": 2,
+      "title": "Assistentes de código passam a rodar testes antes de sugerir mudanças",
+      "summary": "Ferramentas de programação com IA começaram a executar a suíte de testes do projeto antes de propor uma alteração. A ideia é reduzir sugestões que compilam, mas quebram comportamentos existentes.",
+      "whyItMatters": "Aproxima as ferramentas de IA de práticas como TDD e integração contínua.",
+      "sourceName": "Exemplo Dev News",
+      "url": "https://example.com/tech/assistentes-rodam-testes",
+      "publishedAt": "2026-10-31T11:30:00Z",
+      "quiz": {
+        "question": "O que os assistentes de código passaram a fazer antes de sugerir mudanças?",
+        "options": [
+          "Apagar testes antigos",
+          "Executar a suíte de testes",
+          "Publicar o código automaticamente",
+          "Desativar o lint"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_000000000003",
+      "type": "paper",
+      "areaId": "tech",
+      "subareaId": "tech.ai",
+      "rank": 3,
+      "title": "Modelos pequenos aprendem a pedir ajuda a modelos maiores",
+      "originalTitle": "Learning When to Defer: Small Language Models as Routers to Larger Experts",
+      "summary": "Os autores treinam um modelo pequeno para decidir quando responder sozinho e quando encaminhar a pergunta a um modelo maior. Em tarefas de perguntas e respostas, o sistema mantém a qualidade gastando menos.",
+      "whyItMatters": "Mostra um caminho para reduzir o custo de aplicações com LLM sem perder qualidade.",
+      "method": "Ajuste fino de um modelo pequeno com sinais de confiança, avaliado em três benchmarks de perguntas e respostas.",
+      "result": "Atingiu 95% da acurácia do modelo grande usando-o em apenas 30% das perguntas.",
+      "limitations": "Avaliado só em inglês e em tarefas de resposta curta.",
+      "authors": ["Ana Ribeiro", "Tomás Lindqvist", "Mei Okafor"],
+      "authorsTruncated": true,
+      "venue": "arXiv",
+      "isPreprint": true,
+      "sourceName": "arXiv",
+      "url": "https://example.org/abs/2610.00001",
+      "pdfUrl": "https://example.org/pdf/2610.00001",
+      "publishedAt": "2026-10-29T18:00:00Z",
+      "quiz": {
+        "question": "Qual decisão o modelo pequeno aprende a tomar?",
+        "options": [
+          "Qual idioma usar",
+          "Quando encaminhar a pergunta a um modelo maior",
+          "Quantas GPUs alocar",
+          "Qual benchmark escolher"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_000000000004",
+      "type": "paper",
+      "areaId": "tech",
+      "subareaId": "tech.ai",
+      "rank": 4,
+      "title": "Avaliar agentes de IA exige tarefas longas, não perguntas soltas",
+      "originalTitle": "Beyond Single-Turn Benchmarks: Measuring Agent Reliability on Multi-Hour Tasks",
+      "summary": "O estudo propõe um conjunto de tarefas que levam horas para serem concluídas e mede com que frequência agentes de IA terminam o trabalho sem intervenção humana.",
+      "whyItMatters": "Benchmarks curtos superestimam a confiabilidade de agentes em trabalho real.",
+      "method": "120 tarefas de engenharia de software com duração estimada de 1 a 6 horas, executadas por cinco agentes.",
+      "result": "A taxa de sucesso caiu pela metade a cada dobra na duração da tarefa.",
+      "limitations": "Tarefas restritas a engenharia de software; poucos agentes avaliados.",
+      "authors": ["Lucas Prado", "Hana Sato"],
+      "authorsTruncated": false,
+      "venue": "Exemplo Conference on AI Systems",
+      "isPreprint": false,
+      "sourceName": "Exemplo Proceedings",
+      "url": "https://example.org/papers/agent-reliability",
+      "publishedAt": "2026-10-28T09:00:00Z",
+      "quiz": {
+        "question": "O que aconteceu com a taxa de sucesso quando a duração da tarefa dobrou?",
+        "options": ["Dobrou", "Ficou estável", "Caiu pela metade", "Zerou"],
+        "answerIndex": 2
+      }
+    },
+    {
+      "id": "c_000000000005",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.dev",
+      "rank": 1,
+      "title": "Nova versão de framework mobile simplifica rotas e testes",
+      "summary": "A atualização traz rotas baseadas em arquivos ativadas por padrão e melhora a integração com bibliotecas de teste. Projetos antigos precisam de uma migração guiada.",
+      "whyItMatters": "Menos configuração inicial significa começar projetos novos mais rápido.",
+      "sourceName": "Exemplo Dev News",
+      "url": "https://example.com/dev/framework-mobile-rotas",
+      "publishedAt": "2026-10-31T16:20:00Z",
+      "quiz": {
+        "question": "O que passou a vir ativado por padrão na nova versão?",
+        "options": [
+          "Rotas baseadas em arquivos",
+          "Anúncios no app",
+          "Modo offline obrigatório",
+          "Suporte a disquete"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_000000000006",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.dev",
+      "rank": 2,
+      "title": "Pesquisa aponta que equipes com testes automatizados entregam com menos incidentes",
+      "summary": "Um levantamento com centenas de equipes fictícias indica que times com boa cobertura de testes automatizados tiveram menos incidentes em produção, sem perder velocidade de entrega.",
+      "whyItMatters": "Reforça que qualidade e velocidade não são opostas quando há boa automação.",
+      "sourceName": "Exemplo Engenharia",
+      "url": "https://example.com/dev/pesquisa-testes-incidentes",
+      "publishedAt": "2026-10-31T09:10:00Z",
+      "quiz": {
+        "question": "Segundo o levantamento, o que times com testes automatizados tiveram?",
+        "options": [
+          "Mais incidentes",
+          "Entregas mais lentas",
+          "Menos incidentes em produção",
+          "Equipes maiores"
+        ],
+        "answerIndex": 2
+      }
+    },
+    {
+      "id": "c_000000000007",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.security",
+      "rank": 1,
+      "title": "Chaves de API esquecidas em apps continuam sendo a falha mais comum",
+      "summary": "Uma análise de milhares de aplicativos encontrou chaves de serviços pagos embutidas no código. Qualquer pessoa pode extrair essas chaves do pacote instalado.",
+      "whyItMatters": "Chaves secretas devem ficar no servidor, nunca dentro do app.",
+      "sourceName": "Exemplo Segurança",
+      "url": "https://example.com/seguranca/chaves-em-apps",
+      "publishedAt": "2026-10-31T13:45:00Z",
+      "quiz": {
+        "question": "Onde chaves secretas de API devem ficar?",
+        "options": [
+          "No código do app",
+          "No servidor",
+          "Na descrição da loja",
+          "Em um comentário no código"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_000000000008",
+      "type": "paper",
+      "areaId": "tech",
+      "subareaId": "tech.security",
+      "rank": 2,
+      "title": "Ataques escondidos em páginas da web enganam agentes de IA",
+      "originalTitle": "Indirect Prompt Injection in Web-Browsing Agents: A Systematic Evaluation",
+      "summary": "Os pesquisadores escondem instruções maliciosas em páginas da web e medem quantas vezes agentes que navegam na internet obedecem a elas em vez de ao usuário.",
+      "whyItMatters": "Todo conteúdo externo lido por uma IA deve ser tratado como dado, não como ordem.",
+      "method": "Teste de quatro agentes em 500 páginas com instruções ocultas de diferentes tipos.",
+      "result": "Os agentes seguiram as instruções ocultas em 18% a 41% dos casos.",
+      "limitations": "Páginas sintéticas; defesas mais recentes não foram avaliadas.",
+      "authors": ["Rafael Monteiro", "Ingrid Halvorsen", "Kwame Asante"],
+      "authorsTruncated": false,
+      "venue": "arXiv",
+      "isPreprint": true,
+      "sourceName": "arXiv",
+      "url": "https://example.org/abs/2610.00002",
+      "pdfUrl": "https://example.org/pdf/2610.00002",
+      "publishedAt": "2026-10-30T12:00:00Z",
+      "quiz": {
+        "question": "Como os pesquisadores enganaram os agentes de IA?",
+        "options": [
+          "Desligando a internet",
+          "Escondendo instruções em páginas da web",
+          "Trocando o idioma do agente",
+          "Reduzindo a memória do servidor"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_000000000009",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.ml",
+      "rank": 1,
+      "title": "Menos dados, mais qualidade: filtrar exemplos melhora o treino de modelos",
+      "originalTitle": "Quality over Quantity: Data Pruning Laws for Language Model Pretraining",
+      "summary": "O trabalho mostra que remover exemplos de baixa qualidade do conjunto de treino produz modelos melhores do que treinar com todos os dados disponíveis.",
+      "whyItMatters": "Curadoria de dados pode valer mais do que poder computacional.",
+      "method": "Treino de 40 modelos com diferentes proporções de dados filtrados por um classificador de qualidade.",
+      "result": "Modelos treinados com 60% dos dados superaram os treinados com 100% em 7 de 9 tarefas.",
+      "limitations": "O classificador de qualidade pode carregar vieses próprios.",
+      "authors": ["Beatriz Nogueira", "Samuel Achebe", "Yuki Tanaka"],
+      "authorsTruncated": true,
+      "venue": "arXiv",
+      "isPreprint": true,
+      "sourceName": "arXiv",
+      "url": "https://example.org/abs/2610.00003",
+      "pdfUrl": "https://example.org/pdf/2610.00003",
+      "publishedAt": "2026-10-30T17:30:00Z",
+      "quiz": {
+        "question": "O que aconteceu ao treinar com 60% dos dados filtrados?",
+        "options": [
+          "O modelo piorou em todas as tarefas",
+          "O modelo superou o treinado com todos os dados na maioria das tarefas",
+          "O treino não convergiu",
+          "Não houve diferença"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_00000000000a",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.computing",
+      "rank": 1,
+      "title": "Algoritmo de ordenação aproveita melhor a memória de processadores modernos",
+      "originalTitle": "Cache-Oblivious Sorting Revisited for Heterogeneous Memory Hierarchies",
+      "summary": "Os autores revisitam um algoritmo clássico de ordenação e o adaptam para computadores com vários níveis de memória, reduzindo o tempo gasto esperando dados.",
+      "whyItMatters": "Ganhos em algoritmos básicos se multiplicam em bancos de dados e sistemas inteiros.",
+      "method": "Análise teórica e experimentos em três arquiteturas de processador.",
+      "result": "Ordenação até 1,8 vez mais rápida em conjuntos de dados maiores que a memória cache.",
+      "limitations": "Ganho pequeno em conjuntos de dados que cabem na cache.",
+      "authors": ["Carlos Menezes", "Elena Petrova"],
+      "authorsTruncated": false,
+      "venue": "Exemplo Journal of Algorithms",
+      "isPreprint": false,
+      "sourceName": "Exemplo Journal of Algorithms",
+      "url": "https://example.org/journal/cache-sorting",
+      "publishedAt": "2026-10-27T10:00:00Z",
+      "quiz": {
+        "question": "Em que situação o novo algoritmo teve o maior ganho?",
+        "options": [
+          "Dados que cabem na cache",
+          "Dados maiores que a memória cache",
+          "Listas já ordenadas",
+          "Listas com um único item"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_00000000000b",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.physics",
+      "rank": 1,
+      "title": "Material experimental conduz calor em uma só direção",
+      "originalTitle": "Thermal Rectification in Layered Metamaterials at Room Temperature",
+      "summary": "Pesquisadores criaram um material em camadas que deixa o calor passar muito mais facilmente em um sentido do que no outro, à temperatura ambiente.",
+      "whyItMatters": "Pode levar a componentes que controlam calor como diodos controlam corrente elétrica.",
+      "method": "Fabricação de amostras em camadas e medição do fluxo de calor nos dois sentidos.",
+      "result": "Fluxo de calor 3 vezes maior em um sentido do que no outro.",
+      "limitations": "Amostras pequenas; durabilidade não foi testada.",
+      "authors": ["Fernanda Lopes", "Arjun Mehta", "Clara Weiss"],
+      "authorsTruncated": false,
+      "venue": "Exemplo Physical Letters",
+      "isPreprint": false,
+      "sourceName": "Exemplo Physical Letters",
+      "url": "https://example.org/physics/thermal-rectification",
+      "publishedAt": "2026-10-26T15:00:00Z",
+      "quiz": {
+        "question": "Qual é a propriedade principal do material?",
+        "options": [
+          "Brilha no escuro",
+          "Conduz calor muito melhor em um sentido",
+          "É supercondutor",
+          "É totalmente isolante"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_00000000000c",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.biology",
+      "rank": 1,
+      "title": "Bactérias do solo compartilham genes de resistência mais rápido do que se pensava",
+      "originalTitle": "Rapid Horizontal Transfer of Resistance Genes in Agricultural Soil Communities",
+      "summary": "O estudo acompanhou comunidades de bactérias em solo agrícola e observou a troca de genes de resistência a antibióticos em poucas semanas.",
+      "whyItMatters": "Ajuda a entender como a resistência a antibióticos se espalha fora dos hospitais.",
+      "method": "Sequenciamento de amostras de solo a cada semana durante três meses.",
+      "result": "Genes de resistência apareceram em novas espécies em média após 3 semanas.",
+      "limitations": "Uma única região agrícola estudada.",
+      "authors": ["Juliana Campos", "Pieter de Vries", "Amara Nwosu"],
+      "authorsTruncated": true,
+      "venue": "bioRxiv",
+      "isPreprint": true,
+      "sourceName": "bioRxiv",
+      "url": "https://example.org/biorxiv/soil-resistance",
+      "pdfUrl": "https://example.org/biorxiv/soil-resistance.pdf",
+      "publishedAt": "2026-10-29T08:00:00Z",
+      "quiz": {
+        "question": "Em quanto tempo, em média, os genes apareceram em novas espécies?",
+        "options": ["3 dias", "3 semanas", "3 meses", "3 anos"],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_00000000000d",
+      "type": "news",
+      "areaId": "economy",
+      "subareaId": "economy.brazil",
+      "rank": 1,
+      "title": "Inflação de outubro desacelera, puxada por alimentos",
+      "summary": "O índice de preços ao consumidor de outubro (dado fictício) subiu menos do que em setembro, principalmente por causa da queda no preço dos alimentos.",
+      "whyItMatters": "Inflação menor abre espaço para cortes na taxa de juros.",
+      "sourceName": "Exemplo Economia",
+      "url": "https://example.com/economia/inflacao-outubro",
+      "publishedAt": "2026-10-31T12:00:00Z",
+      "quiz": {
+        "question": "O que mais contribuiu para a desaceleração da inflação?",
+        "options": ["Combustíveis", "Alimentos", "Energia elétrica", "Aluguel"],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_00000000000e",
+      "type": "news",
+      "areaId": "economy",
+      "subareaId": "economy.brazil",
+      "rank": 2,
+      "title": "Desemprego fica estável no trimestre",
+      "summary": "A taxa de desemprego (dado fictício) ficou praticamente igual à do trimestre anterior, com aumento do emprego formal compensando a queda no informal.",
+      "whyItMatters": "Emprego formal maior significa mais pessoas com direitos trabalhistas e renda previsível.",
+      "sourceName": "Exemplo Economia",
+      "url": "https://example.com/economia/desemprego-trimestre",
+      "publishedAt": "2026-10-31T10:00:00Z",
+      "quiz": {
+        "question": "O que compensou a queda do emprego informal?",
+        "options": [
+          "Aumento do emprego formal",
+          "Redução da população",
+          "Aumento das importações",
+          "Queda dos juros"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_00000000000f",
+      "type": "news",
+      "areaId": "economy",
+      "subareaId": "economy.world",
+      "rank": 1,
+      "title": "Comércio global cresce menos do que o previsto",
+      "summary": "Uma organização internacional fictícia revisou para baixo a previsão de crescimento do comércio mundial, citando tarifas e demanda fraca.",
+      "whyItMatters": "Menos comércio global afeta exportadores brasileiros de commodities.",
+      "sourceName": "Exemplo Mundo",
+      "url": "https://example.com/mundo/comercio-global",
+      "publishedAt": "2026-10-31T07:30:00Z",
+      "quiz": {
+        "question": "Quais motivos foram citados para a revisão da previsão?",
+        "options": [
+          "Tarifas e demanda fraca",
+          "Excesso de navios",
+          "Clima favorável",
+          "Novas moedas digitais"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_000000000010",
+      "type": "news",
+      "areaId": "finance",
+      "subareaId": "finance.markets",
+      "rank": 1,
+      "title": "Bolsa fecha em alta com resultados de bancos",
+      "summary": "O principal índice da bolsa (cenário fictício) subiu após bancos divulgarem lucros acima do esperado no trimestre.",
+      "whyItMatters": "Bancos têm grande peso no índice e influenciam o desempenho de fundos.",
+      "sourceName": "Exemplo Mercados",
+      "url": "https://example.com/mercados/bolsa-bancos",
+      "publishedAt": "2026-10-31T21:00:00Z",
+      "quiz": {
+        "question": "O que impulsionou a alta da bolsa?",
+        "options": [
+          "Resultados de bancos",
+          "Queda do petróleo",
+          "Feriado internacional",
+          "Novas regras de impostos"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_000000000011",
+      "type": "news",
+      "areaId": "finance",
+      "subareaId": "finance.markets",
+      "rank": 2,
+      "title": "Dólar recua com expectativa de juros menores no exterior",
+      "summary": "A moeda americana perdeu força frente ao real (cenário fictício) após sinais de que o banco central dos EUA pode reduzir os juros.",
+      "whyItMatters": "Dólar mais barato reduz o custo de produtos importados.",
+      "sourceName": "Exemplo Mercados",
+      "url": "https://example.com/mercados/dolar-recua",
+      "publishedAt": "2026-10-31T20:15:00Z",
+      "quiz": {
+        "question": "Qual expectativa fez o dólar recuar?",
+        "options": [
+          "Juros menores nos EUA",
+          "Alta do petróleo",
+          "Eleições no Brasil",
+          "Aumento das exportações de café"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_000000000012",
+      "type": "news",
+      "areaId": "finance",
+      "subareaId": "finance.personal",
+      "rank": 1,
+      "title": "Reserva de emergência: quanto guardar e onde deixar",
+      "summary": "Especialistas recomendam guardar o equivalente a três a seis meses de despesas em aplicações de baixo risco e resgate rápido.",
+      "whyItMatters": "Uma reserva evita dívidas caras em imprevistos.",
+      "sourceName": "Exemplo Finanças Pessoais",
+      "url": "https://example.com/financas/reserva-emergencia",
+      "publishedAt": "2026-10-31T08:00:00Z",
+      "quiz": {
+        "question": "Qual característica a aplicação da reserva de emergência deve ter?",
+        "options": [
+          "Alto risco",
+          "Resgate rápido e baixo risco",
+          "Prazo de dez anos",
+          "Rendimento variável"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_000000000013",
+      "type": "news",
+      "areaId": "health",
+      "subareaId": "health.medicine",
+      "rank": 1,
+      "title": "Campanha de vacinação contra gripe é prorrogada",
+      "summary": "O ministério da saúde fictício estendeu a campanha de vacinação contra a gripe por mais um mês, por causa da baixa adesão em alguns estados.",
+      "whyItMatters": "A vacinação reduz internações, principalmente entre idosos.",
+      "sourceName": "Exemplo Saúde",
+      "url": "https://example.com/saude/vacinacao-prorrogada",
+      "publishedAt": "2026-10-31T15:00:00Z",
+      "quiz": {
+        "question": "Por que a campanha foi prorrogada?",
+        "options": [
+          "Falta de vacinas",
+          "Baixa adesão em alguns estados",
+          "Nova variante",
+          "Greve dos profissionais"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_000000000014",
+      "type": "paper",
+      "areaId": "health",
+      "subareaId": "health.medicine",
+      "rank": 2,
+      "title": "Caminhadas curtas após as refeições ajudam a controlar a glicose",
+      "originalTitle": "Short Post-Meal Walks and Glycemic Control in Adults with Prediabetes: A Randomized Trial",
+      "summary": "Um ensaio clínico comparou adultos com pré-diabetes que caminharam 10 minutos após as refeições com um grupo que não caminhou.",
+      "whyItMatters": "Uma mudança simples de hábito pode ter efeito mensurável na saúde.",
+      "method": "Ensaio randomizado com 180 adultos acompanhados por 12 semanas.",
+      "result": "O grupo que caminhou teve picos de glicose 15% menores após as refeições.",
+      "limitations": "Curta duração; resultado ainda não revisado por pares.",
+      "authors": ["Marina Duarte", "Oliver Grant", "Sofia Haddad"],
+      "authorsTruncated": true,
+      "venue": "medRxiv",
+      "isPreprint": true,
+      "sourceName": "medRxiv",
+      "url": "https://example.org/medrxiv/post-meal-walks",
+      "pdfUrl": "https://example.org/medrxiv/post-meal-walks.pdf",
+      "publishedAt": "2026-10-28T13:00:00Z",
+      "quiz": {
+        "question": "Quanto tempo de caminhada após as refeições foi testado?",
+        "options": ["2 minutos", "10 minutos", "1 hora", "3 horas"],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_000000000015",
+      "type": "news",
+      "areaId": "health",
+      "subareaId": "health.nutrition",
+      "rank": 1,
+      "title": "Rótulos de alimentos ganham alerta mais visível para açúcar",
+      "summary": "Novas regras fictícias aumentam o tamanho do alerta frontal para açúcar adicionado nas embalagens a partir do próximo ano.",
+      "whyItMatters": "Informação clara na embalagem ajuda a fazer escolhas mais saudáveis.",
+      "sourceName": "Exemplo Saúde",
+      "url": "https://example.com/saude/rotulos-acucar",
+      "publishedAt": "2026-10-31T09:30:00Z",
+      "quiz": {
+        "question": "O que muda nos rótulos?",
+        "options": [
+          "O alerta de açúcar fica mais visível",
+          "Os rótulos deixam de existir",
+          "O preço passa a ser obrigatório",
+          "As calorias são removidas"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_000000000016",
+      "type": "news",
+      "areaId": "health",
+      "subareaId": "health.mental",
+      "rank": 1,
+      "title": "Pausas sem tela durante o trabalho reduzem o cansaço mental",
+      "summary": "Um levantamento fictício com trabalhadores remotos indica que pausas curtas longe de telas a cada hora estão associadas a menos sensação de esgotamento no fim do dia.",
+      "whyItMatters": "Pequenas pausas são uma forma simples de cuidar da saúde mental no trabalho.",
+      "sourceName": "Exemplo Bem-estar",
+      "url": "https://example.com/saude/pausas-sem-tela",
+      "publishedAt": "2026-10-31T06:45:00Z",
+      "quiz": {
+        "question": "Que tipo de pausa foi associada a menos cansaço mental?",
+        "options": [
+          "Pausas longe de telas",
+          "Pausas para ver vídeos curtos",
+          "Nenhuma pausa",
+          "Pausas apenas no fim de semana"
+        ],
+        "answerIndex": 0
+      }
+    }
+  ],
+  "stories": [
+    {
+      "areaId": "tech",
+      "slides": [
+        {
+          "headline": "Modelo de linguagem aberto focado em português",
+          "cardId": "c_000000000001"
+        },
+        { "headline": "Assistentes de código rodam testes antes de sugerir", "cardId": "c_000000000002" },
+        { "headline": "Chaves de API esquecidas em apps", "cardId": "c_000000000007" },
+        { "headline": "Framework mobile simplifica rotas e testes", "cardId": "c_000000000005" }
+      ]
+    },
+    {
+      "areaId": "science",
+      "slides": [
+        { "headline": "Filtrar dados melhora o treino de modelos", "cardId": "c_000000000009" },
+        { "headline": "Ordenação mais rápida com memória moderna", "cardId": "c_00000000000a" },
+        { "headline": "Material conduz calor em uma só direção", "cardId": "c_00000000000b" }
+      ]
+    },
+    {
+      "areaId": "economy",
+      "slides": [
+        { "headline": "Inflação desacelera em outubro", "cardId": "c_00000000000d" },
+        { "headline": "Desemprego estável no trimestre", "cardId": "c_00000000000e" },
+        { "headline": "Comércio global cresce menos", "cardId": "c_00000000000f" }
+      ]
+    },
+    {
+      "areaId": "finance",
+      "slides": [
+        { "headline": "Bolsa sobe com bancos", "cardId": "c_000000000010" },
+        { "headline": "Dólar recua", "cardId": "c_000000000011" },
+        { "headline": "Quanto guardar na reserva de emergência", "cardId": "c_000000000012" }
+      ]
+    },
+    {
+      "areaId": "health",
+      "slides": [
+        { "headline": "Vacinação contra gripe prorrogada", "cardId": "c_000000000013" },
+        { "headline": "Caminhadas curtas controlam a glicose", "cardId": "c_000000000014" },
+        { "headline": "Alerta de açúcar mais visível nos rótulos", "cardId": "c_000000000015" },
+        { "headline": "Pausas sem tela reduzem o cansaço", "cardId": "c_000000000016" }
+      ]
+    }
+  ]
+}
