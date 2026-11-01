@@ -1,0 +1,103 @@
+# Áreas, subáreas e fontes do pipeline. Verificação das fontes: docs/sources.md (T030).
+#
+# - keywords: usadas para encaixar itens de feeds gerais na subárea certa (T024).
+#   A comparação ignora maiúsculas e acentos e casa palavras inteiras.
+# - default_subarea: subárea usada quando nenhuma palavra-chave da área casa.
+# - weight: peso editorial da fonte no ranking (1.0 = neutro).
+
+areas:
+  - id: tech
+    name: Tecnologia
+    subareas:
+      - id: tech.ai
+        name: IA
+        keywords: [inteligência artificial, IA, AI, LLM, chatbot, ChatGPT, Gemini, Claude, OpenAI, Anthropic, aprendizado de máquina, machine learning, modelo de linguagem]
+      - id: tech.dev
+        name: Desenvolvimento de software
+        keywords: [programação, programador, desenvolvedor, developer, software, código, code, GitHub, open source, código aberto, API, framework, linguagem de programação]
+      - id: tech.security
+        name: Segurança
+        keywords: [segurança, security, hacker, ataque, attack, vazamento, leak, vulnerabilidade, vulnerability, malware, ransomware, golpe, phishing, senha, password, privacidade]
+      - id: tech.hardware
+        name: Hardware
+        keywords: [chip, processador, GPU, celular, smartphone, notebook, iPhone, Android, Samsung, Apple, hardware]
+
+  - id: science
+    name: Ciência
+    subareas:
+      - id: science.ml
+        name: IA/ML
+        keywords: []
+      - id: science.computing
+        name: Computação
+        keywords: []
+      - id: science.physics
+        name: Física
+        keywords: []
+      - id: science.biology
+        name: Biologia
+        keywords: []
+
+  - id: economy
+    name: Economia
+    subareas:
+      - id: economy.brazil
+        name: Brasil
+        keywords: []
+      - id: economy.world
+        name: Mundo
+        keywords: [EUA, Estados Unidos, China, Europa, União Europeia, global, mundial, exterior, internacional, Fed, FMI]
+
+  - id: finance
+    name: Finanças
+    subareas:
+      - id: finance.markets
+        name: Mercado
+        keywords: [Ibovespa, bolsa, B3, dólar, ações, mercado, Wall Street]
+      - id: finance.investing
+        name: Investimentos
+        keywords: [investimento, investir, CDB, Tesouro Direto, renda fixa, fundos, FII, dividendos, LCI, LCA, previdência privada]
+      - id: finance.personal
+        name: Finanças pessoais
+        keywords: [dívida, endividamento, orçamento, reserva de emergência, imposto de renda, FGTS, cartão de crédito, aposentadoria, salário, Pix]
+
+  - id: health
+    name: Saúde
+    subareas:
+      - id: health.medicine
+        name: Medicina
+        keywords: []
+      - id: health.nutrition
+        name: Nutrição
+        keywords: [alimentação, alimento, dieta, nutrição, nutricional, açúcar, obesidade, vitamina, ultraprocessados]
+      - id: health.mental
+        name: Saúde mental
+        keywords: [saúde mental, ansiedade, depressão, burnout, estresse, sono, insônia, suicídio, psicólogo, psiquiatria]
+
+sources:
+  # --- Notícias (RSS) ---
+  - {id: tecnoblog, name: Tecnoblog, kind: news, type: rss, url: "https://tecnoblog.net/feed/", area: tech, default_subarea: tech.hardware, weight: 1.0}
+  - {id: techcrunch-ai, name: TechCrunch, kind: news, type: rss, url: "https://techcrunch.com/category/artificial-intelligence/feed/", area: tech, default_subarea: tech.ai, weight: 1.0}
+  - {id: ars-technica, name: Ars Technica, kind: news, type: rss, url: "https://feeds.arstechnica.com/arstechnica/index", area: tech, default_subarea: tech.hardware, weight: 0.9}
+  - {id: agenciabrasil-economia, name: Agência Brasil, kind: news, type: rss, url: "https://agenciabrasil.ebc.com.br/rss/economia/feed.xml", area: economy, default_subarea: economy.brazil, weight: 1.0}
+  - {id: agenciabrasil-internacional, name: Agência Brasil, kind: news, type: rss, url: "https://agenciabrasil.ebc.com.br/rss/internacional/feed.xml", area: economy, default_subarea: economy.world, weight: 0.9}
+  - {id: infomoney, name: InfoMoney, kind: news, type: rss, url: "https://www.infomoney.com.br/feed/", area: finance, default_subarea: finance.markets, weight: 1.0}
+  - {id: moneytimes, name: Money Times, kind: news, type: rss, url: "https://www.moneytimes.com.br/feed/", area: finance, default_subarea: finance.markets, weight: 0.9}
+  - {id: g1-ciencia-saude, name: G1, kind: news, type: rss, url: "https://g1.globo.com/rss/g1/ciencia-e-saude/", area: health, default_subarea: health.medicine, weight: 1.0}
+  - {id: agenciabrasil-saude, name: Agência Brasil, kind: news, type: rss, url: "https://agenciabrasil.ebc.com.br/rss/saude/feed.xml", area: health, default_subarea: health.medicine, weight: 1.0}
+  - {id: fiocruz, name: Agência Fiocruz, kind: news, type: rss, url: "https://agencia.fiocruz.br/rss.xml", area: health, default_subarea: health.medicine, weight: 1.0}
+
+  # --- Artigos (APIs) ---
+  - {id: hf-daily-papers, name: Hugging Face Daily Papers, kind: paper, type: hf_daily_papers, area: tech, default_subarea: tech.ai, weight: 1.1}
+  - {id: arxiv-cs-ai, name: arXiv, kind: paper, type: arxiv, query: "cat:cs.AI", area: tech, default_subarea: tech.ai, weight: 1.0}
+  - {id: arxiv-cs-se, name: arXiv, kind: paper, type: arxiv, query: "cat:cs.SE", area: tech, default_subarea: tech.dev, weight: 1.0}
+  - {id: arxiv-cs-cr, name: arXiv, kind: paper, type: arxiv, query: "cat:cs.CR", area: tech, default_subarea: tech.security, weight: 1.0}
+  - {id: arxiv-cs-ar, name: arXiv, kind: paper, type: arxiv, query: "cat:cs.AR", area: tech, default_subarea: tech.hardware, weight: 1.0}
+  - {id: arxiv-ml, name: arXiv, kind: paper, type: arxiv, query: "cat:cs.LG OR cat:cs.CL", area: science, default_subarea: science.ml, weight: 1.0}
+  - {id: arxiv-computing, name: arXiv, kind: paper, type: arxiv, query: "cat:cs.DS OR cat:cs.DC", area: science, default_subarea: science.computing, weight: 1.0}
+  - {id: arxiv-physics, name: arXiv, kind: paper, type: arxiv, query: "cat:quant-ph OR cat:cond-mat.mtrl-sci", area: science, default_subarea: science.physics, weight: 1.0}
+  - {id: arxiv-qbio, name: arXiv, kind: paper, type: arxiv, query: "cat:q-bio.*", area: science, default_subarea: science.biology, weight: 1.0}
+  - {id: biorxiv, name: bioRxiv, kind: paper, type: biorxiv, server: biorxiv, categories: [microbiology, genomics, neuroscience, evolutionary biology], area: science, default_subarea: science.biology, weight: 1.0}
+  - {id: medrxiv-medicine, name: medRxiv, kind: paper, type: biorxiv, server: medrxiv, categories: [infectious diseases, cardiovascular medicine, endocrinology], area: health, default_subarea: health.medicine, weight: 1.0}
+  - {id: medrxiv-nutrition, name: medRxiv, kind: paper, type: biorxiv, server: medrxiv, categories: [nutrition], area: health, default_subarea: health.nutrition, weight: 1.0}
+  - {id: medrxiv-mental, name: medRxiv, kind: paper, type: biorxiv, server: medrxiv, categories: [psychiatry and clinical psychology], area: health, default_subarea: health.mental, weight: 1.0}

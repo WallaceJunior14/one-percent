@@ -47,10 +47,15 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
   - Teste: `tests/unit/test_ranking.py` — `newer_item_ranks_higher_all_else_equal`, `story_covered_by_more_sources_ranks_higher`, `keeps_top_8_per_subarea`
   - Cobre: RF-005
 
+- [x] T024 [P] Classificar notícias de feeds gerais na subárea por palavras-chave (configuradas em `areas.yaml`)
+  - Teste: `tests/unit/test_classify.py` — `picks_subarea_with_most_keyword_matches`, `ignores_case_and_accents`, `matches_whole_words_only`, `papers_keep_source_subarea`
+  - Motivo: feeds gerais (Tecnoblog, InfoMoney, G1) misturam subáreas; o ranking é por subárea (adicionada em 2026-11-01)
+
 ### Fontes
-- [ ] T030 Verificar URLs e termos de uso de cada fonte da tabela do plan; registrar em `config/areas.yaml` só as aprovadas
+- [x] T030 Verificar URLs e termos de uso de cada fonte da tabela do plan; registrar em `config/areas.yaml` só as aprovadas
   - Pronto quando: cada fonte tem URL, tipo, área/subárea e uma nota de termos de uso
   - Cobre: RNF-008
+  - Resultado: [`docs/sources.md`](../../docs/sources.md); PubMed e Hacker News adiados; G1 Tecnologia/Economia excluídos (feeds vazios)
 - [ ] T031 [P] Porta `ContentSource` + adapter RSS genérico (feedparser + defusedxml, timeout, limite de tamanho)
   - Teste: `tests/integration/test_rss_source.py` com fixtures gravadas — `parses_items`, `ignores_malformed_entry`, `fails_gracefully_on_timeout`
 - [ ] T032 [P] Adapter arXiv (API Atom por categoria)
