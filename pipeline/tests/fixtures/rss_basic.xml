@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Feed Exemplo</title>
+    <link>https://example.com/</link>
+    <item>
+      <title>Startup lança &lt;b&gt;chip&lt;/b&gt; de IA para celulares</title>
+      <link>https://example.com/noticias/chip-ia?utm_source=rss&amp;utm_medium=feed</link>
+      <pubDate>Sat, 01 Nov 2026 06:30:00 -0300</pubDate>
+      <description><![CDATA[<p>O <b>chip</b> promete economizar bateria.</p><img src="https://example.com/x.png"/>]]></description>
+    </item>
+    <item>
+      <title>Banco anuncia nova linha de crédito</title>
+      <link>https://example.com/noticias/credito</link>
+      <pubDate>Fri, 31 Oct 2026 22:00:00 +0000</pubDate>
+      <description>Linha de crédito para pequenas empresas.</description>
+    </item>
+    <item>
+      <title>Item sem link deve ser ignorado</title>
+      <pubDate>Fri, 31 Oct 2026 21:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <link>https://example.com/noticias/sem-titulo</link>
+      <pubDate>Fri, 31 Oct 2026 20:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Item sem data deve ser ignorado</title>
+      <link>https://example.com/noticias/sem-data</link>
+    </item>
+  </channel>
+</rss>

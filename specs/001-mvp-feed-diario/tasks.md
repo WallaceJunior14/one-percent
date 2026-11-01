@@ -56,15 +56,15 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
   - Pronto quando: cada fonte tem URL, tipo, área/subárea e uma nota de termos de uso
   - Cobre: RNF-008
   - Resultado: [`docs/sources.md`](../../docs/sources.md); PubMed e Hacker News adiados; G1 Tecnologia/Economia excluídos (feeds vazios)
-- [ ] T031 [P] Porta `ContentSource` + adapter RSS genérico (feedparser + defusedxml, timeout, limite de tamanho)
+- [x] T031 [P] Porta `ContentSource` + adapter RSS genérico (feedparser + defusedxml, timeout, limite de tamanho)
   - Teste: `tests/integration/test_rss_source.py` com fixtures gravadas — `parses_items`, `ignores_malformed_entry`, `fails_gracefully_on_timeout`
-- [ ] T032 [P] Adapter arXiv (API Atom por categoria)
+- [x] T032 [P] Adapter arXiv (API Atom por categoria)
   - Teste: `tests/integration/test_arxiv_source.py` — `parses_authors_and_pdf_link`, `marks_as_preprint`
-- [ ] T033 [P] Adapter PubMed (E-utilities) e bioRxiv/medRxiv
+- [x] T033 [P] Adapter bioRxiv/medRxiv (PubMed adiado — ver docs/sources.md)
   - Teste: `tests/integration/test_pubmed_source.py`, `test_biorxiv_source.py`
-- [ ] T034 [P] Adapter Hugging Face Daily Papers (com upvotes como sinal de popularidade)
+- [x] T034 [P] Adapter Hugging Face Daily Papers (com upvotes como sinal de popularidade)
   - Teste: `tests/integration/test_hf_papers_source.py`
-- [ ] T035 Coleta resiliente: falha de uma fonte é registrada no log e não interrompe as demais
+- [x] T035 Coleta resiliente: falha de uma fonte é registrada no log e não interrompe as demais
   - Teste: `tests/unit/test_collect.py` — `one_failing_source_does_not_stop_others`
 
 ### Resumo (LLM)

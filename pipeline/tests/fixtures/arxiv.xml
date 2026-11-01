@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>arXiv Query Exemplo</title>
+  <entry>
+    <id>http://arxiv.org/abs/2610.99001v1</id>
+    <updated>2026-10-30T17:59:00Z</updated>
+    <published>2026-10-30T17:59:00Z</published>
+    <title>Learning When to Defer:
+      Small Models as Routers</title>
+    <summary>  We train a small model to decide
+      when to answer and when to defer.  </summary>
+    <author><name>Ana Exemplo</name></author>
+    <author><name>Bruno Fictício</name></author>
+    <author><name>Carla Inventada</name></author>
+    <author><name>Davi Modelo</name></author>
+    <link href="https://arxiv.org/abs/2610.99001v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="https://arxiv.org/pdf/2610.99001v1" rel="related" type="application/pdf"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2610.99002v2</id>
+    <updated>2026-10-29T10:00:00Z</updated>
+    <published>2026-10-29T10:00:00Z</published>
+    <title>Cache-Oblivious Sorting Revisited</title>
+    <summary>We revisit sorting.</summary>
+    <author><name>Elena Exemplo</name></author>
+    <link href="http://arxiv.org/abs/2610.99002v2" rel="alternate" type="text/html"/>
+  </entry>
+</feed>

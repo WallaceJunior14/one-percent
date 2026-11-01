@@ -1,0 +1,6 @@
+[
+ {"paper":{"id":"2610.99003","title":"Agents that Test Before They Commit","summary":"We show agents that run tests first.","authors":[{"_id":"a1","name":"Gabi Exemplo","hidden":false},{"_id":"a2","name":"Hugo Ficticio","hidden":false}],"publishedAt":"2026-10-31T05:00:00.000Z","upvotes":87},
+  "title":"Agents that Test Before They Commit","publishedAt":"2026-10-31T09:00:00.000Z","numComments":3},
+ {"paper":{"id":"2610.99004","title":"A Quiet Paper","summary":"Nobody upvoted this.","authors":[{"_id":"a3","name":"Iris Exemplo","hidden":false}],"publishedAt":"2026-10-30T05:00:00.000Z","upvotes":0},
+  "title":"A Quiet Paper","publishedAt":"2026-10-31T09:00:00.000Z","numComments":0}
+]

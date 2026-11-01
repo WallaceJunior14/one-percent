@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rss [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+<rss version="2.0">
+  <channel>
+    <title>Feed malicioso</title>
+    <item>
+      <title>&xxe;</title>
+      <link>https://example.com/x</link>
+      <pubDate>Sat, 01 Nov 2026 06:30:00 +0000</pubDate>
+    </item>
+  </channel>
+</rss>

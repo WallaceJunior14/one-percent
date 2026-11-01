@@ -1,0 +1,5 @@
+{"messages":[{"status":"ok","category":"nutrition","interval":"2026-10-25:2026-11-01","cursor":0,"count":2,"total":"2"}],
+ "collection":[
+  {"doi":"10.1101/2026.10.29.99001","title":"Short post-meal walks and glycemic control","authors":"Exemplo, A.; Ficticio, B. C.; Inventado, D.; Modelo, E.;","author_corresponding":"A Exemplo","author_corresponding_institution":"Universidade Exemplo","date":"2026-10-29","version":"2","type":"new results","license":"cc_by","category":"nutrition","jatsxml":"https://example.org/x.xml","abstract":"A randomized trial of <i>short walks</i> after meals.","published":"NA","server":"medRxiv"},
+  {"doi":"10.1101/2026.10.30.99002","title":"Diet quality in adolescents","authors":"Silva, F.","author_corresponding":"F Silva","author_corresponding_institution":"Instituto Exemplo","date":"2026-10-30","version":"1","type":"new results","license":"cc_by_nc_nd","category":"nutrition","jatsxml":"https://example.org/y.xml","abstract":"Cross-sectional study.","published":"10.1000/journal.example.1","server":"medRxiv"}
+ ]}
