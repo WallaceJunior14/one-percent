@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write # publicar no branch gh-pages
+  id-token: write # token OIDC do GitHub para a federação com a Anthropic (ADR 0004)
 
 concurrency:
   group: daily-content
@@ -23,6 +24,15 @@ jobs:
     timeout-minutes: 75
     env:
       FAKE: ${{ github.event_name == 'workflow_dispatch' && inputs.fake }}
+      # Federação de identidade (ADR 0004): ids não secretos, em Settings > Variables > Actions.
+      # Não defina ANTHROPIC_API_KEY neste workflow: mesmo vazia, ela tem prioridade sobre a
+      # federação no SDK.
+      ANTHROPIC_FEDERATION_RULE_ID: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
+      ANTHROPIC_ORGANIZATION_ID: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
+      ANTHROPIC_SERVICE_ACCOUNT_ID: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
+      ANTHROPIC_WORKSPACE_ID: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
+      ANTHROPIC_IDENTITY_TOKEN_FILE: ${{ runner.temp }}/oidc/anthropic-jwt
+      OIDC_AUDIENCE: https://api.anthropic.com
     steps:
       - uses: actions/checkout@v5
 
@@ -35,13 +45,16 @@ jobs:
       - name: Install pipeline
         run: pip install -e pipeline
 
-      - name: Require API key for real runs
+      - name: Require federation settings for real runs
         if: env.FAKE != 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          if [ -z "$ANTHROPIC_API_KEY" ]; then
-            echo "::error::Secret ANTHROPIC_API_KEY não configurado (Settings > Secrets and variables > Actions)."
+          missing=""
+          for name in ANTHROPIC_FEDERATION_RULE_ID ANTHROPIC_ORGANIZATION_ID \
+                      ANTHROPIC_SERVICE_ACCOUNT_ID ANTHROPIC_WORKSPACE_ID; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Variables não configuradas:$missing (Settings > Secrets and variables > Actions > Variables). Veja docs/adr/0004."
             exit 1
           fi
 
@@ -58,11 +71,29 @@ jobs:
 
       - name: Generate content (up to 2 attempts)
         working-directory: pipeline
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
+          unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN
           args="run --out ../site"
-          if [ "$FAKE" = "true" ]; then args="$args --fake"; fi
+
+          if [ "$FAKE" = "true" ]; then
+            args="$args --fake"
+          else
+            # O token do GitHub vale ~5 min e cada um só pode ser trocado uma vez; o acesso da
+            # Anthropic dura no máximo o dobro do tempo restante dele. Um token novo a cada 60 s
+            # garante que o SDK sempre encontre um token não usado quando renovar o acesso.
+            mkdir -p "$(dirname "$ANTHROPIC_IDENTITY_TOKEN_FILE")"
+            fetch_token() {
+              curl -sSf -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+                "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$OIDC_AUDIENCE" \
+                | jq -er .value > "$ANTHROPIC_IDENTITY_TOKEN_FILE.tmp" \
+                && mv "$ANTHROPIC_IDENTITY_TOKEN_FILE.tmp" "$ANTHROPIC_IDENTITY_TOKEN_FILE"
+            }
+            fetch_token
+            ( while sleep 60; do fetch_token || echo "::warning::Falha ao renovar o token OIDC."; done ) &
+            refresher=$!
+            trap 'kill $refresher 2>/dev/null; rm -f "$ANTHROPIC_IDENTITY_TOKEN_FILE"' EXIT
+          fi
+
           for attempt in 1 2; do
             if python -m one_percent $args; then exit 0; fi
             echo "::warning::Tentativa $attempt não publicou o dia."

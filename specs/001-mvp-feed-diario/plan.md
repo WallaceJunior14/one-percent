@@ -220,7 +220,7 @@ Só o Haiku 5.5 cabe no orçamento, e com folga. O pipeline usa a **Batch API** 
 | Resumo do LLM impreciso ou inventado | Entrada restrita a título + abstract; schema; links e metadados nunca vêm do LLM; revisão semanal por amostra |
 | Fonte muda o formato ou sai do ar | Um adapter por fonte, com testes de fixture; falha de uma fonte não derruba o pipeline (é registrada no log e o resto segue) |
 | Cron do GitHub atrasa ou falha | Rodar às 05h; retry; o app usa o último conteúdo (RNF-006) |
-| Repositório público expõe código | Não há segredo no código; a chave da Anthropic fica em *Actions secrets*. Se o repo precisar ser privado, troca-se o Pages por Cloudflare Pages/R2 (mesmo contrato) |
+| Repositório público expõe código | Não há segredo no código nem no repositório: o GitHub Actions autentica na Anthropic por federação de identidade (ADR 0004). Se o repo precisar ser privado, troca-se o Pages por Cloudflare Pages/R2 (mesmo contrato) |
 | Termos de uso das fontes | Verificar cada fonte na task de setup; só RSS/API públicos; nunca republicar o texto integral |
 
 ADRs a registrar com `dev-docs` na fase de setup: **0001** conteúdo estático por dia + personalização no app; **0002** Expo como stack mobile; **0003** Haiku 5.5 + Batch API para os resumos.
@@ -234,3 +234,4 @@ ADRs a registrar com `dev-docs` na fase de setup: **0001** conteúdo estático p
 | 2026-10-31 | Rotas em `app/src/app/` (convenção do Expo SDK 58 com pasta `src`) | Documentação do Expo Router |
 | 2026-11-01 | zod para validar o contrato no app | Compatibilidade com Hermes; tipos inferidos do mesmo schema |
 | 2026-11-01 | `latest.json` é uma cópia completa do dia (não um ponteiro); cota de tipo no ranking; G1 Ciência e Saúde trocado por Drauzio Varella, Medical Xpress e ScienceDaily | Uma requisição no app; balanço notícias/artigos; feed do G1 abandonado |
+| 2026-11-05 | Autenticação do pipeline por federação de identidade (WIF) em vez de chave em *Actions secrets* | Sem segredo fixo num repositório público (ADR 0004) |

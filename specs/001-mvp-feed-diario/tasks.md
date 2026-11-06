@@ -87,7 +87,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
   - Cobre: RNF-006
 - [x] T052 CLI `run --date` + pipeline completo com `FakeSummarizer`
   - Teste: `tests/integration/test_pipeline_e2e.py` — fixtures de todas as fontes → JSON válido com ≥ 15 cards
-- [ ] T053 Workflow `daily-content.yml`: cron 08:00 UTC + `workflow_dispatch`, retry, `ANTHROPIC_API_KEY` em secrets, `permissions` mínimas, publica em `gh-pages`
+- [ ] T053 Workflow `daily-content.yml`: cron 08:00 UTC + `workflow_dispatch`, retry, autenticação por federação de identidade (ADR 0004), `permissions` mínimas, publica em `gh-pages`
   - Pronto quando: um disparo manual publica `latest.json` acessível via HTTPS
   - Cobre: RF-001
 

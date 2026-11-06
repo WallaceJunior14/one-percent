@@ -56,10 +56,14 @@ pip install -e ".[dev]"
 | Comando | O que faz |
 |---|---|
 | `python -m one_percent run --fake --out out` | roda o pipeline com fontes reais e resumos falsos (sem custo); gera `out/latest.json` |
-| `python -m one_percent run --limit 3 --out out` | roda com o LLM real em só 3 itens (exige `ANTHROPIC_API_KEY`) |
+| `python -m one_percent run --limit 3 --out out` | roda com o LLM real em só 3 itens (exige credencial local: `ANTHROPIC_API_KEY` ou `ant auth login`) |
 | `pytest` | testes |
 | `ruff check .` / `ruff format .` | lint / formatação |
 | `mypy` | checagem de tipos (strict) |
+
+## Execução diária
+
+O workflow [`daily-content.yml`](.github/workflows/daily-content.yml) roda às 05h (Brasília) e publica o JSON no branch `gh-pages`. Ele se autentica na Anthropic por **federação de identidade**, sem chave guardada no repositório ([ADR 0004](docs/adr/0004-federacao-de-identidade.md)). Requer as *variables* `ANTHROPIC_FEDERATION_RULE_ID`, `ANTHROPIC_ORGANIZATION_ID`, `ANTHROPIC_SERVICE_ACCOUNT_ID` e `ANTHROPIC_WORKSPACE_ID` em *Settings → Secrets and variables → Actions → Variables*.
 
 ## Metodologia
 
