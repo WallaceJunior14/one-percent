@@ -31,7 +31,6 @@ jobs:
       ANTHROPIC_ORGANIZATION_ID: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
       ANTHROPIC_SERVICE_ACCOUNT_ID: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
       ANTHROPIC_WORKSPACE_ID: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
-      ANTHROPIC_IDENTITY_TOKEN_FILE: ${{ runner.temp }}/oidc/anthropic-jwt
       OIDC_AUDIENCE: https://api.anthropic.com
     steps:
       - uses: actions/checkout@v5
@@ -81,6 +80,8 @@ jobs:
             # O token do GitHub vale ~5 min e cada um só pode ser trocado uma vez; o acesso da
             # Anthropic dura no máximo o dobro do tempo restante dele. Um token novo a cada 60 s
             # garante que o SDK sempre encontre um token não usado quando renovar o acesso.
+            # Fora do workspace, para nunca entrar num commit do gh-pages.
+            export ANTHROPIC_IDENTITY_TOKEN_FILE="$RUNNER_TEMP/oidc/anthropic-jwt"
             mkdir -p "$(dirname "$ANTHROPIC_IDENTITY_TOKEN_FILE")"
             fetch_token() {
               curl -sSf -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
