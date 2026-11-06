@@ -16,9 +16,12 @@ Configuração no Claude Console (*Settings → Workload identity → Connect wo
 | Item | Valor |
 |---|---|
 | Issuer | `https://token.actions.githubusercontent.com` (modo `discovery`) |
-| `subject_prefix` | `repo:WallaceJunior14/one-percent:ref:refs/heads/main` |
+| `subject_prefix` | `repo:WallaceJunior14@40186223/one-percent@1441433068:ref:refs/heads/main` |
 | `audience` | `https://api.anthropic.com` |
 | `claims` | `repository_owner: WallaceJunior14` |
+| Eventos (`event_name`) | `schedule` e `workflow_dispatch` (o workflow nunca roda por `push`) |
+
+O GitHub emite o `sub` no formato com **IDs imutáveis** (`<dono>@<id>/<repo>@<id>`). O formato sem IDs (`repo:WallaceJunior14/one-percent:...`) não casa e a troca falha com o motivo `match_subject_prefix`. Os IDs também impedem que um repositório recriado com o mesmo nome herde o acesso.
 | `oauth_scope` | `workspace:inference` (o pipeline só chama a API de mensagens) |
 | `token_lifetime_seconds` | `600` |
 
