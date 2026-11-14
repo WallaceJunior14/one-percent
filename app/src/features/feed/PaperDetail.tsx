@@ -4,7 +4,7 @@ import type { PaperCard as PaperCardData } from '@/features/content/contract';
 import { formatShortDate } from '@/shared/lib/dates';
 import { openExternalUrl } from '@/shared/lib/links';
 import { useTheme } from '@/shared/ui/theme';
-import { Badge, CardFrame, LinkButton, Section, useCardStyles } from './cardParts';
+import { Badge, DetailBody, LinkButton, Section, useCardStyles } from './cardParts';
 
 type Props = {
   card: PaperCardData;
@@ -12,14 +12,14 @@ type Props = {
   onOpenUrl?(url: string): void;
 };
 
-/** Card de artigo científico (H2-1, H2-2): método, resultado e limitações com destaque. */
-export function PaperCard({ card, areaName, onOpenUrl = openExternalUrl }: Props) {
+/** Conteúdo completo do artigo, no painel de detalhe (H2-1, H2-2): método, resultado e limitações com destaque. */
+export function PaperDetail({ card, areaName, onOpenUrl = openExternalUrl }: Props) {
   const styles = useCardStyles();
   const { colors } = useTheme();
   const authors = `${card.authors.join(', ')}${card.authorsTruncated ? ' et al.' : ''}`;
   const { pdfUrl } = card;
   return (
-    <CardFrame>
+    <DetailBody>
       <View style={styles.row}>
         <Badge label="Artigo científico" color={colors.paper} />
         <Badge label={areaName} />
@@ -40,6 +40,6 @@ export function PaperCard({ card, areaName, onOpenUrl = openExternalUrl }: Props
       <Section label="Por que importa" text={card.whyItMatters} />
       <LinkButton label="Ler o artigo" onPress={() => onOpenUrl(card.url)} />
       {pdfUrl && <LinkButton label="Abrir o PDF" onPress={() => onOpenUrl(pdfUrl)} />}
-    </CardFrame>
+    </DetailBody>
   );
 }

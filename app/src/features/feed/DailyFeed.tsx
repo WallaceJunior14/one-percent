@@ -91,22 +91,13 @@ export function DailyFeed({ deps, onNeedOnboarding, onFinished, onEditAreas }: P
       );
     case 'ready':
       return (
-        <View style={styles.screen}>
-          <FeedScreen
-            cards={state.cards}
-            areaNames={state.areaNames}
-            stale={state.stale}
-            onFinished={onFinished}
-          />
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Editar áreas"
-            onPress={onEditAreas}
-            style={styles.editAreas}
-          >
-            <Text style={styles.editAreasLabel}>Áreas</Text>
-          </Pressable>
-        </View>
+        <FeedScreen
+          cards={state.cards}
+          areaNames={state.areaNames}
+          stale={state.stale}
+          onFinished={onFinished}
+          onEditAreas={onEditAreas}
+        />
       );
   }
 }
@@ -132,7 +123,5 @@ function makeStyles({ colors, spacing }: Theme) {
       backgroundColor: colors.primary,
     },
     buttonLabel: { fontSize: 17, fontWeight: '700', color: colors.onPrimary },
-    editAreas: { position: 'absolute', top: spacing(4.5), left: spacing(2), padding: spacing(0.5) },
-    editAreasLabel: { fontSize: 13, fontWeight: '700', color: colors.primary },
   });
 }

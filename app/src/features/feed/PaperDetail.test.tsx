@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import sampleDay from '../../../../contracts/examples/sample-day.json';
 import { type PaperCard as PaperCardData, parseDailyContent } from '@/features/content/contract';
-import { PaperCard } from './PaperCard';
+import { PaperDetail } from './PaperDetail';
 
 const papers = parseDailyContent(sampleDay).cards.filter(
   (c): c is PaperCardData => c.type === 'paper',
@@ -11,7 +11,7 @@ const preprint = papers.find((p) => p.id === 'c_000000000003')!; // 3 autores + 
 const published = papers.find((p) => p.id === 'c_000000000004')!; // revisado, sem PDF
 
 async function renderCard(card: PaperCardData, onOpenUrl = jest.fn()) {
-  await render(<PaperCard card={card} areaName="Tecnologia" onOpenUrl={onOpenUrl} />);
+  await render(<PaperDetail card={card} areaName="Tecnologia" onOpenUrl={onOpenUrl} />);
   return onOpenUrl;
 }
 

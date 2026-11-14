@@ -1,17 +1,11 @@
 import type { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { type Theme, useTheme } from '@/shared/ui/theme';
 
-/** Moldura comum dos cards: ocupa a página do feed e rola se o texto for longo. */
-export function CardFrame({ children }: { children: ReactNode }) {
-  const theme = useTheme();
-  const styles = makeStyles(theme);
-  return (
-    <ScrollView style={styles.frame} contentContainerStyle={styles.content}>
-      {children}
-    </ScrollView>
-  );
+/** Corpo do painel de detalhe; a rolagem fica por conta do painel. */
+export function DetailBody({ children }: { children: ReactNode }) {
+  return <View style={makeStyles(useTheme()).detail}>{children}</View>;
 }
 
 export function Badge({ label, color }: { label: string; color?: string }) {
@@ -54,8 +48,7 @@ export function useCardStyles() {
 
 function makeStyles({ colors, spacing }: Theme) {
   return StyleSheet.create({
-    frame: { flex: 1, backgroundColor: colors.background },
-    content: { padding: spacing(3), paddingTop: spacing(6), gap: spacing(1.5) },
+    detail: { gap: spacing(1.5) },
     row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(1), alignItems: 'center' },
     badge: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 },
     title: { fontSize: 24, fontWeight: '700', color: colors.text, lineHeight: 30 },

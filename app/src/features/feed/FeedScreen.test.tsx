@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, within } from '@testing-library/react-native';
 
 import sampleDay from '../../../../contracts/examples/sample-day.json';
 import { parseDailyContent } from '@/features/content/contract';
@@ -11,8 +11,15 @@ const PAGE_HEIGHT = 800;
 
 async function setup(props: { stale?: boolean } = {}) {
   const onFinished = jest.fn();
+  const onEditAreas = jest.fn();
   await render(
-    <FeedScreen cards={cards} areaNames={areaNames} onFinished={onFinished} {...props} />,
+    <FeedScreen
+      cards={cards}
+      areaNames={areaNames}
+      onFinished={onFinished}
+      onEditAreas={onEditAreas}
+      {...props}
+    />,
   );
   const list = screen.getByTestId('feed-list');
   await fireEvent(list, 'layout', { nativeEvent: { layout: { width: 400, height: PAGE_HEIGHT } } });
@@ -24,7 +31,7 @@ async function setup(props: { stale?: boolean } = {}) {
         contentSize: { width: 400, height: (cards.length + 1) * PAGE_HEIGHT },
       },
     });
-  return { onFinished, scrollToPage };
+  return { onFinished, onEditAreas, scrollToPage };
 }
 
 test('shows_one_card_per_page_starting_with_the_first', async () => {
@@ -71,4 +78,26 @@ test('shows_warning_for_previous_day_content', async () => {
   await setup({ stale: true });
 
   expect(screen.getByText(/conteúdo de hoje ainda não chegou/i)).toBeOnTheScreen();
+});
+
+test('header_holds_areas_button_and_progress_outside_the_cards', async () => {
+  const { onEditAreas } = await setup();
+
+  const header = within(screen.getByTestId('feed-header'));
+  expect(header.getByText('1 de 3')).toBeOnTheScreen();
+  await fireEvent.press(header.getByRole('button', { name: 'Editar áreas' }));
+
+  expect(onEditAreas).toHaveBeenCalledTimes(1);
+});
+
+test('opens_and_closes_detail_on_card_press', async () => {
+  await setup();
+  const card = cards[0];
+  expect(screen.queryByText(card.whyItMatters)).toBeNull();
+
+  await fireEvent.press(screen.getByRole('button', { name: `Ler mais: ${card.title}` }));
+  expect(screen.getByText(card.whyItMatters)).toBeOnTheScreen();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Fechar' }));
+  expect(screen.queryByText(card.whyItMatters)).toBeNull();
 });

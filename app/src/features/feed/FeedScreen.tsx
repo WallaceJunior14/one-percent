@@ -12,27 +12,31 @@ import {
 
 import type { Card } from '@/features/content/contract';
 import { type Theme, useTheme } from '@/shared/ui/theme';
-import { NewsCard } from './NewsCard';
-import { PaperCard } from './PaperCard';
+import { CardDetailSheet } from './CardDetailSheet';
+import { CardPreview } from './CardPreview';
 
 type Props = {
   cards: Card[];
   areaNames: Record<string, string>;
-  /** Conteúdo de um dia anterior (H1-4): mostra um aviso no topo. */
+  /** Conteúdo de um dia anterior (H1-4): mostra um aviso abaixo da barra superior. */
   stale?: boolean;
   /** Chamado uma vez, quando a pessoa passa do último card (H1-3). */
   onFinished(): void;
+  onEditAreas(): void;
   onOpenUrl?(url: string): void;
 };
 
 type Page = { kind: 'card'; card: Card } | { kind: 'end' };
 
-/** Feed vertical e finito: um card por página e, no fim, uma página de conclusão. */
-export function FeedScreen({ cards, areaNames, stale, onFinished, onOpenUrl }: Props) {
-  const theme = useTheme();
-  const styles = makeStyles(theme);
+/**
+ * Feed vertical e finito: barra superior (áreas e progresso), um card compacto por página,
+ * painel de detalhe ao tocar (H1-2a) e uma página de conclusão no fim.
+ */
+export function FeedScreen({ cards, areaNames, stale, onFinished, onEditAreas, onOpenUrl }: Props) {
+  const styles = makeStyles(useTheme());
   const [pageHeight, setPageHeight] = useState(0);
   const [pageIndex, setPageIndex] = useState(0);
+  const [openCard, setOpenCard] = useState<Card | null>(null);
   const finished = useRef(false);
 
   const pages: Page[] = [
@@ -58,7 +62,7 @@ export function FeedScreen({ cards, areaNames, stale, onFinished, onOpenUrl }: P
   };
 
   const renderPage = ({ item }: { item: Page }) => (
-    <View style={{ height: pageHeight }}>
+    <View style={[styles.page, { height: pageHeight }]}>
       {item.kind === 'end' ? (
         <View style={styles.end}>
           <Text style={styles.endTitle}>Você chegou ao fim de hoje</Text>
@@ -67,17 +71,11 @@ export function FeedScreen({ cards, areaNames, stale, onFinished, onOpenUrl }: P
             <Text style={styles.endButtonLabel}>Ver o resumo do dia</Text>
           </Pressable>
         </View>
-      ) : item.card.type === 'paper' ? (
-        <PaperCard
-          card={item.card}
-          areaName={areaNames[item.card.areaId] ?? ''}
-          onOpenUrl={onOpenUrl}
-        />
       ) : (
-        <NewsCard
+        <CardPreview
           card={item.card}
           areaName={areaNames[item.card.areaId] ?? ''}
-          onOpenUrl={onOpenUrl}
+          onOpen={setOpenCard}
         />
       )}
     </View>
@@ -85,6 +83,22 @@ export function FeedScreen({ cards, areaNames, stale, onFinished, onOpenUrl }: P
 
   return (
     <View style={styles.screen}>
+      <View testID="feed-header" style={styles.header}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Editar áreas"
+          onPress={onEditAreas}
+          hitSlop={8}
+          style={styles.areasButton}
+        >
+          <Text style={styles.areasLabel}>Áreas</Text>
+        </Pressable>
+        {pageIndex < cards.length && (
+          <Text style={styles.progress} accessibilityLiveRegion="polite">
+            {pageIndex + 1} de {cards.length}
+          </Text>
+        )}
+      </View>
       {stale && (
         <Text style={styles.warning}>
           O conteúdo de hoje ainda não chegou. Você está vendo o mais recente disponível.
@@ -101,11 +115,12 @@ export function FeedScreen({ cards, areaNames, stale, onFinished, onOpenUrl }: P
         onMomentumScrollEnd={onMomentumScrollEnd}
         getItemLayout={(_, index) => ({ length: pageHeight, offset: pageHeight * index, index })}
       />
-      {pageIndex < cards.length && (
-        <Text style={styles.progress} accessibilityLiveRegion="polite">
-          {pageIndex + 1} de {cards.length}
-        </Text>
-      )}
+      <CardDetailSheet
+        card={openCard}
+        areaName={openCard ? (areaNames[openCard.areaId] ?? '') : ''}
+        onClose={() => setOpenCard(null)}
+        onOpenUrl={onOpenUrl}
+      />
     </View>
   );
 }
@@ -113,21 +128,34 @@ export function FeedScreen({ cards, areaNames, stale, onFinished, onOpenUrl }: P
 function makeStyles({ colors, spacing }: Theme) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing(2),
+      paddingTop: spacing(5),
+      paddingBottom: spacing(1),
+    },
+    areasButton: {
+      paddingHorizontal: spacing(1.5),
+      paddingVertical: spacing(0.75),
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    areasLabel: { fontSize: 14, fontWeight: '700', color: colors.text },
+    progress: { fontSize: 14, color: colors.textMuted },
     warning: {
+      marginHorizontal: spacing(2),
+      marginBottom: spacing(1),
+      padding: spacing(1.5),
+      borderRadius: 12,
       backgroundColor: colors.surface,
       color: colors.warning,
-      padding: spacing(1.5),
-      paddingTop: spacing(5),
       fontSize: 14,
       textAlign: 'center',
     },
-    progress: {
-      position: 'absolute',
-      top: spacing(5),
-      right: spacing(2),
-      fontSize: 13,
-      color: colors.textMuted,
-    },
+    page: { paddingHorizontal: spacing(2), paddingVertical: spacing(1.5) },
     end: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing(4), gap: 12 },
     endTitle: { fontSize: 26, fontWeight: '700', color: colors.text, textAlign: 'center' },
     endText: { fontSize: 16, color: colors.textMuted, textAlign: 'center' },

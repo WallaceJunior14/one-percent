@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import type { NewsCard as NewsCardData } from '@/features/content/contract';
 import { formatShortDate } from '@/shared/lib/dates';
 import { openExternalUrl } from '@/shared/lib/links';
-import { Badge, CardFrame, LinkButton, Section, useCardStyles } from './cardParts';
+import { Badge, DetailBody, LinkButton, Section, useCardStyles } from './cardParts';
 
 type Props = {
   card: NewsCardData;
@@ -11,11 +11,11 @@ type Props = {
   onOpenUrl?(url: string): void;
 };
 
-/** Card de notícia (H1-2): textos do LLM exibidos como texto puro; link sempre da fonte. */
-export function NewsCard({ card, areaName, onOpenUrl = openExternalUrl }: Props) {
+/** Conteúdo completo da notícia, no painel de detalhe (H1-2a): textos do LLM exibidos como texto puro; link sempre da fonte. */
+export function NewsDetail({ card, areaName, onOpenUrl = openExternalUrl }: Props) {
   const styles = useCardStyles();
   return (
-    <CardFrame>
+    <DetailBody>
       <View style={styles.row}>
         <Badge label={areaName} />
       </View>
@@ -26,6 +26,6 @@ export function NewsCard({ card, areaName, onOpenUrl = openExternalUrl }: Props)
       <Text style={styles.body}>{card.summary}</Text>
       <Section label="Por que importa" text={card.whyItMatters} />
       <LinkButton label="Ler a matéria original" onPress={() => onOpenUrl(card.url)} />
-    </CardFrame>
+    </DetailBody>
   );
 }

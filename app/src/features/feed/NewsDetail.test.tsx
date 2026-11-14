@@ -2,14 +2,14 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import sampleDay from '../../../../contracts/examples/sample-day.json';
 import { type NewsCard as NewsCardData, parseDailyContent } from '@/features/content/contract';
-import { NewsCard } from './NewsCard';
+import { NewsDetail } from './NewsDetail';
 
 const card = parseDailyContent(sampleDay).cards.find(
   (c): c is NewsCardData => c.id === 'c_000000000001',
 )!;
 
 test('renders_all_fields', async () => {
-  await render(<NewsCard card={card} areaName="Tecnologia" onOpenUrl={jest.fn()} />);
+  await render(<NewsDetail card={card} areaName="Tecnologia" onOpenUrl={jest.fn()} />);
 
   expect(screen.getByText('Tecnologia')).toBeOnTheScreen();
   expect(screen.getByText(card.title)).toBeOnTheScreen();
@@ -22,7 +22,7 @@ test('renders_all_fields', async () => {
 
 test('opens_original_link', async () => {
   const onOpenUrl = jest.fn();
-  await render(<NewsCard card={card} areaName="Tecnologia" onOpenUrl={onOpenUrl} />);
+  await render(<NewsDetail card={card} areaName="Tecnologia" onOpenUrl={onOpenUrl} />);
 
   await fireEvent.press(screen.getByRole('link', { name: 'Ler a matéria original' }));
 
