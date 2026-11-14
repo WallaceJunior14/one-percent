@@ -95,8 +95,8 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 ## Fase 3 — App P1 (H1–H4)
 
 ### Conteúdo
-- [ ] T060 `ContentApi` (HTTP) + `KeyValueStore` (AsyncStorage) + `Clock` como interfaces injetáveis, com fakes para teste
-- [ ] T061 `resolveContent`: hoje → cache de hoje → último disponível com aviso → estado vazio
+- [x] T060 `ContentApi` (HTTP) + `KeyValueStore` (AsyncStorage) + `Clock` como interfaces injetáveis, com fakes para teste
+- [x] T061 `resolveContent`: hoje → cache de hoje → último disponível com aviso → estado vazio
   - Teste: `content/resolveContent.test.ts` — `uses_today_from_network`, `falls_back_to_cache_offline`, `shows_previous_day_with_warning`, `empty_state_when_nothing_available`
   - Cobre: H1-4, RNF-002, RNF-006
 
