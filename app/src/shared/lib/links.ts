@@ -1,4 +1,4 @@
-import { Linking } from 'react-native';
+import { Alert, Linking } from 'react-native';
 
 const HTTPS = /^https:\/\/\S+$/i;
 
@@ -8,7 +8,8 @@ const HTTPS = /^https:\/\/\S+$/i;
  */
 export async function openExternalUrl(
   url: string,
-  open: (url: string) => Promise<unknown> = Linking.openURL,
+  // Arrow function de propósito: `Linking.openURL` depende de `this` e falha se chamada solta.
+  open: (url: string) => Promise<unknown> = (target) => Linking.openURL(target),
 ): Promise<boolean> {
   if (!HTTPS.test(url)) return false;
   try {
@@ -16,5 +17,19 @@ export async function openExternalUrl(
     return true;
   } catch {
     return false;
+  }
+}
+
+/** Abre o link e avisa a pessoa se não for possível, em vez de falhar em silêncio. */
+export async function openUrlOrWarn(
+  url: string,
+  open?: (url: string) => Promise<unknown>,
+  alert: (title: string, message: string) => void = (title, message) => Alert.alert(title, message),
+): Promise<void> {
+  if (!(await openExternalUrl(url, open))) {
+    alert(
+      'Não foi possível abrir o link',
+      'Verifique se há um navegador instalado e tente de novo.',
+    );
   }
 }

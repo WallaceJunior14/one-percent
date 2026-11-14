@@ -2,7 +2,7 @@ import { Text, View } from 'react-native';
 
 import type { PaperCard as PaperCardData } from '@/features/content/contract';
 import { formatShortDate } from '@/shared/lib/dates';
-import { openExternalUrl } from '@/shared/lib/links';
+import { openUrlOrWarn } from '@/shared/lib/links';
 import { useTheme } from '@/shared/ui/theme';
 import { Badge, DetailBody, LinkButton, Section, useCardStyles } from './cardParts';
 
@@ -13,7 +13,7 @@ type Props = {
 };
 
 /** Conteúdo completo do artigo, no painel de detalhe (H2-1, H2-2): método, resultado e limitações com destaque. */
-export function PaperDetail({ card, areaName, onOpenUrl = openExternalUrl }: Props) {
+export function PaperDetail({ card, areaName, onOpenUrl = openUrlOrWarn }: Props) {
   const styles = useCardStyles();
   const { colors } = useTheme();
   const authors = `${card.authors.join(', ')}${card.authorsTruncated ? ' et al.' : ''}`;

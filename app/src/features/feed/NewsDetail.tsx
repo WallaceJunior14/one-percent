@@ -2,7 +2,7 @@ import { Text, View } from 'react-native';
 
 import type { NewsCard as NewsCardData } from '@/features/content/contract';
 import { formatShortDate } from '@/shared/lib/dates';
-import { openExternalUrl } from '@/shared/lib/links';
+import { openUrlOrWarn } from '@/shared/lib/links';
 import { Badge, DetailBody, LinkButton, Section, useCardStyles } from './cardParts';
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
 };
 
 /** Conteúdo completo da notícia, no painel de detalhe (H1-2a): textos do LLM exibidos como texto puro; link sempre da fonte. */
-export function NewsDetail({ card, areaName, onOpenUrl = openExternalUrl }: Props) {
+export function NewsDetail({ card, areaName, onOpenUrl = openUrlOrWarn }: Props) {
   const styles = useCardStyles();
   return (
     <DetailBody>
