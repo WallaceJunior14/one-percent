@@ -63,7 +63,7 @@ pip install -e ".[dev]"
 
 ## Execução diária
 
-O workflow [`daily-content.yml`](.github/workflows/daily-content.yml) roda às 05h (Brasília) e publica o JSON no branch `gh-pages`. Ele se autentica na Anthropic por **federação de identidade**, sem chave guardada no repositório ([ADR 0004](docs/adr/0004-federacao-de-identidade.md)). Requer as *variables* `ANTHROPIC_FEDERATION_RULE_ID`, `ANTHROPIC_ORGANIZATION_ID`, `ANTHROPIC_SERVICE_ACCOUNT_ID` e `ANTHROPIC_WORKSPACE_ID` em *Settings → Secrets and variables → Actions → Variables*.
+O workflow [`daily-content.yml`](.github/workflows/daily-content.yml) roda às 05h (Brasília) e publica o JSON no branch `gh-pages`. Ele se autentica na Anthropic com o secret `ANTHROPIC_API_KEY`, cadastrado em *Settings → Secrets and variables → Actions → Secrets* ([ADR 0005](docs/adr/0005-chave-de-api-no-github-actions.md)).
 
 ## Metodologia
 

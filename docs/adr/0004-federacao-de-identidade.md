@@ -1,6 +1,6 @@
 # ADR 0004 — Federação de identidade (WIF) em vez de chave de API no GitHub Actions
 
-- **Status**: Aceito
+- **Status**: Substituído pelo [ADR 0005](./0005-chave-de-api-no-github-actions.md) em 2026-11-13
 - **Data**: 2026-11-05
 
 ## Contexto
