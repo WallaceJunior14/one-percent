@@ -1,9 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
 import sampleDay from '../../../../contracts/examples/sample-day.json';
 import { ContentUnavailableError, type ContentApi } from '@/features/content/contentApi';
 import { type DailyContent, parseDailyContent } from '@/features/content/contract';
 import { createPreferencesRepository, type Preferences } from '@/features/onboarding/preferences';
+import { createProgressRepository } from '@/features/streak/progress';
 import {
   contentApiFailing,
   contentApiReturning,
@@ -30,15 +31,17 @@ async function setup({
 } = {}) {
   const repository = createPreferencesRepository(createMemoryStore());
   if (preferences) await repository.save(preferences);
+  const progress = createProgressRepository(createMemoryStore(), clock);
   const deps: DailyFeedDependencies = {
     api,
     cache: createMemoryStore(),
     clock,
     preferences: repository,
+    progress,
   };
   const callbacks = { onNeedOnboarding: jest.fn(), onFinished: jest.fn(), onEditAreas: jest.fn() };
   await render(<DailyFeed deps={deps} {...callbacks} />);
-  return callbacks;
+  return { ...callbacks, progress };
 }
 
 test('shows_feed_after_loading', async () => {
@@ -102,4 +105,15 @@ test('empty_state_on_first_access_without_internet', async () => {
   await setup({ api });
 
   expect(await screen.findByRole('button', { name: 'Tentar de novo' })).toBeOnTheScreen();
+});
+
+test('completing_the_day_records_progress_before_leaving', async () => {
+  const { onFinished, progress } = await setup();
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'Concluir o dia' }));
+
+  await waitFor(() => expect(onFinished).toHaveBeenCalledTimes(1));
+  const saved = await progress.load();
+  expect(saved.completedDays).toEqual(['2026-11-01']);
+  expect(saved.lastDay?.cardsRead).toBe(15);
 });

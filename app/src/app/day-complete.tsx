@@ -1,43 +1,37 @@
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
 
-import { type Theme, useTheme } from '@/shared/ui/theme';
+import { progressRepository } from '@/dependencies';
+import { calculateStreak, type Streak } from '@/features/streak/calculateStreak';
+import { DayCompleteScreen } from '@/features/streak/DayCompleteScreen';
+import type { DaySummary } from '@/features/streak/progress';
+import { AREA_CATALOG } from '@/shared/config/areas';
+import { systemClock, toLocalDateString } from '@/shared/lib/dates';
 
-/** Versão inicial; a T092 acrescenta cards lidos, áreas cobertas e a sequência de dias. */
+const AREA_NAMES = Object.fromEntries(AREA_CATALOG.map((area) => [area.id, area.name]));
+
 export default function DayCompleteRoute() {
   const router = useRouter();
-  const styles = makeStyles(useTheme());
-  return (
-    <View style={styles.screen}>
-      <Text style={styles.title}>Dia concluído</Text>
-      <Text style={styles.text}>Você ficou 1% mais sábio hoje. Até amanhã!</Text>
-      <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.button}>
-        <Text style={styles.buttonLabel}>Rever os cards</Text>
-      </Pressable>
-    </View>
-  );
-}
+  const [view, setView] = useState<{ summary: DaySummary; streak: Streak } | null>(null);
 
-function makeStyles({ colors, spacing }: Theme) {
-  return StyleSheet.create({
-    screen: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: spacing(4),
-      gap: 12,
-      backgroundColor: colors.background,
-    },
-    title: { fontSize: 30, fontWeight: '700', color: colors.text },
-    text: { fontSize: 17, color: colors.textMuted, textAlign: 'center' },
-    button: {
-      marginTop: spacing(2),
-      paddingVertical: spacing(2),
-      paddingHorizontal: spacing(4),
-      borderRadius: 14,
-      borderWidth: 1,
-      borderColor: colors.primary,
-    },
-    buttonLabel: { fontSize: 17, fontWeight: '700', color: colors.primary },
-  });
+  useEffect(() => {
+    void progressRepository.load().then((progress) => {
+      if (progress.lastDay === null) return;
+      const today = toLocalDateString(systemClock.now());
+      setView({
+        summary: progress.lastDay,
+        streak: calculateStreak(progress.completedDays, today),
+      });
+    });
+  }, []);
+
+  if (view === null) return null;
+  return (
+    <DayCompleteScreen
+      summary={view.summary}
+      streak={view.streak}
+      areaNames={AREA_NAMES}
+      onReview={() => router.back()}
+    />
+  );
 }

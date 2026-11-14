@@ -5,6 +5,7 @@ import type { ContentApi } from '@/features/content/contentApi';
 import type { Card } from '@/features/content/contract';
 import { resolveContent } from '@/features/content/resolveContent';
 import type { PreferencesRepository } from '@/features/onboarding/preferences';
+import type { ProgressRepository } from '@/features/streak/progress';
 import type { Clock } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
 import { type Theme, useTheme } from '@/shared/ui/theme';
@@ -16,6 +17,7 @@ export type DailyFeedDependencies = {
   cache: KeyValueStore;
   clock: Clock;
   preferences: PreferencesRepository;
+  progress: ProgressRepository;
 };
 
 type Props = {
@@ -65,6 +67,12 @@ export function DailyFeed({ deps, onNeedOnboarding, onFinished, onEditAreas }: P
     };
   }, [deps, attempt, onNeedOnboarding]);
 
+  /** Registra o progresso (H4) antes de ir para a tela de dia concluído. */
+  const completeDay = async (cards: Card[]) => {
+    await deps.progress.completeDay(cards);
+    onFinished();
+  };
+
   const retry = () => {
     setState({ kind: 'loading' });
     setAttempt((n) => n + 1);
@@ -95,7 +103,7 @@ export function DailyFeed({ deps, onNeedOnboarding, onFinished, onEditAreas }: P
           cards={state.cards}
           areaNames={state.areaNames}
           stale={state.stale}
-          onFinished={onFinished}
+          onFinished={() => void completeDay(state.cards)}
           onEditAreas={onEditAreas}
         />
       );

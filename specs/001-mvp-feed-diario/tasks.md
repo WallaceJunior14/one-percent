@@ -128,12 +128,12 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
   - Cobre: H1-1, H1-3
 
 ### Dia concluído e sequência (H4)
-- [ ] T090 `calculateStreak` com dias no fuso local
+- [x] T090 `calculateStreak` com dias no fuso local
   - Teste: `streak/calculateStreak.test.ts` — `increments_when_yesterday_completed`, `resets_to_1_after_gap`, `same_day_does_not_change`, `uses_local_timezone_boundaries`, `tracks_best_streak`
   - Cobre: H4-2, H4-3, H4-4, H4-5
-- [ ] T091 Registro de progresso: dia concluído ao ver o último card; contagem de cards e artigos lidos por área
+- [x] T091 Registro de progresso: dia concluído ao tocar em "Concluir o dia" (T085); contagem de cards e artigos lidos por área
   - Teste: `streak/progressStore.test.ts` — `marks_day_complete_on_last_card`, `counts_cards_by_area`
-- [ ] T092 Tela "Dia concluído": cards lidos, áreas cobertas, sequência atual; permite rever os cards
+- [x] T092 Tela "Dia concluído": cards lidos, áreas cobertas, sequência atual; permite rever os cards
   - Teste: `streak/DayCompleteScreen.test.tsx`
   - Cobre: H4-1, H4-4
 
