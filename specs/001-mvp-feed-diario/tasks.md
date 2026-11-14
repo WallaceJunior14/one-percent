@@ -101,9 +101,9 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
   - Cobre: H1-4, RNF-002, RNF-006
 
 ### Onboarding (H3)
-- [ ] T070 Store de preferências (áreas/subáreas), persistida
+- [x] T070 Store de preferências (áreas/subáreas), persistida
   - Teste: `onboarding/preferencesStore.test.ts` — `requires_at_least_one_area`, `persists_and_restores`
-- [ ] T071 Tela de onboarding (primeiro acesso) + edição nas configurações
+- [x] T071 Tela de onboarding (primeiro acesso) + edição nas configurações
   - Teste: `onboarding/OnboardingScreen.test.tsx` — `continue_disabled_until_area_selected`, `saves_selection`
   - Cobre: H3-1, H3-2
 
@@ -111,10 +111,10 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [x] T080 `composeFeed`: 15 cards, cotas por grupo de áreas (50/50 por padrão, pesos como parâmetro), rodízio entre áreas por rank dentro do grupo, ≥ 30% de artigos quando houver, sobra de um grupo vai para o outro, determinístico
   - Teste: `feed/composeFeed.test.ts` — `returns_15_cards`, `only_selected_areas`, `splits_50_50_between_groups`, `extra_card_goes_to_science_and_technology`, `single_group_gets_all_cards`, `rotates_areas_within_group`, `short_group_is_filled_by_the_other`, `custom_group_weights_are_respected`, `at_least_30_percent_papers`, `same_input_same_output`
   - Cobre: RF-007, RF-011, H3-3 a H3-5
-- [ ] T081 [P] `NewsCard`: área, título, resumo, "por que importa", fonte, data, botão para a matéria
+- [x] T081 [P] `NewsCard`: área, título, resumo, "por que importa", fonte, data, botão para a matéria
   - Teste: `feed/NewsCard.test.tsx` — `renders_all_fields`, `opens_https_link_externally`, `blocks_non_https_link`
   - Cobre: H1-2, RF-010
-- [ ] T082 [P] `PaperCard`: selo "Artigo", títulos original e traduzido, método, resultado, limitações, autores truncados, links do artigo e do PDF, selo de preprint
+- [x] T082 [P] `PaperCard`: selo "Artigo", títulos original e traduzido, método, resultado, limitações, autores truncados, links do artigo e do PDF, selo de preprint
   - Teste: `feed/PaperCard.test.tsx` — `renders_paper_fields`, `shows_preprint_badge`, `truncates_authors_with_et_al`
   - Cobre: H2-1, H2-2
 - [ ] T083 `FeedScreen`: paginação vertical, sem conteúdo após o último card → navega para "Dia concluído"
