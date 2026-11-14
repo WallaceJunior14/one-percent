@@ -117,6 +117,9 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [x] T082 [P] `PaperCard`: selo "Artigo", títulos original e traduzido, método, resultado, limitações, autores truncados, links do artigo e do PDF, selo de preprint
   - Teste: `feed/PaperCard.test.tsx` — `renders_paper_fields`, `shows_preprint_badge`, `truncates_authors_with_et_al`
   - Cobre: H2-1, H2-2
+- [ ] T085 Feed em lista de coluna única: cards com altura natural, rolagem livre, progresso "n de 15 vistos" (por visibilidade), encerramento com "Concluir o dia"
+  - Teste: `feed/FeedScreen.test.tsx` — `lists_all_cards_in_one_column`, `counts_cards_seen`, `seen_count_never_decreases`, `finish_button_completes_the_day_once`
+  - Cobre: H1-1, H1-3, H4-1 (ajuste após o segundo teste no celular; substitui a paginação da T083)
 - [x] T084 Card compacto no feed (`CardPreview`) + painel de detalhe (`CardDetailSheet`) com rolagem; `NewsCard`/`PaperCard` viram o conteúdo do painel (`NewsDetail`/`PaperDetail`); barra superior com "Áreas" e contador, sem sobrepor o card
   - Teste: `feed/CardPreview.test.tsx`, `feed/CardDetailSheet.test.tsx`, `feed/FeedScreen.test.tsx` — `shows_essentials_and_teaser`, `opens_detail_on_press`, `closes_with_button_and_back`, `header_does_not_overlap_card`
   - Cobre: H1-2, H1-2a, H2-1 (ajuste após o primeiro teste no celular)

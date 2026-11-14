@@ -28,10 +28,10 @@ Oferecer, todos os dias, uma dose **finita** de conhecimento curado (~10 minutos
 Como usuário, quero abrir o app e ver um feed vertical com os principais assuntos do dia nas minhas áreas, para me atualizar rapidamente.
 
 **Critérios de aceite**
-1. **Dado** que há conteúdo publicado para hoje, **quando** abro o app, **então** vejo um feed vertical de cards, um por vez, que avanço deslizando.
+1. **Dado** que há conteúdo publicado para hoje, **quando** abro o app, **então** vejo uma lista vertical de cards em coluna única, cada um com a altura do seu conteúdo, com rolagem livre e o progresso "n de 15 vistos".
 2. **Dado** um card de notícia no feed, **quando** ele é exibido, **então** aparece como um card compacto, que cabe na tela, com: área, título, fonte, data e o início do resumo.
 2a. **Dado** um card no feed, **quando** toco nele, **então** abre um painel com o conteúdo completo e rolagem própria: resumo de até 3 frases, "por que importa" em 1 frase e o botão para a matéria original; o painel fecha pelo botão "Fechar" ou pelo voltar do Android.
-3. **Dado** o último card do dia, **quando** deslizo além dele, **então** não aparece mais conteúdo; aparece a tela de dia concluído (H4).
+3. **Dado** o fim da lista, **quando** chego nele, **então** não há mais conteúdo: aparece o encerramento "Você chegou ao fim de hoje" com o botão "Concluir o dia", que leva à tela de dia concluído (H4).
 4. **Dado** que não há conteúdo de hoje disponível (falha na publicação ou sem internet no primeiro acesso), **quando** abro o app, **então** vejo o conteúdo do dia anterior com um aviso, ou, se não houver nenhum, uma mensagem clara com a opção de tentar de novo.
 
 ### H2 — Ler artigos científicos explicados (P1)
@@ -69,13 +69,13 @@ Como usuário, quero escolher as áreas e subáreas que me interessam, para rece
 Como usuário, quero ver que concluí o conteúdo do dia e acompanhar minha sequência de dias, para criar o hábito.
 
 **Critérios de aceite**
-1. **Dado** que vi todos os cards do dia, **quando** chego ao fim do feed, **então** vejo a tela "Dia concluído" com: quantidade de cards lidos, áreas cobertas e a sequência atual de dias.
+1. **Dado** que cheguei ao fim do feed, **quando** toco em "Concluir o dia", **então** vejo a tela "Dia concluído" com: quantidade de cards lidos, áreas cobertas e a sequência atual de dias.
 2. **Dado** que concluí o dia ontem e concluo hoje, **quando** a tela de conclusão aparece, **então** a sequência aumenta em 1.
 3. **Dado** que não concluí o dia anterior, **quando** concluo hoje, **então** a sequência volta para 1.
 4. **Dado** que já concluí o dia, **quando** abro o app novamente no mesmo dia, **então** posso rever os cards, e a sequência não muda.
 5. O "dia" é contado no fuso horário do celular.
 
-Regra de conclusão: **ver todos os cards do feed do dia** (chegar ao último).
+Regra de conclusão: **chegar ao fim do feed do dia e tocar em "Concluir o dia"**.
 
 ### H5 — Stories por área (P2)
 
@@ -178,3 +178,4 @@ Todas as dúvidas foram resolvidas em 2026-10-31 com os valores propostos: nome 
 | 2026-10-31 | Aprovada; dúvidas resolvidas com os valores propostos | Decisão do autor |
 | 2026-11-14 | Proporção por grupo de áreas: 50% Ciência & Tecnologia, 50% Mercado & Saúde (H3-4, H3-5, RF-011); configuração dos percentuais registrada como futura | Pedido do autor: ver mais conteúdo da própria área de atuação |
 | 2026-11-14 | Card compacto no feed + painel de detalhe ao tocar (H1-2, H1-2a, H2-1) | Primeiro teste no celular: card ocupava a tela inteira e o conteúdo passava dos limites |
+| 2026-11-14 | Feed em coluna única com cards de altura natural e rolagem livre; progresso "n vistos"; conclusão pelo botão "Concluir o dia" no fim (H1-1, H1-3, H4-1) | Segundo teste no celular: card de página inteira ficava grande demais para o conteúdo |
