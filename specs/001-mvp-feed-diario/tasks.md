@@ -117,7 +117,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [x] T082 [P] `PaperCard`: selo "Artigo", títulos original e traduzido, método, resultado, limitações, autores truncados, links do artigo e do PDF, selo de preprint
   - Teste: `feed/PaperCard.test.tsx` — `renders_paper_fields`, `shows_preprint_badge`, `truncates_authors_with_et_al`
   - Cobre: H2-1, H2-2
-- [ ] T083 `FeedScreen`: paginação vertical, sem conteúdo após o último card → navega para "Dia concluído"
+- [x] T083 `FeedScreen`: paginação vertical, sem conteúdo após o último card → navega para "Dia concluído"
   - Teste: `feed/FeedScreen.test.tsx` — `shows_one_card_per_page`, `navigates_to_day_complete_after_last_card`
   - Cobre: H1-1, H1-3
 
