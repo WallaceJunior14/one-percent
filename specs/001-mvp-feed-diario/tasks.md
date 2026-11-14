@@ -74,7 +74,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [x] T041 Montagem do card: campos de texto vêm do summarizer; URL, autores, datas e fonte vêm do item original
   - Teste: `tests/unit/test_build_card.py` — `url_comes_from_source_not_llm`, `paper_card_has_method_result_limitations`, `invalid_summary_is_discarded`
   - Cobre: RF-002, RF-006, H2-3
-- [ ] T042 `AnthropicSummarizer`: Haiku 5.5, saída estruturada por JSON Schema, prompt em PT-BR restrito ao título + abstract, conteúdo delimitado como dado, Batch API, teto de tokens por execução — `claude-api`
+- [x] T042 `AnthropicSummarizer`: Haiku 5.5, saída estruturada por JSON Schema, prompt em PT-BR restrito ao título + abstract, conteúdo delimitado como dado, Batch API, teto de tokens por execução — `claude-api`
   - Teste: `tests/unit/test_anthropic_summarizer.py` com cliente fake — `builds_batch_request_with_schema`, `parses_results_by_custom_id`, `stops_at_token_budget`
   - Smoke manual: `python -m one_percent run --live --limit 3`, revisando os 3 cards gerados
   - Cobre: RF-006, RF-008, RNF-005
@@ -87,8 +87,9 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
   - Cobre: RNF-006
 - [x] T052 CLI `run --date` + pipeline completo com `FakeSummarizer`
   - Teste: `tests/integration/test_pipeline_e2e.py` — fixtures de todas as fontes → JSON válido com ≥ 15 cards
-- [ ] T053 Workflow `daily-content.yml`: cron 08:00 UTC + `workflow_dispatch`, retry, chave de API em *Actions secrets* (ADR 0005), `permissions` mínimas, publica em `gh-pages`
+- [x] T053 Workflow `daily-content.yml`: cron 08:00 UTC + `workflow_dispatch`, retry, chave de API em *Actions secrets* (ADR 0005), `permissions` mínimas, publica em `gh-pages`
   - Pronto quando: um disparo manual publica `latest.json` acessível via HTTPS
+  - Nota (2026-11-14): run 43540509397 publicou 92 cards reais em `gh-pages` (104 enviados ao LLM, 12 resumos inválidos descartados); 151.669 tokens de entrada + 54.494 de saída ≈ US$ 0,02 com Batch API. HTTPS depende de ativar o GitHub Pages
   - Cobre: RF-001
 
 ## Fase 3 — App P1 (H1–H4)
