@@ -65,6 +65,14 @@ pip install -e ".[dev]"
 
 O workflow [`daily-content.yml`](.github/workflows/daily-content.yml) roda às 05h (Brasília) e publica o JSON no branch `gh-pages`. Ele se autentica na Anthropic com o secret `ANTHROPIC_API_KEY`, cadastrado em *Settings → Secrets and variables → Actions → Secrets* ([ADR 0005](docs/adr/0005-chave-de-api-no-github-actions.md)).
 
+Conteúdo publicado (GitHub Pages):
+
+| Arquivo | URL |
+|---|---|
+| Dia mais recente | https://wallacejunior14.github.io/one-percent/latest.json |
+| Dia específico (últimos 7) | `https://wallacejunior14.github.io/one-percent/daily/AAAA-MM-DD.json` |
+| Contrato (JSON Schema) | https://wallacejunior14.github.io/one-percent/schemas/daily-content-v1.json |
+
 ## Metodologia
 
 Desenvolvido com **SDD + TDD**: nenhuma feature começa sem spec aprovada, e nenhum código sem um teste falhando antes. Especificações em [`specs/`](specs), decisões em [`docs/adr/`](docs/adr).

@@ -115,7 +115,7 @@ Regra de dependência (nos dois lados): `ui → domain ← data`. O domínio nã
 }
 ```
 
-`latest.json` aponta para o arquivo do dia mais recente publicado com sucesso. Os arquivos de dias anteriores ficam publicados por 7 dias.
+`latest.json` é uma cópia do dia mais recente publicado com sucesso. URL base: `https://wallacejunior14.github.io/one-percent/` (HTTPS obrigatório, CORS liberado, cache de 10 min). Os arquivos de dias anteriores ficam publicados por 7 dias.
 
 ## Pipeline: etapas
 
@@ -236,3 +236,4 @@ ADRs a registrar com `dev-docs` na fase de setup: **0001** conteúdo estático p
 | 2026-11-01 | `latest.json` é uma cópia completa do dia (não um ponteiro); cota de tipo no ranking; G1 Ciência e Saúde trocado por Drauzio Varella, Medical Xpress e ScienceDaily | Uma requisição no app; balanço notícias/artigos; feed do G1 abandonado |
 | 2026-11-05 | Autenticação do pipeline por federação de identidade (WIF) em vez de chave em *Actions secrets* | Sem segredo fixo num repositório público (ADR 0004) |
 | 2026-11-13 | Volta para chave de API em *Actions secrets* | Federação falhou nas tentativas; prioridade à simplicidade (ADR 0005, substitui o 0004) |
+| 2026-11-14 | GitHub Pages ativo em `wallacejunior14.github.io/one-percent` | Primeira publicação real (T053) |
