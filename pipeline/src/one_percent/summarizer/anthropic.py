@@ -3,6 +3,7 @@
 import html
 import logging
 import time
+from collections import Counter
 from collections.abc import Callable, Sequence
 from typing import Any
 
@@ -10,6 +11,7 @@ import anthropic
 from anthropic.types.message_create_params import MessageCreateParamsNonStreaming
 from anthropic.types.messages.batch_create_params import Request
 from pydantic import ValidationError
+from pydantic_core import ErrorDetails
 
 from one_percent.domain.models import ContentItem, ContentKind
 from one_percent.summarizer import SummarizerError, Summary, card_id
@@ -34,6 +36,10 @@ ou conclusões que não estejam lá.
 - Se o texto não trouxer informação suficiente para um campo, diga isso de forma breve e honesta \
 (por exemplo: "O resumo não detalha o método."), sem inventar.
 - Linguagem simples, clara e neutra, para um leitor curioso que não é especialista.
+- Evite jargão técnico. Se um termo técnico for indispensável, explique-o em poucas palavras \
+do dia a dia, entre parênteses. Prefira dizer o que foi descoberto e por que é interessante \
+a descrever instrumentos e técnicas de medição.
+- Respeite os limites de caracteres de cada campo; se faltar espaço, corte detalhes.
 - Não use Markdown, HTML, emojis nem links.
 
 Campos:
@@ -80,6 +86,12 @@ def user_message(item: ContentItem) -> str:
         f"<texto>{html.escape(item.summary or '(sem texto além do título)')}</texto>\n"
         "</item>"
     )
+
+
+def _describe(issue: ErrorDetails) -> str:
+    """Ex.: 'quiz.distractors.2 (string_too_long)'."""
+    location = ".".join(str(part) for part in issue["loc"]) or "<raiz>"
+    return f"{location} ({issue['type']})"
 
 
 class AnthropicSummarizer:
@@ -147,6 +159,7 @@ class AnthropicSummarizer:
 
     def _collect_results(self, batch_id: str) -> dict[str, Summary]:
         summaries: dict[str, Summary] = {}
+        invalid_fields: Counter[str] = Counter()
         input_tokens = output_tokens = 0
         for entry in self._client.messages.batches.results(batch_id):
             if entry.result.type != "succeeded":
@@ -162,7 +175,10 @@ class AnthropicSummarizer:
             try:
                 summaries[entry.custom_id] = Summary.model_validate_json(text)
             except ValidationError as error:
-                logger.warning("item %s: resumo inválido (%d erros)",
-                               entry.custom_id, error.error_count())  # fmt: skip
+                problems = [_describe(issue) for issue in error.errors()]
+                invalid_fields.update(problem.split(" ")[0] for problem in problems)
+                logger.warning("item %s: resumo inválido: %s", entry.custom_id, "; ".join(problems))
+        if invalid_fields:
+            logger.warning("resumos inválidos por campo: %s", dict(invalid_fields.most_common()))
         logger.info("tokens: %d de entrada, %d de saída", input_tokens, output_tokens)
         return summaries

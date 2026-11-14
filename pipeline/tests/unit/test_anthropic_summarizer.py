@@ -1,4 +1,5 @@
 import json
+import logging
 from types import SimpleNamespace
 from typing import Any
 
@@ -134,6 +135,24 @@ def test_skips_errored_refused_and_invalid_results() -> None:
     summaries = _summarizer(FakeBatches(results)).summarize(items)
 
     assert list(summaries) == [ids[0]]
+
+
+def test_logs_which_fields_made_a_summary_invalid(caplog: pytest.LogCaptureFixture) -> None:
+    items = [make_item(), make_item()]
+    results = [
+        _succeeded(card_id(items[0]), {**VALID_NEWS, "why_it_matters": "x" * 300}),
+        _succeeded(
+            card_id(items[1]),
+            {**VALID_NEWS, "quiz": {**VALID_NEWS["quiz"], "distractors": ["A", "B", "x" * 250]}},
+        ),
+    ]
+
+    with caplog.at_level(logging.WARNING):
+        _summarizer(FakeBatches(results)).summarize(items)
+
+    assert "why_it_matters (string_too_long)" in caplog.text
+    assert "quiz.distractors.2 (string_too_long)" in caplog.text
+    assert "resumos inválidos por campo" in caplog.text
 
 
 def test_caps_items_per_run() -> None:

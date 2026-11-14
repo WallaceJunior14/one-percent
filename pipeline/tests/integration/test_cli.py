@@ -1,0 +1,117 @@
+import json
+from collections.abc import Sequence
+from datetime import UTC, datetime
+from pathlib import Path
+
+import anthropic
+import httpx
+import pytest
+
+from one_percent import cli
+from one_percent.domain.models import ContentItem
+from one_percent.summarizer import Summary
+from tests.helpers import fixture_bytes
+
+NOW = datetime(2026, 11, 1, 10, 0, tzinfo=UTC).isoformat()
+
+
+def _mocked_network(request: httpx.Request) -> httpx.Response:
+    fixture = {
+        "export.arxiv.org": "arxiv.xml",
+        "api.biorxiv.org": "biorxiv.json",
+        "huggingface.co": "hf_daily_papers.json",
+    }.get(request.url.host, "rss_basic.xml")
+    return httpx.Response(200, content=fixture_bytes(fixture))
+
+
+def _no_network(request: httpx.Request) -> httpx.Response:
+    raise AssertionError(f"rede não deveria ser usada: {request.url}")
+
+
+def _api_error(error_class: type[anthropic.APIStatusError], status: int) -> Exception:
+    request = httpx.Request("POST", "https://api.anthropic.com/v1/messages/batches")
+    return error_class("falha", response=httpx.Response(status, request=request), body=None)
+
+
+class FailingSummarizer:
+    def __init__(self, error: Exception) -> None:
+        self._error = error
+
+    def summarize(self, items: Sequence[ContentItem]) -> dict[str, Summary]:
+        raise self._error
+
+
+@pytest.fixture
+def network(monkeypatch: pytest.MonkeyPatch) -> None:
+    transport = httpx.MockTransport(_mocked_network)
+    monkeypatch.setattr(cli, "make_http_client", lambda: httpx.Client(transport=transport))
+    monkeypatch.setattr(cli, "make_arxiv_interval", lambda: 0.0)
+
+
+@pytest.mark.parametrize(
+    ("error_class", "status"),
+    [
+        (anthropic.BadRequestError, 400),
+        (anthropic.AuthenticationError, 401),
+        (anthropic.PermissionDeniedError, 403),
+    ],
+)
+@pytest.mark.usefixtures("network")
+def test_permanent_api_error_exits_2_with_clear_message(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+    error_class: type[anthropic.APIStatusError],
+    status: int,
+) -> None:
+    error = _api_error(error_class, status)
+    monkeypatch.setattr(cli, "make_summarizer", lambda args: FailingSummarizer(error))
+
+    exit_code = cli.main(["run", "--out", str(tmp_path), "--now", NOW])
+
+    assert exit_code == cli.EXIT_PERMANENT_ERROR == 2
+    assert f"erro permanente da API da Anthropic (HTTP {status})" in caplog.text
+    assert not (tmp_path / "latest.json").exists()
+
+
+@pytest.mark.usefixtures("network")
+def test_transient_api_error_exits_1(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    error = _api_error(anthropic.InternalServerError, 500)
+    monkeypatch.setattr(cli, "make_summarizer", lambda args: FailingSummarizer(error))
+
+    exit_code = cli.main(["run", "--out", str(tmp_path), "--now", NOW])
+
+    assert exit_code == cli.EXIT_NOT_PUBLISHED == 1
+    assert "erro temporário da API da Anthropic (HTTP 500)" in caplog.text
+
+
+def test_skip_if_published_does_nothing_when_today_is_already_published(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    latest = tmp_path / "latest.json"
+    latest.write_text(json.dumps({"date": "2026-11-01"}), encoding="utf-8")
+    transport = httpx.MockTransport(_no_network)
+    monkeypatch.setattr(cli, "make_http_client", lambda: httpx.Client(transport=transport))
+
+    exit_code = cli.main(
+        ["run", "--fake", "--skip-if-published", "--out", str(tmp_path), "--now", NOW]
+    )
+
+    assert exit_code == cli.EXIT_PUBLISHED == 0
+    assert json.loads(latest.read_text(encoding="utf-8")) == {"date": "2026-11-01"}
+
+
+@pytest.mark.usefixtures("network")
+def test_skip_if_published_runs_when_latest_is_from_yesterday(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    (tmp_path / "latest.json").write_text(json.dumps({"date": "2026-10-31"}), encoding="utf-8")
+
+    exit_code = cli.main(
+        ["run", "--fake", "--skip-if-published", "--out", str(tmp_path), "--now", NOW]
+    )
+
+    assert exit_code == cli.EXIT_NOT_PUBLISHED
+    assert "não publicado" in caplog.text

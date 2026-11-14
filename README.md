@@ -63,7 +63,7 @@ pip install -e ".[dev]"
 
 ## Execução diária
 
-O workflow [`daily-content.yml`](.github/workflows/daily-content.yml) roda às 05h (Brasília) e publica o JSON no branch `gh-pages`. Ele se autentica na Anthropic com o secret `ANTHROPIC_API_KEY`, cadastrado em *Settings → Secrets and variables → Actions → Secrets* ([ADR 0005](docs/adr/0005-chave-de-api-no-github-actions.md)).
+O workflow [`daily-content.yml`](.github/workflows/daily-content.yml) roda de madrugada (00:17, 03:17 e 06:17 em Brasília; o primeiro horário que executar publica o dia) e publica o JSON no branch `gh-pages`. Ele se autentica na Anthropic com o secret `ANTHROPIC_API_KEY`, cadastrado em *Settings → Secrets and variables → Actions → Secrets* ([ADR 0005](docs/adr/0005-chave-de-api-no-github-actions.md)).
 
 Conteúdo publicado (GitHub Pages):
 

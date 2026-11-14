@@ -1,8 +1,13 @@
 name: Daily content
 
 on:
+  # O cron do GitHub chega a atrasar horas (06/11 a 13/11: 6 a 10 h). Três horários em minutos
+  # "quebrados" (00:17, 03:17 e 06:17 em Brasília); o primeiro que rodar publica o dia e os
+  # demais terminam sem trabalho (--skip-if-published). Prazo: 07:00 (RF-001).
   schedule:
-    - cron: "0 8 * * *" # 05:00 em Brasília; 2 h de folga para o prazo das 7 h (RF-001)
+    - cron: "17 3 * * *"
+    - cron: "17 6 * * *"
+    - cron: "17 9 * * *"
   workflow_dispatch:
     inputs:
       fake:
@@ -64,9 +69,16 @@ jobs:
         run: |
           args="run --out ../site"
           if [ "$FAKE" = "true" ]; then args="$args --fake"; fi
+          if [ "${{ github.event_name }}" = "schedule" ]; then args="$args --skip-if-published"; fi
 
+          # Códigos de saída do pipeline: 0 publicado; 1 falha temporária (repete);
+          # 2 erro permanente, como chave inválida ou falta de créditos (não repete).
           for attempt in 1 2; do
-            if python -m one_percent $args; then exit 0; fi
+            if python -m one_percent $args; then exit 0; else code=$?; fi
+            if [ "$code" = 2 ]; then
+              echo "::error::Erro permanente (chave, créditos ou permissão). Veja o log acima; sem nova tentativa."
+              exit 2
+            fi
             echo "::warning::Tentativa $attempt não publicou o dia."
             [ "$attempt" = 2 ] || sleep 300
           done

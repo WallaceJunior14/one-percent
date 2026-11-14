@@ -87,7 +87,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
   - Cobre: RNF-006
 - [x] T052 CLI `run --date` + pipeline completo com `FakeSummarizer`
   - Teste: `tests/integration/test_pipeline_e2e.py` — fixtures de todas as fontes → JSON válido com ≥ 15 cards
-- [x] T053 Workflow `daily-content.yml`: cron 08:00 UTC + `workflow_dispatch`, retry, chave de API em *Actions secrets* (ADR 0005), `permissions` mínimas, publica em `gh-pages`
+- [x] T053 Workflow `daily-content.yml`: cron em três horários (00:17/03:17/06:17 BRT) com `--skip-if-published` + `workflow_dispatch`, retry, chave de API em *Actions secrets* (ADR 0005), `permissions` mínimas, publica em `gh-pages`
   - Pronto quando: um disparo manual publica `latest.json` acessível via HTTPS
   - Nota (2026-11-14): run 43540509397 publicou 92 cards reais em `gh-pages` (104 enviados ao LLM, 12 resumos inválidos descartados); 151.669 tokens de entrada + 54.494 de saída ≈ US$ 0,02 com Batch API. HTTPS depende de ativar o GitHub Pages
   - Cobre: RF-001
