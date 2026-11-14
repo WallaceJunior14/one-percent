@@ -4,6 +4,8 @@ import { createMemoryStore } from '@/test/fakes';
 import { asyncStorageStore } from './keyValueStore';
 
 jest.mock('@react-native-async-storage/async-storage', () =>
+  // Padrão documentado pelo AsyncStorage: a fábrica do jest.mock não aceita import.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );
 

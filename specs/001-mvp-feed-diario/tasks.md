@@ -108,7 +108,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
   - Cobre: H3-1, H3-2
 
 ### Feed (H1, H2)
-- [ ] T080 `composeFeed`: 15 cards, cotas por grupo de áreas (50/50 por padrão, pesos como parâmetro), rodízio entre áreas por rank dentro do grupo, ≥ 30% de artigos quando houver, sobra de um grupo vai para o outro, determinístico
+- [x] T080 `composeFeed`: 15 cards, cotas por grupo de áreas (50/50 por padrão, pesos como parâmetro), rodízio entre áreas por rank dentro do grupo, ≥ 30% de artigos quando houver, sobra de um grupo vai para o outro, determinístico
   - Teste: `feed/composeFeed.test.ts` — `returns_15_cards`, `only_selected_areas`, `splits_50_50_between_groups`, `extra_card_goes_to_science_and_technology`, `single_group_gets_all_cards`, `rotates_areas_within_group`, `short_group_is_filled_by_the_other`, `custom_group_weights_are_respected`, `at_least_30_percent_papers`, `same_input_same_output`
   - Cobre: RF-007, RF-011, H3-3 a H3-5
 - [ ] T081 [P] `NewsCard`: área, título, resumo, "por que importa", fonte, data, botão para a matéria
