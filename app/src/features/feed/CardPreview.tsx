@@ -53,8 +53,6 @@ export function CardPreview({ card, areaName, onOpen }: Props) {
 function makeStyles({ colors, spacing }: Theme) {
   return StyleSheet.create({
     card: {
-      flex: 1,
-      justifyContent: 'center',
       gap: spacing(1.5),
       padding: spacing(3),
       borderRadius: 24,
@@ -64,7 +62,7 @@ function makeStyles({ colors, spacing }: Theme) {
     },
     pressed: { opacity: 0.85 },
     badges: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(1) },
-    title: { fontSize: 26, fontWeight: '700', color: colors.text, lineHeight: 32 },
+    title: { fontSize: 21, fontWeight: '700', color: colors.text, lineHeight: 27 },
     meta: { fontSize: 14, color: colors.textMuted },
     teaser: { fontSize: 17, color: colors.text, lineHeight: 25 },
     more: { fontSize: 15, fontWeight: '700', color: colors.primary, marginTop: spacing(1) },

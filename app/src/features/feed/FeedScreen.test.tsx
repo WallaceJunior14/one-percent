@@ -2,12 +2,11 @@ import { fireEvent, render, screen, within } from '@testing-library/react-native
 
 import sampleDay from '../../../../contracts/examples/sample-day.json';
 import { parseDailyContent } from '@/features/content/contract';
-import { FeedScreen } from './FeedScreen';
+import { FeedScreen, updateSeenCount } from './FeedScreen';
 
 const content = parseDailyContent(sampleDay);
 const cards = content.cards.slice(0, 3);
 const areaNames = Object.fromEntries(content.areas.map((area) => [area.id, area.name]));
-const PAGE_HEIGHT = 800;
 
 async function setup(props: { stale?: boolean } = {}) {
   const onFinished = jest.fn();
@@ -21,55 +20,44 @@ async function setup(props: { stale?: boolean } = {}) {
       {...props}
     />,
   );
-  const list = screen.getByTestId('feed-list');
-  await fireEvent(list, 'layout', { nativeEvent: { layout: { width: 400, height: PAGE_HEIGHT } } });
-  const scrollToPage = (page: number) =>
-    fireEvent(list, 'momentumScrollEnd', {
-      nativeEvent: {
-        contentOffset: { x: 0, y: page * PAGE_HEIGHT },
-        layoutMeasurement: { width: 400, height: PAGE_HEIGHT },
-        contentSize: { width: 400, height: (cards.length + 1) * PAGE_HEIGHT },
-      },
-    });
-  return { onFinished, onEditAreas, scrollToPage };
+  return { onFinished, onEditAreas };
 }
 
-test('shows_one_card_per_page_starting_with_the_first', async () => {
+test('lists_all_cards_in_one_column', async () => {
   await setup();
 
-  expect(screen.getByText(cards[0].title)).toBeOnTheScreen();
-  expect(screen.getByText('1 de 3')).toBeOnTheScreen();
+  for (const card of cards) {
+    expect(screen.getByText(card.title)).toBeOnTheScreen();
+  }
 });
 
-test('updates_progress_when_scrolling', async () => {
-  const { scrollToPage } = await setup();
-
-  await scrollToPage(1);
-
-  expect(screen.getByText('2 de 3')).toBeOnTheScreen();
+test('counts_cards_seen', () => {
+  expect(updateSeenCount(0, [0, 1], 15)).toBe(2);
+  expect(updateSeenCount(2, [3, 4, 5], 15)).toBe(6);
 });
 
-test('does_not_finish_on_the_last_card', async () => {
-  const { onFinished, scrollToPage } = await setup();
-
-  await scrollToPage(cards.length - 1);
-
-  expect(onFinished).not.toHaveBeenCalled();
+test('seen_count_never_decreases_or_exceeds_total', () => {
+  expect(updateSeenCount(6, [0, 1], 15)).toBe(6);
+  expect(updateSeenCount(6, [], 15)).toBe(6);
+  expect(updateSeenCount(14, [15], 15)).toBe(15);
 });
 
-test('navigates_to_day_complete_after_last_card', async () => {
-  const { onFinished, scrollToPage } = await setup();
+test('header_shows_areas_button_and_seen_progress', async () => {
+  const { onEditAreas } = await setup();
 
-  await scrollToPage(cards.length);
-  await scrollToPage(cards.length);
+  const header = within(screen.getByTestId('feed-header'));
+  expect(header.getByText(/de 3 vistos$/)).toBeOnTheScreen();
+  await fireEvent.press(header.getByRole('button', { name: 'Editar áreas' }));
 
-  expect(onFinished).toHaveBeenCalledTimes(1);
+  expect(onEditAreas).toHaveBeenCalledTimes(1);
 });
 
-test('end_page_offers_an_accessible_button', async () => {
+test('finish_button_completes_the_day_once', async () => {
   const { onFinished } = await setup();
 
-  await fireEvent.press(screen.getByRole('button', { name: 'Ver o resumo do dia' }));
+  expect(screen.getByText('Você chegou ao fim de hoje')).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole('button', { name: 'Concluir o dia' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Concluir o dia' }));
 
   expect(onFinished).toHaveBeenCalledTimes(1);
 });
@@ -78,16 +66,6 @@ test('shows_warning_for_previous_day_content', async () => {
   await setup({ stale: true });
 
   expect(screen.getByText(/conteúdo de hoje ainda não chegou/i)).toBeOnTheScreen();
-});
-
-test('header_holds_areas_button_and_progress_outside_the_cards', async () => {
-  const { onEditAreas } = await setup();
-
-  const header = within(screen.getByTestId('feed-header'));
-  expect(header.getByText('1 de 3')).toBeOnTheScreen();
-  await fireEvent.press(header.getByRole('button', { name: 'Editar áreas' }));
-
-  expect(onEditAreas).toHaveBeenCalledTimes(1);
 });
 
 test('opens_and_closes_detail_on_card_press', async () => {

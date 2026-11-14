@@ -1,85 +1,56 @@
-import { useRef, useState } from 'react';
-import {
-  FlatList,
-  type LayoutChangeEvent,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { useCallback, useRef, useState } from 'react';
+import { FlatList, type FlatListProps, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { Card } from '@/features/content/contract';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import { CardDetailSheet } from './CardDetailSheet';
 import { CardPreview } from './CardPreview';
 
+type OnViewableItemsChanged = NonNullable<FlatListProps<Card>['onViewableItemsChanged']>;
+
 type Props = {
   cards: Card[];
   areaNames: Record<string, string>;
   /** Conteúdo de um dia anterior (H1-4): mostra um aviso abaixo da barra superior. */
   stale?: boolean;
-  /** Chamado uma vez, quando a pessoa passa do último card (H1-3). */
+  /** Chamado uma vez, ao tocar em "Concluir o dia" no fim da lista (H1-3, H4-1). */
   onFinished(): void;
   onEditAreas(): void;
   onOpenUrl?(url: string): void;
 };
 
-type Page = { kind: 'card'; card: Card } | { kind: 'end' };
+/** Quantos cards já apareceram na tela: só aumenta e nunca passa do total. */
+export function updateSeenCount(previous: number, visibleIndexes: number[], total: number) {
+  const furthest = visibleIndexes.length > 0 ? Math.max(...visibleIndexes) + 1 : 0;
+  return Math.min(total, Math.max(previous, furthest));
+}
 
 /**
- * Feed vertical e finito: barra superior (áreas e progresso), um card compacto por página,
- * painel de detalhe ao tocar (H1-2a) e uma página de conclusão no fim.
+ * Feed finito em coluna única (H1-1): cards com a altura do conteúdo, rolagem livre,
+ * painel de detalhe ao tocar (H1-2a) e encerramento com "Concluir o dia" no fim (H1-3).
  */
 export function FeedScreen({ cards, areaNames, stale, onFinished, onEditAreas, onOpenUrl }: Props) {
   const styles = makeStyles(useTheme());
-  const [pageHeight, setPageHeight] = useState(0);
-  const [pageIndex, setPageIndex] = useState(0);
+  const [seen, setSeen] = useState(0);
   const [openCard, setOpenCard] = useState<Card | null>(null);
   const finished = useRef(false);
 
-  const pages: Page[] = [
-    ...cards.map((card) => ({ kind: 'card' as const, card })),
-    { kind: 'end' },
-  ];
+  // O FlatList exige que este callback não mude entre renderizações.
+  const onViewableItemsChanged = useCallback<OnViewableItemsChanged>(
+    ({ viewableItems }) => {
+      const indexes = viewableItems.flatMap((item) =>
+        typeof item.index === 'number' ? [item.index] : [],
+      );
+      setSeen((previous) => updateSeenCount(previous, indexes, cards.length));
+    },
+    [cards.length],
+  );
 
   const finishOnce = () => {
     if (finished.current) return;
     finished.current = true;
     onFinished();
   };
-
-  const onLayout = (event: LayoutChangeEvent) => setPageHeight(event.nativeEvent.layout.height);
-
-  const onMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const { contentOffset, layoutMeasurement } = event.nativeEvent;
-    const height = layoutMeasurement.height || pageHeight;
-    if (height <= 0) return;
-    const index = Math.round(contentOffset.y / height);
-    setPageIndex(index);
-    if (index >= cards.length) finishOnce();
-  };
-
-  const renderPage = ({ item }: { item: Page }) => (
-    <View style={[styles.page, { height: pageHeight }]}>
-      {item.kind === 'end' ? (
-        <View style={styles.end}>
-          <Text style={styles.endTitle}>Você chegou ao fim de hoje</Text>
-          <Text style={styles.endText}>Sem rolagem infinita: o conteúdo de amanhã chega cedo.</Text>
-          <Pressable accessibilityRole="button" onPress={finishOnce} style={styles.endButton}>
-            <Text style={styles.endButtonLabel}>Ver o resumo do dia</Text>
-          </Pressable>
-        </View>
-      ) : (
-        <CardPreview
-          card={item.card}
-          areaName={areaNames[item.card.areaId] ?? ''}
-          onOpen={setOpenCard}
-        />
-      )}
-    </View>
-  );
 
   return (
     <View style={styles.screen}>
@@ -93,11 +64,9 @@ export function FeedScreen({ cards, areaNames, stale, onFinished, onEditAreas, o
         >
           <Text style={styles.areasLabel}>Áreas</Text>
         </Pressable>
-        {pageIndex < cards.length && (
-          <Text style={styles.progress} accessibilityLiveRegion="polite">
-            {pageIndex + 1} de {cards.length}
-          </Text>
-        )}
+        <Text style={styles.progress}>
+          {seen} de {cards.length} vistos
+        </Text>
       </View>
       {stale && (
         <Text style={styles.warning}>
@@ -106,14 +75,26 @@ export function FeedScreen({ cards, areaNames, stale, onFinished, onEditAreas, o
       )}
       <FlatList
         testID="feed-list"
-        data={pages}
-        keyExtractor={(page) => (page.kind === 'end' ? 'end' : page.card.id)}
-        renderItem={renderPage}
-        pagingEnabled
-        showsVerticalScrollIndicator={false}
-        onLayout={onLayout}
-        onMomentumScrollEnd={onMomentumScrollEnd}
-        getItemLayout={(_, index) => ({ length: pageHeight, offset: pageHeight * index, index })}
+        data={cards}
+        keyExtractor={(card) => card.id}
+        renderItem={({ item }) => (
+          <CardPreview card={item} areaName={areaNames[item.areaId] ?? ''} onOpen={setOpenCard} />
+        )}
+        contentContainerStyle={styles.list}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={{ itemVisiblePercentThreshold: 60 }}
+        ListFooterComponent={
+          <View style={styles.end}>
+            <Text style={styles.endTitle}>Você chegou ao fim de hoje</Text>
+            <Text style={styles.endText}>
+              Sem rolagem infinita: o conteúdo de amanhã chega cedo.
+            </Text>
+            <Pressable accessibilityRole="button" onPress={finishOnce} style={styles.endButton}>
+              <Text style={styles.endButtonLabel}>Concluir o dia</Text>
+            </Pressable>
+          </View>
+        }
       />
       <CardDetailSheet
         card={openCard}
@@ -155,12 +136,18 @@ function makeStyles({ colors, spacing }: Theme) {
       fontSize: 14,
       textAlign: 'center',
     },
-    page: { paddingHorizontal: spacing(2), paddingVertical: spacing(1.5) },
-    end: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing(4), gap: 12 },
-    endTitle: { fontSize: 26, fontWeight: '700', color: colors.text, textAlign: 'center' },
-    endText: { fontSize: 16, color: colors.textMuted, textAlign: 'center' },
+    list: { paddingHorizontal: spacing(2), paddingTop: spacing(1), paddingBottom: spacing(4) },
+    separator: { height: spacing(1.5) },
+    end: {
+      alignItems: 'center',
+      paddingVertical: spacing(6),
+      paddingHorizontal: spacing(2),
+      gap: 12,
+    },
+    endTitle: { fontSize: 22, fontWeight: '700', color: colors.text, textAlign: 'center' },
+    endText: { fontSize: 15, color: colors.textMuted, textAlign: 'center' },
     endButton: {
-      marginTop: spacing(2),
+      marginTop: spacing(1),
       paddingVertical: spacing(2),
       paddingHorizontal: spacing(4),
       borderRadius: 14,

@@ -45,7 +45,7 @@ test('shows_feed_after_loading', async () => {
   await setup();
 
   expect(await screen.findByTestId('feed-list')).toBeOnTheScreen();
-  expect(screen.getByText(/de 15$/)).toBeOnTheScreen();
+  expect(screen.getByText(/de 15 vistos$/)).toBeOnTheScreen();
 });
 
 test('redirects_to_onboarding_without_preferences', async () => {
@@ -61,7 +61,7 @@ test('feed_has_only_selected_areas', async () => {
   await screen.findByTestId('feed-list');
   const economyTitles = SAMPLE.cards.filter((c) => c.areaId === 'economy').map((c) => c.title);
   expect(screen.getByText(economyTitles[0])).toBeOnTheScreen();
-  expect(screen.getByText('1 de 3')).toBeOnTheScreen();
+  expect(screen.getByText(/de 3 vistos$/)).toBeOnTheScreen();
 });
 
 test('shows_warning_with_previous_day_content', async () => {
