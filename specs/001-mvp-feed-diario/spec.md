@@ -29,7 +29,8 @@ Como usuário, quero abrir o app e ver um feed vertical com os principais assunt
 
 **Critérios de aceite**
 1. **Dado** que há conteúdo publicado para hoje, **quando** abro o app, **então** vejo um feed vertical de cards, um por vez, que avanço deslizando.
-2. **Dado** um card de notícia, **quando** ele é exibido, **então** mostra: área, título, resumo de até 3 frases em português, "por que importa" em 1 frase, nome da fonte, data de publicação e um botão para abrir a matéria original.
+2. **Dado** um card de notícia no feed, **quando** ele é exibido, **então** aparece como um card compacto, que cabe na tela, com: área, título, fonte, data e o início do resumo.
+2a. **Dado** um card no feed, **quando** toco nele, **então** abre um painel com o conteúdo completo e rolagem própria: resumo de até 3 frases, "por que importa" em 1 frase e o botão para a matéria original; o painel fecha pelo botão "Fechar" ou pelo voltar do Android.
 3. **Dado** o último card do dia, **quando** deslizo além dele, **então** não aparece mais conteúdo; aparece a tela de dia concluído (H4).
 4. **Dado** que não há conteúdo de hoje disponível (falha na publicação ou sem internet no primeiro acesso), **quando** abro o app, **então** vejo o conteúdo do dia anterior com um aviso, ou, se não houver nenhum, uma mensagem clara com a opção de tentar de novo.
 
@@ -38,7 +39,7 @@ Como usuário, quero abrir o app e ver um feed vertical com os principais assunt
 Como pesquisador, quero que o feed traga artigos científicos recentes das minhas áreas explicados de forma simples, para acompanhar a ciência no meu tempo livre.
 
 **Critérios de aceite**
-1. **Dado** um card de artigo científico, **quando** ele é exibido, **então** é visualmente identificável como "Artigo" e mostra: título original, título traduzido, resumo em linguagem simples (até 3 frases), **método** em 1 frase, **principal resultado** em 1 frase, **limitações** em 1 frase, autores (até 3 + "et al."), repositório/periódico, data, e links para o artigo e para o PDF quando disponível.
+1. **Dado** um card de artigo científico, **quando** ele é exibido, **então** é visualmente identificável como "Artigo"; o card compacto mostra selos, título, autores e o início do resumo, e o painel de detalhe (H1-2a) mostra: título original, título traduzido, resumo em linguagem simples (até 3 frases), **método** em 1 frase, **principal resultado** em 1 frase, **limitações** em 1 frase, autores (até 3 + "et al."), repositório/periódico, data, e links para o artigo e para o PDF quando disponível.
 2. **Dado** que o artigo é um preprint (sem revisão por pares), **quando** o card é exibido, **então** há uma indicação "Preprint — não revisado por pares".
 3. **Dado** que o resumo é gerado automaticamente, **quando** ele é exibido, **então** ele se baseia apenas no título e no resumo (abstract) do artigo, sem acrescentar afirmações que não estejam lá.
 
@@ -176,3 +177,4 @@ Todas as dúvidas foram resolvidas em 2026-10-31 com os valores propostos: nome 
 | 2026-10-31 | Criação | — |
 | 2026-10-31 | Aprovada; dúvidas resolvidas com os valores propostos | Decisão do autor |
 | 2026-11-14 | Proporção por grupo de áreas: 50% Ciência & Tecnologia, 50% Mercado & Saúde (H3-4, H3-5, RF-011); configuração dos percentuais registrada como futura | Pedido do autor: ver mais conteúdo da própria área de atuação |
+| 2026-11-14 | Card compacto no feed + painel de detalhe ao tocar (H1-2, H1-2a, H2-1) | Primeiro teste no celular: card ocupava a tela inteira e o conteúdo passava dos limites |
