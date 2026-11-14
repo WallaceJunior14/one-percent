@@ -49,7 +49,9 @@ Como usuário, quero escolher as áreas e subáreas que me interessam, para rece
 **Critérios de aceite**
 1. **Dado** o primeiro acesso, **quando** abro o app, **então** vejo um onboarding curto onde escolho pelo menos 1 área e, opcionalmente, subáreas.
 2. **Dado** que já escolhi áreas, **quando** acesso as configurações, **então** posso alterá-las, e a mudança vale a partir do próximo carregamento do feed.
-3. **Dado** que escolhi áreas, **quando** o feed do dia é montado, **então** ele contém apenas cards dessas áreas, distribuídos de forma equilibrada entre elas.
+3. **Dado** que escolhi áreas, **quando** o feed do dia é montado, **então** ele contém apenas cards dessas áreas.
+4. **Dado** que escolhi áreas dos dois grupos (RF-011), **quando** o feed do dia é montado, **então** metade dos cards vem de **Ciência & Tecnologia** e metade de **Mercado & Saúde** (com 15 cards: 8 e 7, o card extra indo para Ciência & Tecnologia), e dentro de cada grupo os cards se alternam entre as áreas escolhidas.
+5. **Dado** que escolhi áreas de um só grupo, **quando** o feed é montado, **então** esse grupo recebe todos os cards.
 
 Áreas iniciais:
 
@@ -125,7 +127,8 @@ Como usuário, quero ver meu progresso acumulado, para perceber que estou evolui
 - **RF-004**: Não pode haver itens duplicados no mesmo dia (mesma notícia vinda de fontes diferentes conta como duplicada).
 - **RF-005**: Os conteúdos devem ser selecionados por relevância dentro de cada área, e não apenas pelos mais recentes.
 - **RF-006**: Fontes em outros idiomas são aceitas; o card é sempre apresentado em português.
-- **RF-007**: O feed do dia tem tamanho fixo de **15 cards**, distribuídos entre as áreas escolhidas, com pelo menos **30% de artigos científicos** quando alguma área escolhida tiver artigos.
+- **RF-007**: O feed do dia tem tamanho fixo de **15 cards**, distribuídos conforme RF-011, com pelo menos **30% de artigos científicos** quando alguma área escolhida tiver artigos.
+- **RF-011**: As áreas se organizam em dois grupos: **Ciência & Tecnologia** (Tecnologia, Ciência) e **Mercado & Saúde** (Economia, Finanças, Saúde). Por padrão, cada grupo com áreas escolhidas recebe **50%** dos cards; se um grupo não tiver cards suficientes no dia, o outro completa. Os percentuais são parâmetros do algoritmo, para permitir configurá-los no futuro.
 - **RF-008**: Cada conteúdo publicado inclui o material do quiz (pergunta, alternativas, resposta correta) e dos stories.
 - **RF-009**: O app guarda localmente: áreas escolhidas, progresso, sequência, salvos, histórico do quiz e o conteúdo do dia.
 - **RF-010**: Abrir o link original de um card leva ao navegador do celular, fora do app.
@@ -153,6 +156,7 @@ Como usuário, quero ver meu progresso acumulado, para perceber que estou evolui
 - Busca no histórico de dias anteriores (além dos salvos)
 - Monetização e anúncios
 - Publicação na Play Store (o MVP é instalado diretamente no celular)
+- Configurar, pelo app, o percentual de cards por grupo ou por área (planejado para depois do MVP; o algoritmo já recebe os pesos como parâmetro)
 
 ## Métricas de sucesso
 
@@ -171,3 +175,4 @@ Todas as dúvidas foram resolvidas em 2026-10-31 com os valores propostos: nome 
 |---|---|---|
 | 2026-10-31 | Criação | — |
 | 2026-10-31 | Aprovada; dúvidas resolvidas com os valores propostos | Decisão do autor |
+| 2026-11-14 | Proporção por grupo de áreas: 50% Ciência & Tecnologia, 50% Mercado & Saúde (H3-4, H3-5, RF-011); configuração dos percentuais registrada como futura | Pedido do autor: ver mais conteúdo da própria área de atuação |

@@ -152,7 +152,14 @@ O cron roda às **08:00 UTC (05h BRT)**, com até 2 tentativas, e há também di
 
 Funções puras, testadas primeiro (TDD):
 
-- `composeFeed(content, preferences) → Card[]` (RF-007, H3-3): 15 cards, distribuídos em rodízio entre as áreas escolhidas por ordem de rank, com ≥ 30% de `paper` quando existir área com artigos. Se faltar conteúdo em uma área, completa com as outras. É determinístico: mesma entrada, mesmo feed.
+- `composeFeed(content, preferences, groupWeights = DEFAULT_GROUP_WEIGHTS) → Card[]` (RF-007, RF-011, H3-3 a H3-5):
+  1. Grupos definidos no app (`shared/config/areaGroups.ts`): `sci-tech` = [tech, science] e `markets-health` = [economy, finance, health], com peso 0,5 cada. Os grupos são um conceito de personalização, então ficam no app e o contrato não muda (ADR 0001).
+  2. Só contam os grupos com alguma área escolhida; os pesos deles são normalizados para somar 1.
+  3. Cotas: 15 × peso, arredondadas pelo método do maior resto; empate vai para o primeiro grupo da configuração (`sci-tech`), o que dá 8 + 7.
+  4. Dentro de cada grupo, rodízio entre as áreas escolhidas, por ordem de rank.
+  5. Se um grupo não tiver cards para a cota, a sobra vai para o outro.
+  6. Garantia de ≥ 30% de `paper` no feed todo, trocando a notícia de pior rank pelo melhor artigo do mesmo grupo quando possível.
+  7. Determinístico: mesma entrada, mesmo feed.
 - `calculateStreak(completedDays, today) → { current, best }` (H4): dias no fuso do celular, com a regra de ontem/hoje.
 - `selectQuiz(feed) → QuizItem[3]` (H7): 3 cards do feed do dia, com prioridade para áreas diferentes.
 - `resolveContent(latest, cache, now)` (H1-4): hoje → cache de hoje → último disponível com aviso → estado vazio com "tentar de novo".
@@ -237,3 +244,4 @@ ADRs a registrar com `dev-docs` na fase de setup: **0001** conteúdo estático p
 | 2026-11-05 | Autenticação do pipeline por federação de identidade (WIF) em vez de chave em *Actions secrets* | Sem segredo fixo num repositório público (ADR 0004) |
 | 2026-11-13 | Volta para chave de API em *Actions secrets* | Federação falhou nas tentativas; prioridade à simplicidade (ADR 0005, substitui o 0004) |
 | 2026-11-14 | GitHub Pages ativo em `wallacejunior14.github.io/one-percent` | Primeira publicação real (T053) |
+| 2026-11-14 | `composeFeed` com cotas por grupo de áreas (pesos como parâmetro) | RF-011 |
