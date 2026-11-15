@@ -54,7 +54,7 @@ const paperCardSchema = z.strictObject({
   pdfUrl: httpsUrl.optional(),
 });
 
-const cardSchema = z.discriminatedUnion('type', [newsCardSchema, paperCardSchema]);
+export const cardSchema = z.discriminatedUnion('type', [newsCardSchema, paperCardSchema]);
 
 const areaSchema = z.strictObject({
   id: areaId,

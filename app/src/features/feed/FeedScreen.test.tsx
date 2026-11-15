@@ -11,16 +11,21 @@ const areaNames = Object.fromEntries(content.areas.map((area) => [area.id, area.
 async function setup(props: { stale?: boolean } = {}) {
   const onFinished = jest.fn();
   const onEditAreas = jest.fn();
+  const onOpenSaved = jest.fn();
+  const onToggleSave = jest.fn();
   await render(
     <FeedScreen
       cards={cards}
       areaNames={areaNames}
+      savedIds={new Set([cards[1].id])}
       onFinished={onFinished}
       onEditAreas={onEditAreas}
+      onOpenSaved={onOpenSaved}
+      onToggleSave={onToggleSave}
       {...props}
     />,
   );
-  return { onFinished, onEditAreas };
+  return { onFinished, onEditAreas, onOpenSaved, onToggleSave };
 }
 
 test('lists_all_cards_in_one_column', async () => {
@@ -78,4 +83,23 @@ test('opens_and_closes_detail_on_card_press', async () => {
 
   await fireEvent.press(screen.getByRole('button', { name: 'Fechar' }));
   expect(screen.queryByText(card.whyItMatters)).toBeNull();
+});
+
+test('header_opens_saved_cards', async () => {
+  const { onOpenSaved } = await setup();
+
+  await fireEvent.press(
+    within(screen.getByTestId('feed-header')).getByRole('button', { name: 'Ver salvos' }),
+  );
+
+  expect(onOpenSaved).toHaveBeenCalledTimes(1);
+});
+
+test('saves_from_the_detail_panel', async () => {
+  const { onToggleSave } = await setup();
+
+  await fireEvent.press(screen.getByRole('button', { name: `Ler mais: ${cards[1].title}` }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Remover dos salvos' }));
+
+  expect(onToggleSave).toHaveBeenCalledWith(cards[1]);
 });

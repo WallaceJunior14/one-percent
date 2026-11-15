@@ -5,6 +5,7 @@ import type { ContentApi } from '@/features/content/contentApi';
 import type { Card } from '@/features/content/contract';
 import { resolveContent } from '@/features/content/resolveContent';
 import type { PreferencesRepository } from '@/features/onboarding/preferences';
+import type { SavedCardsRepository } from '@/features/saved/savedCards';
 import type { ProgressRepository } from '@/features/streak/progress';
 import type { Clock } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
@@ -18,6 +19,7 @@ export type DailyFeedDependencies = {
   clock: Clock;
   preferences: PreferencesRepository;
   progress: ProgressRepository;
+  saved: SavedCardsRepository;
 };
 
 type Props = {
@@ -25,13 +27,20 @@ type Props = {
   onNeedOnboarding(): void;
   onFinished(): void;
   onEditAreas(): void;
+  onOpenSaved(): void;
 };
 
 type ViewState =
   | { kind: 'loading' }
   | { kind: 'redirect' }
   | { kind: 'empty' }
-  | { kind: 'ready'; cards: Card[]; areaNames: Record<string, string>; stale: boolean };
+  | {
+      kind: 'ready';
+      cards: Card[];
+      areaNames: Record<string, string>;
+      stale: boolean;
+      savedIds: Set<string>;
+    };
 
 /** Decide o que mostrar a partir das preferências e do conteúdo disponível. */
 async function loadView(deps: DailyFeedDependencies): Promise<ViewState> {
@@ -46,11 +55,12 @@ async function loadView(deps: DailyFeedDependencies): Promise<ViewState> {
     cards: composeFeed(content.content, preferences),
     areaNames: Object.fromEntries(content.content.areas.map((area) => [area.id, area.name])),
     stale: content.status === 'stale',
+    savedIds: await deps.saved.savedIds(),
   };
 }
 
 /** Junta preferências + conteúdo + composição e escolhe o que mostrar (H1, H3, RNF-006). */
-export function DailyFeed({ deps, onNeedOnboarding, onFinished, onEditAreas }: Props) {
+export function DailyFeed({ deps, onNeedOnboarding, onFinished, onEditAreas, onOpenSaved }: Props) {
   const styles = makeStyles(useTheme());
   const [state, setState] = useState<ViewState>({ kind: 'loading' });
   const [attempt, setAttempt] = useState(0);
@@ -71,6 +81,18 @@ export function DailyFeed({ deps, onNeedOnboarding, onFinished, onEditAreas }: P
   const completeDay = async (cards: Card[]) => {
     await deps.progress.completeDay(cards);
     onFinished();
+  };
+
+  /** Salva ou remove o card (H6-1) e atualiza o estado do painel. */
+  const toggleSave = async (card: Card) => {
+    const nowSaved = await deps.saved.toggle(card);
+    setState((current) => {
+      if (current.kind !== 'ready') return current;
+      const savedIds = new Set(current.savedIds);
+      if (nowSaved) savedIds.add(card.id);
+      else savedIds.delete(card.id);
+      return { ...current, savedIds };
+    });
   };
 
   const retry = () => {
@@ -105,6 +127,9 @@ export function DailyFeed({ deps, onNeedOnboarding, onFinished, onEditAreas }: P
           stale={state.stale}
           onFinished={() => void completeDay(state.cards)}
           onEditAreas={onEditAreas}
+          onOpenSaved={onOpenSaved}
+          savedIds={state.savedIds}
+          onToggleSave={(card) => void toggleSave(card)}
         />
       );
   }

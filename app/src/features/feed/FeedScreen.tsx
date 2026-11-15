@@ -16,6 +16,10 @@ type Props = {
   /** Chamado uma vez, ao tocar em "Concluir o dia" no fim da lista (H1-3, H4-1). */
   onFinished(): void;
   onEditAreas(): void;
+  onOpenSaved(): void;
+  /** Ids dos cards salvos, para o painel mostrar "Salvo" (H6). */
+  savedIds: ReadonlySet<string>;
+  onToggleSave(card: Card): void;
   onOpenUrl?(url: string): void;
 };
 
@@ -29,7 +33,17 @@ export function updateSeenCount(previous: number, visibleIndexes: number[], tota
  * Feed finito em coluna única (H1-1): cards com a altura do conteúdo, rolagem livre,
  * painel de detalhe ao tocar (H1-2a) e encerramento com "Concluir o dia" no fim (H1-3).
  */
-export function FeedScreen({ cards, areaNames, stale, onFinished, onEditAreas, onOpenUrl }: Props) {
+export function FeedScreen({
+  cards,
+  areaNames,
+  stale,
+  onFinished,
+  onEditAreas,
+  onOpenSaved,
+  savedIds,
+  onToggleSave,
+  onOpenUrl,
+}: Props) {
   const styles = makeStyles(useTheme());
   const [seen, setSeen] = useState(0);
   const [openCard, setOpenCard] = useState<Card | null>(null);
@@ -64,6 +78,16 @@ export function FeedScreen({ cards, areaNames, stale, onFinished, onEditAreas, o
         >
           <Text style={styles.areasLabel}>Áreas</Text>
         </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Ver salvos"
+          onPress={onOpenSaved}
+          hitSlop={8}
+          style={styles.areasButton}
+        >
+          <Text style={styles.areasLabel}>Salvos</Text>
+        </Pressable>
+        <View style={styles.spacer} />
         <Text style={styles.progress}>
           {seen} de {cards.length} vistos
         </Text>
@@ -101,6 +125,8 @@ export function FeedScreen({ cards, areaNames, stale, onFinished, onEditAreas, o
         areaName={openCard ? (areaNames[openCard.areaId] ?? '') : ''}
         onClose={() => setOpenCard(null)}
         onOpenUrl={onOpenUrl}
+        saved={openCard !== null && savedIds.has(openCard.id)}
+        onToggleSave={onToggleSave}
       />
     </View>
   );
@@ -112,7 +138,7 @@ function makeStyles({ colors, spacing }: Theme) {
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      gap: spacing(1),
       paddingHorizontal: spacing(2),
       paddingTop: spacing(5),
       paddingBottom: spacing(1),
@@ -125,6 +151,7 @@ function makeStyles({ colors, spacing }: Theme) {
       borderColor: colors.border,
     },
     areasLabel: { fontSize: 14, fontWeight: '700', color: colors.text },
+    spacer: { flex: 1 },
     progress: { fontSize: 14, color: colors.textMuted },
     warning: {
       marginHorizontal: spacing(2),

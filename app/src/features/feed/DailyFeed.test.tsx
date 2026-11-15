@@ -4,6 +4,7 @@ import sampleDay from '../../../../contracts/examples/sample-day.json';
 import { ContentUnavailableError, type ContentApi } from '@/features/content/contentApi';
 import { type DailyContent, parseDailyContent } from '@/features/content/contract';
 import { createPreferencesRepository, type Preferences } from '@/features/onboarding/preferences';
+import { createSavedCardsRepository } from '@/features/saved/savedCards';
 import { createProgressRepository } from '@/features/streak/progress';
 import {
   contentApiFailing,
@@ -32,16 +33,23 @@ async function setup({
   const repository = createPreferencesRepository(createMemoryStore());
   if (preferences) await repository.save(preferences);
   const progress = createProgressRepository(createMemoryStore(), clock);
+  const saved = createSavedCardsRepository(createMemoryStore(), clock);
   const deps: DailyFeedDependencies = {
     api,
     cache: createMemoryStore(),
     clock,
     preferences: repository,
     progress,
+    saved,
   };
-  const callbacks = { onNeedOnboarding: jest.fn(), onFinished: jest.fn(), onEditAreas: jest.fn() };
+  const callbacks = {
+    onNeedOnboarding: jest.fn(),
+    onFinished: jest.fn(),
+    onEditAreas: jest.fn(),
+    onOpenSaved: jest.fn(),
+  };
   await render(<DailyFeed deps={deps} {...callbacks} />);
-  return { ...callbacks, progress };
+  return { ...callbacks, progress, saved };
 }
 
 test('shows_feed_after_loading', async () => {
@@ -116,4 +124,16 @@ test('completing_the_day_records_progress_before_leaving', async () => {
   const saved = await progress.load();
   expect(saved.completedDays).toEqual(['2026-11-01']);
   expect(saved.lastDay?.cardsRead).toBe(15);
+});
+
+test('saving_from_the_feed_persists_and_updates_the_panel', async () => {
+  const { saved } = await setup();
+  await screen.findByTestId('feed-list');
+  const [firstPreview] = screen.getAllByRole('button', { name: /^Ler mais:/ });
+
+  await fireEvent.press(firstPreview);
+  await fireEvent.press(screen.getByRole('button', { name: 'Salvar card' }));
+
+  expect(await screen.findByRole('button', { name: 'Remover dos salvos' })).toBeOnTheScreen();
+  expect(await saved.list()).toHaveLength(1);
 });

@@ -16,6 +16,7 @@ export default function FeedRoute() {
       deps={appDependencies}
       onNeedOnboarding={() => router.replace('/onboarding')}
       onEditAreas={() => router.push('/onboarding')}
+      onOpenSaved={() => router.push('/saved')}
       onFinished={() => router.push('/day-complete')}
     />
   );

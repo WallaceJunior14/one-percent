@@ -11,10 +11,21 @@ type Props = {
   areaName: string;
   onClose(): void;
   onOpenUrl?(url: string): void;
+  /** Se o card aberto já está nos salvos (H6). */
+  saved?: boolean;
+  /** Sem esta função, o botão de salvar não aparece. */
+  onToggleSave?(card: Card): void;
 };
 
 /** Painel que sobe de baixo com o conteúdo completo e rolagem própria (H1-2a). */
-export function CardDetailSheet({ card, areaName, onClose, onOpenUrl }: Props) {
+export function CardDetailSheet({
+  card,
+  areaName,
+  onClose,
+  onOpenUrl,
+  saved = false,
+  onToggleSave,
+}: Props) {
   const styles = makeStyles(useTheme());
   return (
     <Modal
@@ -35,6 +46,20 @@ export function CardDetailSheet({ card, areaName, onClose, onOpenUrl }: Props) {
         <View style={styles.sheet}>
           <View style={styles.header}>
             <View style={styles.handle} />
+            {card && onToggleSave && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={saved ? 'Remover dos salvos' : 'Salvar card'}
+                accessibilityState={{ selected: saved }}
+                onPress={() => onToggleSave(card)}
+                hitSlop={12}
+                style={[styles.save, saved && styles.saveActive]}
+              >
+                <Text style={[styles.saveLabel, saved && styles.saveLabelActive]}>
+                  {saved ? 'Salvo' : 'Salvar'}
+                </Text>
+              </Pressable>
+            )}
             <Pressable accessibilityRole="button" onPress={onClose} hitSlop={12}>
               <Text style={styles.close}>Fechar</Text>
             </Pressable>
@@ -69,6 +94,7 @@ function makeStyles({ colors, spacing }: Theme) {
       flexDirection: 'row',
       justifyContent: 'flex-end',
       alignItems: 'center',
+      gap: spacing(2),
       paddingHorizontal: spacing(3),
       paddingTop: spacing(2),
       paddingBottom: spacing(1),
@@ -84,6 +110,16 @@ function makeStyles({ colors, spacing }: Theme) {
       backgroundColor: colors.border,
     },
     close: { fontSize: 16, fontWeight: '700', color: colors.primary },
+    save: {
+      paddingHorizontal: spacing(1.5),
+      paddingVertical: spacing(0.5),
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: colors.primary,
+    },
+    saveActive: { backgroundColor: colors.primary },
+    saveLabel: { fontSize: 14, fontWeight: '700', color: colors.primary },
+    saveLabelActive: { color: colors.onPrimary },
     content: { padding: spacing(3), paddingTop: spacing(1), paddingBottom: spacing(6) },
   });
 }
