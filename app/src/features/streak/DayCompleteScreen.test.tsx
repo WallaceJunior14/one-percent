@@ -5,13 +5,20 @@ import { DayCompleteScreen } from './DayCompleteScreen';
 const AREA_NAMES = { tech: 'Tecnologia', economy: 'Economia', health: 'Saúde' };
 const SUMMARY = { date: '2026-11-14', cardsRead: 15, papersRead: 6, areaIds: ['tech', 'economy'] };
 
-async function renderScreen(streak = { current: 3, best: 5 }, onReview = jest.fn()) {
+async function renderScreen(
+  streak = { current: 3, best: 5 },
+  onReview = jest.fn(),
+  quiz: { score: number | null; total: number } | null = null,
+  onStartQuiz = jest.fn(),
+) {
   await render(
     <DayCompleteScreen
       summary={SUMMARY}
       streak={streak}
       areaNames={AREA_NAMES}
       onReview={onReview}
+      quiz={quiz}
+      onStartQuiz={onStartQuiz}
     />,
   );
   return onReview;
@@ -52,4 +59,26 @@ test('review_button_goes_back_to_the_cards', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Rever os cards' }));
 
   expect(onReview).toHaveBeenCalledTimes(1);
+});
+
+test('offers_the_quiz_when_not_answered_yet', async () => {
+  const onStartQuiz = jest.fn();
+  await renderScreen(undefined, undefined, { score: null, total: 3 }, onStartQuiz);
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Fazer o quiz (3 perguntas)' }));
+
+  expect(onStartQuiz).toHaveBeenCalledTimes(1);
+});
+
+test('shows_quiz_score_once_answered', async () => {
+  await renderScreen(undefined, undefined, { score: 2, total: 3 });
+
+  expect(screen.getByText('Quiz: 2 de 3 acertos')).toBeOnTheScreen();
+  expect(screen.queryByRole('button', { name: /Fazer o quiz/ })).toBeNull();
+});
+
+test('hides_quiz_when_there_is_none', async () => {
+  await renderScreen();
+
+  expect(screen.queryByText(/quiz/i)).toBeNull();
 });

@@ -4,6 +4,7 @@ import sampleDay from '../../../../contracts/examples/sample-day.json';
 import { ContentUnavailableError, type ContentApi } from '@/features/content/contentApi';
 import { type DailyContent, parseDailyContent } from '@/features/content/contract';
 import { createPreferencesRepository, type Preferences } from '@/features/onboarding/preferences';
+import { createQuizRepository } from '@/features/quiz/quizRepository';
 import { createSavedCardsRepository } from '@/features/saved/savedCards';
 import { createProgressRepository } from '@/features/streak/progress';
 import {
@@ -34,6 +35,7 @@ async function setup({
   if (preferences) await repository.save(preferences);
   const progress = createProgressRepository(createMemoryStore(), clock);
   const saved = createSavedCardsRepository(createMemoryStore(), clock);
+  const quiz = createQuizRepository(createMemoryStore(), clock);
   const deps: DailyFeedDependencies = {
     api,
     cache: createMemoryStore(),
@@ -41,6 +43,7 @@ async function setup({
     preferences: repository,
     progress,
     saved,
+    quiz,
   };
   const callbacks = {
     onNeedOnboarding: jest.fn(),
@@ -49,7 +52,7 @@ async function setup({
     onOpenSaved: jest.fn(),
   };
   await render(<DailyFeed deps={deps} {...callbacks} />);
-  return { ...callbacks, progress, saved };
+  return { ...callbacks, progress, saved, quiz };
 }
 
 test('shows_feed_after_loading', async () => {
@@ -136,4 +139,15 @@ test('saving_from_the_feed_persists_and_updates_the_panel', async () => {
 
   expect(await screen.findByRole('button', { name: 'Remover dos salvos' })).toBeOnTheScreen();
   expect(await saved.list()).toHaveLength(1);
+});
+
+test('completing_the_day_prepares_the_quiz', async () => {
+  const { onFinished, quiz } = await setup();
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'Concluir o dia' }));
+
+  await waitFor(() => expect(onFinished).toHaveBeenCalled());
+  const prepared = await quiz.today();
+  expect(prepared?.questions).toHaveLength(3);
+  expect(new Set(prepared?.questions.map((card) => card.areaId)).size).toBe(3);
 });

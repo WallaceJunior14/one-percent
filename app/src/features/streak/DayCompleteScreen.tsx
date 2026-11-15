@@ -9,12 +9,22 @@ type Props = {
   streak: Streak;
   areaNames: Record<string, string>;
   onReview(): void;
+  /** Quiz de hoje: `null` se não houver; `score` nulo enquanto não for respondido (H7). */
+  quiz?: { score: number | null; total: number } | null;
+  onStartQuiz?(): void;
 };
 
 const days = (n: number) => `${n} ${n === 1 ? 'dia' : 'dias'}`;
 
 /** Recompensa do fim do dia (H4-1): o que foi lido e a sequência de dias. */
-export function DayCompleteScreen({ summary, streak, areaNames, onReview }: Props) {
+export function DayCompleteScreen({
+  summary,
+  streak,
+  areaNames,
+  onReview,
+  quiz = null,
+  onStartQuiz,
+}: Props) {
   const styles = makeStyles(useTheme());
   const areas = summary.areaIds.map((id) => areaNames[id] ?? id).join(' · ');
 
@@ -37,6 +47,17 @@ export function DayCompleteScreen({ summary, streak, areaNames, onReview }: Prop
         <Stat value={summary.papersRead} label="artigos científicos" styles={styles} />
       </View>
       {areas.length > 0 && <Text style={styles.muted}>{areas}</Text>}
+
+      {quiz && quiz.score !== null && (
+        <Text style={styles.quizScore}>
+          Quiz: {quiz.score} de {quiz.total} acertos
+        </Text>
+      )}
+      {quiz && quiz.score === null && onStartQuiz && (
+        <Pressable accessibilityRole="button" onPress={onStartQuiz} style={styles.quizButton}>
+          <Text style={styles.quizButtonLabel}>Fazer o quiz ({quiz.total} perguntas)</Text>
+        </Pressable>
+      )}
 
       <Pressable accessibilityRole="button" onPress={onReview} style={styles.button}>
         <Text style={styles.buttonLabel}>Rever os cards</Text>
@@ -90,5 +111,13 @@ function makeStyles({ colors, spacing }: Theme) {
       borderColor: colors.primary,
     },
     buttonLabel: { fontSize: 17, fontWeight: '700', color: colors.primary },
+    quizScore: { fontSize: 17, fontWeight: '700', color: colors.text },
+    quizButton: {
+      paddingVertical: spacing(2),
+      paddingHorizontal: spacing(4),
+      borderRadius: 14,
+      backgroundColor: colors.primary,
+    },
+    quizButtonLabel: { fontSize: 17, fontWeight: '700', color: colors.onPrimary },
   });
 }

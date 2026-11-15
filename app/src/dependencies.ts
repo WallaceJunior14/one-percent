@@ -1,6 +1,7 @@
 import { createHttpContentApi } from '@/features/content/contentApi';
 import type { DailyFeedDependencies } from '@/features/feed/DailyFeed';
 import { createPreferencesRepository } from '@/features/onboarding/preferences';
+import { createQuizRepository } from '@/features/quiz/quizRepository';
 import { createSavedCardsRepository } from '@/features/saved/savedCards';
 import { createProgressRepository } from '@/features/streak/progress';
 import { systemClock } from '@/shared/lib/dates';
@@ -13,6 +14,7 @@ export const CONTENT_BASE_URL = 'https://wallacejunior14.github.io/one-percent/'
 export const preferencesRepository = createPreferencesRepository(asyncStorageStore);
 export const progressRepository = createProgressRepository(asyncStorageStore, systemClock);
 export const savedCardsRepository = createSavedCardsRepository(asyncStorageStore, systemClock);
+export const quizRepository = createQuizRepository(asyncStorageStore, systemClock);
 
 export const appDependencies: DailyFeedDependencies = {
   api: createHttpContentApi(CONTENT_BASE_URL),
@@ -21,4 +23,5 @@ export const appDependencies: DailyFeedDependencies = {
   preferences: preferencesRepository,
   progress: progressRepository,
   saved: savedCardsRepository,
+  quiz: quizRepository,
 };

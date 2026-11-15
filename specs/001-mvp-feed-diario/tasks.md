@@ -148,7 +148,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [x] T101 [P] Salvos: alternar salvar/remover no card; aba "Salvos" com filtro por área e conteúdo completo offline
   - Teste: `saved/savedStore.test.ts`, `saved/SavedScreen.test.tsx` — `toggle_save`, `newest_first`, `filters_by_area`, `available_after_day_changes`
   - Cobre: H6
-- [ ] T102 [P] `selectQuiz` + tela do quiz: 3 perguntas, feedback imediato, atalho para o card, pontuação no histórico, não afeta a sequência
+- [x] T102 [P] `selectQuiz` + tela do quiz: 3 perguntas, feedback imediato, atalho para o card, pontuação no histórico, não afeta a sequência
   - Teste: `quiz/selectQuiz.test.ts`, `quiz/QuizScreen.test.tsx` — `picks_3_from_different_areas`, `shows_correct_answer_after_choice`, `records_score`, `does_not_affect_streak`
   - Cobre: H7
 - [ ] T103 Aceitação com Maestro dos fluxos H1, H3 e H4 no emulador Android

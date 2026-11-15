@@ -5,6 +5,8 @@ import type { ContentApi } from '@/features/content/contentApi';
 import type { Card } from '@/features/content/contract';
 import { resolveContent } from '@/features/content/resolveContent';
 import type { PreferencesRepository } from '@/features/onboarding/preferences';
+import type { QuizRepository } from '@/features/quiz/quizRepository';
+import { selectQuiz } from '@/features/quiz/selectQuiz';
 import type { SavedCardsRepository } from '@/features/saved/savedCards';
 import type { ProgressRepository } from '@/features/streak/progress';
 import type { Clock } from '@/shared/lib/dates';
@@ -20,6 +22,7 @@ export type DailyFeedDependencies = {
   preferences: PreferencesRepository;
   progress: ProgressRepository;
   saved: SavedCardsRepository;
+  quiz: QuizRepository;
 };
 
 type Props = {
@@ -77,9 +80,10 @@ export function DailyFeed({ deps, onNeedOnboarding, onFinished, onEditAreas, onO
     };
   }, [deps, attempt, onNeedOnboarding]);
 
-  /** Registra o progresso (H4) antes de ir para a tela de dia concluído. */
+  /** Registra o progresso (H4) e prepara o quiz (H7) antes de ir para a tela de dia concluído. */
   const completeDay = async (cards: Card[]) => {
     await deps.progress.completeDay(cards);
+    await deps.quiz.prepare(selectQuiz(cards));
     onFinished();
   };
 
