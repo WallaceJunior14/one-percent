@@ -146,7 +146,7 @@ Fontes em inglês são resumidas em português (RF-006).
 
 ### Agendamento
 
-O cron tem **três horários: 00:17, 03:17 e 06:17 (BRT)**, em minutos fora da hora cheia. Na primeira semana, o cron do GitHub atrasou de 6 a 10 horas; com três horários, o primeiro que executar publica o dia e os demais terminam sem trabalho (`--skip-if-published`). Há também disparo manual (`workflow_dispatch`). O pipeline é idempotente por data. Códigos de saída: 0 publicado, 1 falha temporária (o workflow repete uma vez após 5 min), 2 erro permanente, como chave ou créditos (não repete).
+O disparo principal é um **agendador externo às 05:00 (BRT)** pela API do GitHub (ADR 0006). O cron do GitHub fica como reserva, com **três horários: 00:17, 03:17 e 06:17 (BRT)**, em minutos fora da hora cheia. Na primeira semana, o cron do GitHub atrasou de 6 a 10 horas; com três horários, o primeiro que executar publica o dia e os demais terminam sem trabalho (`--skip-if-published`). Há também disparo manual (`workflow_dispatch`). O pipeline é idempotente por data. Códigos de saída: 0 publicado, 1 falha temporária (o workflow repete uma vez após 5 min), 2 erro permanente, como chave ou créditos (não repete).
 
 ## App: regras de domínio principais
 
@@ -247,3 +247,4 @@ ADRs a registrar com `dev-docs` na fase de setup: **0001** conteúdo estático p
 | 2026-11-14 | `composeFeed` com cotas por grupo de áreas (pesos como parâmetro) | RF-011 |
 | 2026-11-14 | Cron em três horários com `--skip-if-published`; códigos de saída 0/1/2 | Atrasos de 6 a 10 h no cron do GitHub; não repetir em erros permanentes |
 | 2026-11-14 | Contrato: `method`, `result` e `limitations` aceitam até 300 caracteres (antes 200); prompt pede até 200 | 15% dos resumos de 14/11 descartados por esses campos. Afrouxar um limite exige atualizar o app antes do pipeline: uma versão antiga rejeitaria o dia e cairia no cache (sem quebrar) |
+| 2026-11-14 | Agendador externo (cron-job.org) às 05:00 via `workflow_dispatch` com `skip_if_published`; cron do GitHub como reserva | Atraso de 7 h em 14/11 mesmo com três horários (ADR 0006) |

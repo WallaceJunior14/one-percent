@@ -1,9 +1,10 @@
 name: Daily content
 
 on:
-  # O cron do GitHub chega a atrasar horas (06/11 a 13/11: 6 a 10 h). Três horários em minutos
-  # "quebrados" (00:17, 03:17 e 06:17 em Brasília); o primeiro que rodar publica o dia e os
-  # demais terminam sem trabalho (--skip-if-published). Prazo: 07:00 (RF-001).
+  # Disparo principal: agendador externo às 05:00 (ADR 0006, docs/ops/agendador-externo.md),
+  # via workflow_dispatch com skip_if_published=true. O cron do GitHub atrasa horas (até 10 h
+  # observadas) e fica como reserva: três horários em minutos "quebrados"; o primeiro disparo
+  # que rodar publica o dia e os demais terminam sem trabalho (--skip-if-published).
   schedule:
     - cron: "17 3 * * *"
     - cron: "17 6 * * *"
@@ -12,6 +13,10 @@ on:
     inputs:
       fake:
         description: "Usar resumos falsos (sem chamar o LLM, sem custo)"
+        type: boolean
+        default: false
+      skip_if_published:
+        description: "Não fazer nada se o dia de hoje já foi publicado (usado pelo agendador externo)"
         type: boolean
         default: false
 
@@ -28,6 +33,7 @@ jobs:
     timeout-minutes: 75
     env:
       FAKE: ${{ github.event_name == 'workflow_dispatch' && inputs.fake }}
+      SKIP_IF_PUBLISHED: ${{ github.event_name == 'workflow_dispatch' && inputs.skip_if_published }}
     steps:
       - uses: actions/checkout@v5
 
@@ -69,7 +75,9 @@ jobs:
         run: |
           args="run --out ../site"
           if [ "$FAKE" = "true" ]; then args="$args --fake"; fi
-          if [ "${{ github.event_name }}" = "schedule" ]; then args="$args --skip-if-published"; fi
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "$SKIP_IF_PUBLISHED" = "true" ]; then
+            args="$args --skip-if-published"
+          fi
 
           # Códigos de saída do pipeline: 0 publicado; 1 falha temporária (repete);
           # 2 erro permanente, como chave inválida ou falta de créditos (não repete).
