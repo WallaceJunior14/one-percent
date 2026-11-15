@@ -142,7 +142,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 
 ## Fase 4 — App P2 (H5–H7)
 
-- [ ] T100 [P] Stories: círculos por área com conteúdo, viewer de 3–5 telas (toque/auto-avanço), estado "visto"
+- [x] T100 [P] Stories: círculos por área com conteúdo, viewer de 3–5 telas (toque/auto-avanço), estado "visto"
   - Teste: `stories/StoriesBar.test.tsx`, `stories/StoryViewer.test.tsx` — `only_areas_with_content`, `advances_on_tap`, `marks_as_seen`
   - Cobre: H5
 - [x] T101 [P] Salvos: alternar salvar/remover no card; aba "Salvos" com filtro por área e conteúdo completo offline

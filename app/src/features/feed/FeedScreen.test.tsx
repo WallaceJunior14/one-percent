@@ -13,6 +13,7 @@ async function setup(props: { stale?: boolean } = {}) {
   const onEditAreas = jest.fn();
   const onOpenSaved = jest.fn();
   const onToggleSave = jest.fn();
+  const onStorySeen = jest.fn();
   await render(
     <FeedScreen
       cards={cards}
@@ -22,10 +23,14 @@ async function setup(props: { stale?: boolean } = {}) {
       onEditAreas={onEditAreas}
       onOpenSaved={onOpenSaved}
       onToggleSave={onToggleSave}
+      stories={content.stories.filter((story) => story.areaId === 'science')}
+      seenStoryAreaIds={new Set()}
+      onStorySeen={onStorySeen}
+      cardsById={Object.fromEntries(content.cards.map((card) => [card.id, card]))}
       {...props}
     />,
   );
-  return { onFinished, onEditAreas, onOpenSaved, onToggleSave };
+  return { onFinished, onEditAreas, onOpenSaved, onToggleSave, onStorySeen };
 }
 
 test('lists_all_cards_in_one_column', async () => {
@@ -102,4 +107,28 @@ test('saves_from_the_detail_panel', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Remover dos salvos' }));
 
   expect(onToggleSave).toHaveBeenCalledWith(cards[1]);
+});
+
+test('finishing_a_story_marks_it_as_seen', async () => {
+  const { onStorySeen } = await setup();
+  const story = content.stories.find((s) => s.areaId === 'science')!;
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Story: Ciência' }));
+  for (let i = 0; i < story.slides.length; i++) {
+    await fireEvent.press(screen.getByRole('button', { name: 'Próxima manchete' }));
+  }
+
+  expect(onStorySeen).toHaveBeenCalledWith('science');
+  expect(screen.queryByRole('button', { name: 'Próxima manchete' })).toBeNull();
+});
+
+test('story_card_shortcut_opens_the_detail_panel', async () => {
+  await setup();
+  const story = content.stories.find((s) => s.areaId === 'science')!;
+  const card = content.cards.find((c) => c.id === story.slides[0].cardId)!;
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Story: Ciência' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Ler o card' }));
+
+  expect(screen.getByText(card.whyItMatters)).toBeOnTheScreen();
 });

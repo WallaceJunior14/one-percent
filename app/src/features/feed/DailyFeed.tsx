@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { ContentApi } from '@/features/content/contentApi';
-import type { Card } from '@/features/content/contract';
+import type { Card, Story } from '@/features/content/contract';
 import { resolveContent } from '@/features/content/resolveContent';
 import type { PreferencesRepository } from '@/features/onboarding/preferences';
 import type { QuizRepository } from '@/features/quiz/quizRepository';
 import { selectQuiz } from '@/features/quiz/selectQuiz';
 import type { SavedCardsRepository } from '@/features/saved/savedCards';
+import type { SeenStoriesRepository } from '@/features/stories/seenStories';
 import type { ProgressRepository } from '@/features/streak/progress';
 import type { Clock } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
@@ -23,6 +24,7 @@ export type DailyFeedDependencies = {
   progress: ProgressRepository;
   saved: SavedCardsRepository;
   quiz: QuizRepository;
+  seenStories: SeenStoriesRepository;
 };
 
 type Props = {
@@ -43,6 +45,9 @@ type ViewState =
       areaNames: Record<string, string>;
       stale: boolean;
       savedIds: Set<string>;
+      stories: Story[];
+      seenStoryAreaIds: Set<string>;
+      cardsById: Record<string, Card>;
     };
 
 /** Decide o que mostrar a partir das preferências e do conteúdo disponível. */
@@ -59,6 +64,9 @@ async function loadView(deps: DailyFeedDependencies): Promise<ViewState> {
     areaNames: Object.fromEntries(content.content.areas.map((area) => [area.id, area.name])),
     stale: content.status === 'stale',
     savedIds: await deps.saved.savedIds(),
+    stories: content.content.stories.filter((story) => preferences.areaIds.includes(story.areaId)),
+    seenStoryAreaIds: await deps.seenStories.seenToday(),
+    cardsById: Object.fromEntries(content.content.cards.map((card) => [card.id, card])),
   };
 }
 
@@ -99,6 +107,16 @@ export function DailyFeed({ deps, onNeedOnboarding, onFinished, onEditAreas, onO
     });
   };
 
+  /** Marca o story como visto (H5-3) e atualiza o círculo. */
+  const markStorySeen = async (areaId: string) => {
+    await deps.seenStories.markSeen(areaId);
+    setState((current) =>
+      current.kind === 'ready'
+        ? { ...current, seenStoryAreaIds: new Set([...current.seenStoryAreaIds, areaId]) }
+        : current,
+    );
+  };
+
   const retry = () => {
     setState({ kind: 'loading' });
     setAttempt((n) => n + 1);
@@ -134,6 +152,10 @@ export function DailyFeed({ deps, onNeedOnboarding, onFinished, onEditAreas, onO
           onOpenSaved={onOpenSaved}
           savedIds={state.savedIds}
           onToggleSave={(card) => void toggleSave(card)}
+          stories={state.stories}
+          seenStoryAreaIds={state.seenStoryAreaIds}
+          onStorySeen={(areaId) => void markStorySeen(areaId)}
+          cardsById={state.cardsById}
         />
       );
   }

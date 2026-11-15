@@ -1,7 +1,17 @@
 import { useCallback, useRef, useState } from 'react';
-import { FlatList, type FlatListProps, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  FlatList,
+  type FlatListProps,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
-import type { Card } from '@/features/content/contract';
+import type { Card, Story } from '@/features/content/contract';
+import { StoriesBar } from '@/features/stories/StoriesBar';
+import { StoryViewer } from '@/features/stories/StoryViewer';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import { CardDetailSheet } from './CardDetailSheet';
 import { CardPreview } from './CardPreview';
@@ -20,6 +30,12 @@ type Props = {
   /** Ids dos cards salvos, para o painel mostrar "Salvo" (H6). */
   savedIds: ReadonlySet<string>;
   onToggleSave(card: Card): void;
+  /** Stories das áreas escolhidas (H5). */
+  stories: Story[];
+  seenStoryAreaIds: ReadonlySet<string>;
+  onStorySeen(areaId: string): void;
+  /** Todos os cards do dia, para abrir o card de uma manchete de story. */
+  cardsById: Record<string, Card>;
   onOpenUrl?(url: string): void;
 };
 
@@ -42,11 +58,16 @@ export function FeedScreen({
   onOpenSaved,
   savedIds,
   onToggleSave,
+  stories,
+  seenStoryAreaIds,
+  onStorySeen,
+  cardsById,
   onOpenUrl,
 }: Props) {
   const styles = makeStyles(useTheme());
   const [seen, setSeen] = useState(0);
   const [openCard, setOpenCard] = useState<Card | null>(null);
+  const [openStory, setOpenStory] = useState<Story | null>(null);
   const finished = useRef(false);
 
   // O FlatList exige que este callback não mude entre renderizações.
@@ -59,6 +80,11 @@ export function FeedScreen({
     },
     [cards.length],
   );
+
+  const openStoryCard = (cardId: string) => {
+    setOpenStory(null);
+    setOpenCard(cardsById[cardId] ?? null);
+  };
 
   const finishOnce = () => {
     if (finished.current) return;
@@ -108,6 +134,14 @@ export function FeedScreen({
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={{ itemVisiblePercentThreshold: 60 }}
+        ListHeaderComponent={
+          <StoriesBar
+            stories={stories}
+            areaNames={areaNames}
+            seenAreaIds={seenStoryAreaIds}
+            onOpen={(areaId) => setOpenStory(stories.find((s) => s.areaId === areaId) ?? null)}
+          />
+        }
         ListFooterComponent={
           <View style={styles.end}>
             <Text style={styles.endTitle}>Você chegou ao fim de hoje</Text>
@@ -120,6 +154,25 @@ export function FeedScreen({
           </View>
         }
       />
+      <Modal
+        visible={openStory !== null}
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setOpenStory(null)}
+      >
+        {openStory && (
+          <StoryViewer
+            story={openStory}
+            areaName={areaNames[openStory.areaId] ?? ''}
+            onFinished={() => {
+              onStorySeen(openStory.areaId);
+              setOpenStory(null);
+            }}
+            onClose={() => setOpenStory(null)}
+            onOpenCard={openStoryCard}
+          />
+        )}
+      </Modal>
       <CardDetailSheet
         card={openCard}
         areaName={openCard ? (areaNames[openCard.areaId] ?? '') : ''}

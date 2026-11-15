@@ -3,6 +3,7 @@ import type { DailyFeedDependencies } from '@/features/feed/DailyFeed';
 import { createPreferencesRepository } from '@/features/onboarding/preferences';
 import { createQuizRepository } from '@/features/quiz/quizRepository';
 import { createSavedCardsRepository } from '@/features/saved/savedCards';
+import { createSeenStoriesRepository } from '@/features/stories/seenStories';
 import { createProgressRepository } from '@/features/streak/progress';
 import { systemClock } from '@/shared/lib/dates';
 import { asyncStorageStore } from '@/shared/lib/keyValueStore';
@@ -15,6 +16,7 @@ export const preferencesRepository = createPreferencesRepository(asyncStorageSto
 export const progressRepository = createProgressRepository(asyncStorageStore, systemClock);
 export const savedCardsRepository = createSavedCardsRepository(asyncStorageStore, systemClock);
 export const quizRepository = createQuizRepository(asyncStorageStore, systemClock);
+export const seenStoriesRepository = createSeenStoriesRepository(asyncStorageStore, systemClock);
 
 export const appDependencies: DailyFeedDependencies = {
   api: createHttpContentApi(CONTENT_BASE_URL),
@@ -24,4 +26,5 @@ export const appDependencies: DailyFeedDependencies = {
   progress: progressRepository,
   saved: savedCardsRepository,
   quiz: quizRepository,
+  seenStories: seenStoriesRepository,
 };

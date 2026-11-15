@@ -6,6 +6,7 @@ import { type DailyContent, parseDailyContent } from '@/features/content/contrac
 import { createPreferencesRepository, type Preferences } from '@/features/onboarding/preferences';
 import { createQuizRepository } from '@/features/quiz/quizRepository';
 import { createSavedCardsRepository } from '@/features/saved/savedCards';
+import { createSeenStoriesRepository } from '@/features/stories/seenStories';
 import { createProgressRepository } from '@/features/streak/progress';
 import {
   contentApiFailing,
@@ -36,6 +37,7 @@ async function setup({
   const progress = createProgressRepository(createMemoryStore(), clock);
   const saved = createSavedCardsRepository(createMemoryStore(), clock);
   const quiz = createQuizRepository(createMemoryStore(), clock);
+  const seenStories = createSeenStoriesRepository(createMemoryStore(), clock);
   const deps: DailyFeedDependencies = {
     api,
     cache: createMemoryStore(),
@@ -44,6 +46,7 @@ async function setup({
     progress,
     saved,
     quiz,
+    seenStories,
   };
   const callbacks = {
     onNeedOnboarding: jest.fn(),
@@ -150,4 +153,13 @@ test('completing_the_day_prepares_the_quiz', async () => {
   const prepared = await quiz.today();
   expect(prepared?.questions).toHaveLength(3);
   expect(new Set(prepared?.questions.map((card) => card.areaId)).size).toBe(3);
+});
+
+test('shows_stories_only_for_selected_areas', async () => {
+  await setup({ preferences: { areaIds: ['economy', 'health'], subareaIds: [] } });
+
+  await screen.findByTestId('feed-list');
+  expect(screen.getByRole('button', { name: 'Story: Economia' })).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Story: Saúde' })).toBeOnTheScreen();
+  expect(screen.queryByRole('button', { name: /Story: Tecnologia/ })).toBeNull();
 });
