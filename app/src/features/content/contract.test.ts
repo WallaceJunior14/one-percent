@@ -64,3 +64,17 @@ test('error_message_points_to_the_invalid_field', () => {
 
   expect(() => parseDailyContent(invalid)).toThrow(/cards\.0\.url/);
 });
+
+describe('paper_scientific_fields_limits', () => {
+  test.each(['method', 'result', 'limitations'])('%s accepts 300 chars', (field) => {
+    const day = mutatedSample((d) => (firstCardOfType(d, 'paper')[field] = 'x'.repeat(300)));
+
+    expect(() => parseDailyContent(day)).not.toThrow();
+  });
+
+  test.each(['method', 'result', 'limitations'])('%s rejects 301 chars', (field) => {
+    const day = mutatedSample((d) => (firstCardOfType(d, 'paper')[field] = 'x'.repeat(301)));
+
+    expect(() => parseDailyContent(day)).toThrow(ContractViolationError);
+  });
+});

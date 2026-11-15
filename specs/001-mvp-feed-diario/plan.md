@@ -246,3 +246,4 @@ ADRs a registrar com `dev-docs` na fase de setup: **0001** conteúdo estático p
 | 2026-11-14 | GitHub Pages ativo em `wallacejunior14.github.io/one-percent` | Primeira publicação real (T053) |
 | 2026-11-14 | `composeFeed` com cotas por grupo de áreas (pesos como parâmetro) | RF-011 |
 | 2026-11-14 | Cron em três horários com `--skip-if-published`; códigos de saída 0/1/2 | Atrasos de 6 a 10 h no cron do GitHub; não repetir em erros permanentes |
+| 2026-11-14 | Contrato: `method`, `result` e `limitations` aceitam até 300 caracteres (antes 200); prompt pede até 200 | 15% dos resumos de 14/11 descartados por esses campos. Afrouxar um limite exige atualizar o app antes do pipeline: uma versão antiga rejeitaria o dia e cairia no cache (sem quebrar) |

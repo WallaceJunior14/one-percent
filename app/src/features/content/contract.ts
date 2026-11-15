@@ -14,6 +14,8 @@ const httpsUrl = z
   .regex(/^https:\/\/\S+$/);
 const shortText = z.string().min(1).max(200);
 const longText = z.string().min(1).max(600);
+/** Campos técnicos de artigos (método, resultado, limitações). */
+const mediumText = z.string().min(1).max(300);
 
 const quizSchema = z.strictObject({
   question: shortText,
@@ -44,9 +46,9 @@ const paperCardSchema = z.strictObject({
   ...cardBase,
   type: z.literal('paper'),
   originalTitle: z.string().min(1).max(400),
-  method: shortText,
-  result: shortText,
-  limitations: shortText,
+  method: mediumText,
+  result: mediumText,
+  limitations: mediumText,
   authors: z.array(shortText).min(1).max(3),
   authorsTruncated: z.boolean(),
   venue: shortText,

@@ -110,3 +110,24 @@ def test_error_message_points_to_the_invalid_field(sample_day: dict[str, Any]) -
 
     with pytest.raises(ContractViolationError, match=r"cards/0/url"):
         validate_daily_content(day)
+
+
+@pytest.mark.parametrize("field", ["method", "result", "limitations"])
+def test_paper_scientific_fields_accept_up_to_300_chars(
+    sample_day: dict[str, Any], field: str
+) -> None:
+    day = copy.deepcopy(sample_day)
+    _first_card_of_type(day, "paper")[field] = "x" * 300
+
+    validate_daily_content(day)
+
+
+@pytest.mark.parametrize("field", ["method", "result", "limitations"])
+def test_paper_scientific_fields_reject_over_300_chars(
+    sample_day: dict[str, Any], field: str
+) -> None:
+    day = copy.deepcopy(sample_day)
+    _first_card_of_type(day, "paper")[field] = "x" * 301
+
+    with pytest.raises(ContractViolationError):
+        validate_daily_content(day)

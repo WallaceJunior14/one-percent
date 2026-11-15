@@ -11,6 +11,8 @@ from one_percent.domain.normalize import canonical_url
 
 ShortText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
 LongText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=600)]
+MediumText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=300)]
+"""Campos técnicos de artigos (método, resultado, limitações): mesmo limite do contrato."""
 
 
 class SummarizerError(RuntimeError):
@@ -33,9 +35,9 @@ class Summary(BaseModel):
     title: ShortText
     summary: LongText
     why_it_matters: ShortText
-    method: ShortText | None = None
-    result: ShortText | None = None
-    limitations: ShortText | None = None
+    method: MediumText | None = None
+    result: MediumText | None = None
+    limitations: MediumText | None = None
     quiz: Quiz
 
 

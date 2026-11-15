@@ -127,3 +127,10 @@ def test_summary_rejects_empty_or_too_long_text(field: str) -> None:
         _summary(**{field: ""})
     with pytest.raises(ValueError):
         _summary(**{field: "x" * 601})
+
+
+@pytest.mark.parametrize("field", ["method", "result", "limitations"])
+def test_summary_scientific_fields_allow_up_to_300_chars(field: str) -> None:
+    assert getattr(_summary(**{field: "x" * 300}), field) == "x" * 300
+    with pytest.raises(ValueError):
+        _summary(**{field: "x" * 301})

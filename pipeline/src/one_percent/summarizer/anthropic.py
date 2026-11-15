@@ -46,7 +46,8 @@ Campos:
 - title: título em português, até 120 caracteres (traduza se o original estiver em outro idioma).
 - summary: até 3 frases, no máximo 500 caracteres.
 - why_it_matters: 1 frase, até 160 caracteres, sobre por que isso importa para o leitor.
-- method, result, limitations (só para artigos científicos): 1 frase cada, até 160 caracteres.
+- method, result, limitations (só para artigos científicos): 1 frase curta cada, de preferência \
+até 200 caracteres e nunca mais de 280. Diga o essencial; detalhes de técnica podem ficar de fora.
 - quiz: uma pergunta de múltipla escolha sobre o fato principal do item; correct_answer é a \
 resposta certa e distractors são 3 alternativas erradas, plausíveis e diferentes entre si \
 (até 100 caracteres cada).
