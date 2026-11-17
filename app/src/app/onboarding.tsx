@@ -17,7 +17,9 @@ export default function OnboardingRoute() {
 
   const complete = async (preferences: Preferences) => {
     await preferencesRepository.save(preferences);
-    if (router.canGoBack()) router.back();
+    // Primeira vez: oferece o lembrete diário antes do feed (H8-3).
+    if (initial === null) router.replace({ pathname: '/reminder', params: { first: '1' } });
+    else if (router.canGoBack()) router.back();
     else router.replace('/');
   };
 

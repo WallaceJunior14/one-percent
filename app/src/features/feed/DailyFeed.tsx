@@ -5,6 +5,7 @@ import type { ContentApi } from '@/features/content/contentApi';
 import type { Card, Story } from '@/features/content/contract';
 import { resolveContent } from '@/features/content/resolveContent';
 import type { PreferencesRepository } from '@/features/onboarding/preferences';
+import type { ReminderService } from '@/features/reminders/reminderScheduler';
 import type { QuizRepository } from '@/features/quiz/quizRepository';
 import { selectQuiz } from '@/features/quiz/selectQuiz';
 import type { SavedCardsRepository } from '@/features/saved/savedCards';
@@ -25,6 +26,7 @@ export type DailyFeedDependencies = {
   saved: SavedCardsRepository;
   quiz: QuizRepository;
   seenStories: SeenStoriesRepository;
+  reminders: Pick<ReminderService, 'refresh'>;
 };
 
 type Props = {
@@ -71,6 +73,15 @@ async function loadView(deps: DailyFeedDependencies): Promise<ViewState> {
   };
 }
 
+/** Lembrete é acessório: uma falha nas notificações não pode travar o feed. */
+async function refreshReminders(deps: DailyFeedDependencies) {
+  try {
+    await deps.reminders.refresh();
+  } catch {
+    // sem notificação hoje; a próxima abertura tenta de novo
+  }
+}
+
 /** Junta preferências + conteúdo + composição e escolhe o que mostrar (H1, H3, RNF-006). */
 export function DailyFeed({
   deps,
@@ -83,6 +94,11 @@ export function DailyFeed({
   const styles = makeStyles(useTheme());
   const [state, setState] = useState<ViewState>({ kind: 'loading' });
   const [attempt, setAttempt] = useState(0);
+
+  // Renova os lembretes dos próximos dias a cada abertura (H8).
+  useEffect(() => {
+    void refreshReminders(deps);
+  }, [deps]);
 
   useEffect(() => {
     let cancelled = false;
@@ -100,6 +116,7 @@ export function DailyFeed({
   const completeDay = async (cards: Card[]) => {
     await deps.progress.completeDay(cards);
     await deps.quiz.prepare(selectQuiz(cards));
+    await refreshReminders(deps); // tira o lembrete de hoje (H8-2)
     onFinished();
   };
 

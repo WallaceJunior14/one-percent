@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { ScoreEntry } from '@/features/quiz/quizRepository';
+import { formatTime, type ReminderSettings } from '@/features/reminders/reminderScheduler';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import type { Streak } from './calculateStreak';
 import type { Progress } from './progress';
@@ -12,6 +13,8 @@ type Props = {
   quizAveragePercent: number | null;
   areaNames: Record<string, string>;
   onBack(): void;
+  reminder: ReminderSettings;
+  onEditReminder(): void;
 };
 
 /** Acertos sobre perguntas respondidas em todo o histórico, em % arredondado (H9-1). */
@@ -25,9 +28,18 @@ export function quizAverage(history: readonly ScoreEntry[]): number | null {
 const days = (n: number) => `${n} ${n === 1 ? 'dia' : 'dias'}`;
 
 /** Progresso acumulado (H9): sequências, totais lidos, distribuição por área e quiz. */
-export function ProfileScreen({ streak, totals, quizAveragePercent, areaNames, onBack }: Props) {
+export function ProfileScreen({
+  streak,
+  totals,
+  quizAveragePercent,
+  areaNames,
+  onBack,
+  reminder,
+  onEditReminder,
+}: Props) {
   const theme = useTheme();
   const styles = makeStyles(theme);
+  const reminderLabel = reminder.enabled ? formatTime(reminder) : 'desligado';
   const areas = Object.entries(totals.byArea)
     .filter(([, count]) => count > 0)
     .sort(([, a], [, b]) => b - a);
@@ -92,6 +104,16 @@ export function ProfileScreen({ streak, totals, quizAveragePercent, areaNames, o
           })
         )}
       </View>
+
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Lembrete diário: ${reminderLabel}`}
+        onPress={onEditReminder}
+        style={[styles.box, styles.reminder]}
+      >
+        <Text style={styles.sectionTitle}>Lembrete diário</Text>
+        <Text style={styles.muted}>{reminderLabel}</Text>
+      </Pressable>
     </ScrollView>
   );
 }
@@ -134,6 +156,7 @@ function makeStyles({ colors, spacing }: Theme) {
     muted: { fontSize: 15, color: colors.textMuted },
     quiz: { fontSize: 17, fontWeight: '700', color: colors.text, textAlign: 'center' },
     sectionTitle: { fontSize: 17, fontWeight: '700', color: colors.text },
+    reminder: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     areaRow: { gap: 4 },
     areaText: { flexDirection: 'row', justifyContent: 'space-between' },
     areaName: { fontSize: 15, color: colors.text },

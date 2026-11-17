@@ -27,7 +27,9 @@ async function setup({
   api = contentApiReturning(SAMPLE),
   preferences = ALL as Preferences | null,
   clock = TODAY,
+  reminderRefresh = async () => {},
 }: {
+  reminderRefresh?: () => Promise<void>;
   api?: ContentApi;
   preferences?: Preferences | null;
   clock?: ReturnType<typeof fixedClock>;
@@ -38,6 +40,7 @@ async function setup({
   const saved = createSavedCardsRepository(createMemoryStore(), clock);
   const quiz = createQuizRepository(createMemoryStore(), clock);
   const seenStories = createSeenStoriesRepository(createMemoryStore(), clock);
+  const reminders = { refresh: jest.fn(reminderRefresh) };
   const deps: DailyFeedDependencies = {
     api,
     cache: createMemoryStore(),
@@ -47,6 +50,7 @@ async function setup({
     saved,
     quiz,
     seenStories,
+    reminders,
   };
   const callbacks = {
     onNeedOnboarding: jest.fn(),
@@ -56,7 +60,7 @@ async function setup({
     onOpenProfile: jest.fn(),
   };
   await render(<DailyFeed deps={deps} {...callbacks} />);
-  return { ...callbacks, progress, saved, quiz };
+  return { ...callbacks, progress, saved, quiz, reminders };
 }
 
 test('shows_feed_after_loading', async () => {
@@ -163,4 +167,38 @@ test('shows_stories_only_for_selected_areas', async () => {
   expect(screen.getByRole('button', { name: 'Story: Economia' })).toBeOnTheScreen();
   expect(screen.getByRole('button', { name: 'Story: Saúde' })).toBeOnTheScreen();
   expect(screen.queryByRole('button', { name: /Story: Tecnologia/ })).toBeNull();
+});
+
+test('refreshes_reminders_when_opening_the_feed', async () => {
+  const { reminders } = await setup();
+
+  await screen.findByTestId('feed-list');
+
+  expect(reminders.refresh).toHaveBeenCalledTimes(1);
+});
+
+test('completing_the_day_refreshes_reminders_after_recording_progress', async () => {
+  const { onFinished, progress, reminders } = await setup();
+  await screen.findByTestId('feed-list');
+  let completedWhenRefreshed: string[] = [];
+  reminders.refresh.mockImplementation(async () => {
+    completedWhenRefreshed = (await progress.load()).completedDays;
+  });
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'Concluir o dia' }));
+
+  await waitFor(() => expect(onFinished).toHaveBeenCalledTimes(1));
+  expect(completedWhenRefreshed).toEqual(['2026-11-01']);
+});
+
+test('reminder_failures_do_not_block_completing_the_day', async () => {
+  const { onFinished } = await setup({
+    reminderRefresh: async () => {
+      throw new Error('notifications unavailable');
+    },
+  });
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'Concluir o dia' }));
+
+  await waitFor(() => expect(onFinished).toHaveBeenCalledTimes(1));
 });

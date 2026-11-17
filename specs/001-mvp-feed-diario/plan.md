@@ -166,7 +166,7 @@ Funções puras, testadas primeiro (TDD):
 
 Dependências injetáveis: `Clock`, `KeyValueStore`, `ContentApi`, `NotificationScheduler`.
 
-**Notificação (H8):** o app agenda uma notificação local diária. Ao concluir o dia, cancela a de hoje e agenda a de amanhã, atendendo ao critério 2 sem servidor.
+**Notificação (H8):** o app agenda notificações locais de data fixa, uma por dia, nos próximos 7 dias, no horário escolhido. Cada abertura do app e cada dia concluído cancelam tudo e reagendam; o dia de hoje fica de fora se já foi concluído ou se o horário já passou, atendendo ao critério 2 sem servidor. Limite conhecido: quem não abrir o app por 7 dias para de receber o lembrete. Sem permissão do sistema, o lembrete fica desligado.
 
 **Links (RF-010):** abertos com `Linking.openURL`, só com esquema `https:` (o esquema é validado).
 
@@ -248,3 +248,4 @@ ADRs a registrar com `dev-docs` na fase de setup: **0001** conteúdo estático p
 | 2026-11-14 | Cron em três horários com `--skip-if-published`; códigos de saída 0/1/2 | Atrasos de 6 a 10 h no cron do GitHub; não repetir em erros permanentes |
 | 2026-11-14 | Contrato: `method`, `result` e `limitations` aceitam até 300 caracteres (antes 200); prompt pede até 200 | 15% dos resumos de 14/11 descartados por esses campos. Afrouxar um limite exige atualizar o app antes do pipeline: uma versão antiga rejeitaria o dia e cairia no cache (sem quebrar) |
 | 2026-11-14 | Agendador externo (cron-job.org) às 05:00 via `workflow_dispatch` com `skip_if_published`; cron do GitHub como reserva | Atraso de 7 h em 14/11 mesmo com três horários (ADR 0006) |
+| 2026-11-16 | Lembrete com notificações de data fixa para 7 dias, reagendadas ao abrir e ao concluir, em vez de uma notificação diária repetida | Uma notificação repetida não pula só o dia de hoje; a de data fixa atende H8-2 sem servidor |

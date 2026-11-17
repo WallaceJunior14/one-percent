@@ -7,6 +7,7 @@ const TOTALS = { cards: 42, papers: 12, byArea: { tech: 20, economy: 15, health:
 
 async function renderScreen(props: Partial<Parameters<typeof ProfileScreen>[0]> = {}) {
   const onBack = jest.fn();
+  const onEditReminder = jest.fn();
   await render(
     <ProfileScreen
       streak={{ current: 3, best: 8 }}
@@ -14,10 +15,12 @@ async function renderScreen(props: Partial<Parameters<typeof ProfileScreen>[0]> 
       quizAveragePercent={67}
       areaNames={AREA_NAMES}
       onBack={onBack}
+      reminder={{ enabled: false, hour: 8, minute: 0 }}
+      onEditReminder={onEditReminder}
       {...props}
     />,
   );
-  return onBack;
+  return Object.assign(onBack, { onEditReminder });
 }
 
 test('shows_current_and_best_streak', async () => {
@@ -79,6 +82,20 @@ test('back_button_leaves_the_profile', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Voltar' }));
 
   expect(onBack).toHaveBeenCalledTimes(1);
+});
+
+test('shows_reminder_off_and_opens_its_settings', async () => {
+  const { onEditReminder } = await renderScreen();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Lembrete diário: desligado' }));
+
+  expect(onEditReminder).toHaveBeenCalledTimes(1);
+});
+
+test('shows_reminder_time_when_on', async () => {
+  await renderScreen({ reminder: { enabled: true, hour: 7, minute: 30 } });
+
+  expect(screen.getByRole('button', { name: 'Lembrete diário: 07:30' })).toBeOnTheScreen();
 });
 
 describe('quizAverage', () => {

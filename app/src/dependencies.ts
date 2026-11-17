@@ -4,6 +4,8 @@ import { createPreferencesRepository } from '@/features/onboarding/preferences';
 import { createQuizRepository } from '@/features/quiz/quizRepository';
 import { createSavedCardsRepository } from '@/features/saved/savedCards';
 import { createSeenStoriesRepository } from '@/features/stories/seenStories';
+import { expoNotificationScheduler } from '@/features/reminders/expoNotificationScheduler';
+import { createReminderService } from '@/features/reminders/reminderScheduler';
 import { createProgressRepository } from '@/features/streak/progress';
 import { systemClock } from '@/shared/lib/dates';
 import { asyncStorageStore } from '@/shared/lib/keyValueStore';
@@ -17,6 +19,12 @@ export const progressRepository = createProgressRepository(asyncStorageStore, sy
 export const savedCardsRepository = createSavedCardsRepository(asyncStorageStore, systemClock);
 export const quizRepository = createQuizRepository(asyncStorageStore, systemClock);
 export const seenStoriesRepository = createSeenStoriesRepository(asyncStorageStore, systemClock);
+export const reminderService = createReminderService({
+  store: asyncStorageStore,
+  scheduler: expoNotificationScheduler,
+  progress: progressRepository,
+  clock: systemClock,
+});
 
 export const appDependencies: DailyFeedDependencies = {
   api: createHttpContentApi(CONTENT_BASE_URL),
@@ -27,4 +35,5 @@ export const appDependencies: DailyFeedDependencies = {
   saved: savedCardsRepository,
   quiz: quizRepository,
   seenStories: seenStoriesRepository,
+  reminders: reminderService,
 };
