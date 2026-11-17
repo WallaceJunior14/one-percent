@@ -11,11 +11,12 @@ import anthropic
 import httpx
 
 from one_percent.config import load_config
+from one_percent.contract import ContractViolationError
 from one_percent.pipeline import run_pipeline
 from one_percent.publishing.day import local_date
 from one_percent.sources.arxiv import MIN_INTERVAL_SECONDS
 from one_percent.sources.collect import build_sources
-from one_percent.summarizer import Summarizer
+from one_percent.summarizer import Summarizer, SummarizerError
 from one_percent.summarizer.anthropic import MAX_ITEMS_PER_RUN, AnthropicSummarizer
 from one_percent.summarizer.fake import FakeSummarizer
 
@@ -105,4 +106,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     except anthropic.APIConnectionError as error:
         logger.error("sem conexão com a API da Anthropic: %s", error)
         return EXIT_NOT_PUBLISHED
+    except SummarizerError as error:
+        logger.error("resumos não gerados: %s", error)
+        return EXIT_NOT_PUBLISHED
+    except ContractViolationError as error:
+        # Bug do pipeline: repetir gastaria outro batch para falhar igual.
+        logger.error("dia não publicado, conteúdo fora do contrato: %s", error)
+        return EXIT_PERMANENT_ERROR
     return EXIT_PUBLISHED if report.published else EXIT_NOT_PUBLISHED

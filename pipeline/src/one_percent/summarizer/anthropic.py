@@ -24,7 +24,8 @@ MAX_TOKENS = 2048
 MAX_ITEMS_PER_RUN = 150
 """Teto de custo: com ~1,5 mil tokens por item, ~US$ 0,05 por execução (RNF-005)."""
 POLL_INTERVAL_SECONDS = 30.0
-TIMEOUT_SECONDS = 50 * 60.0
+TIMEOUT_SECONDS = 25 * 60.0
+"""Duas tentativas (com a pausa entre elas) cabem no timeout do job do workflow (CR-002)."""
 
 SYSTEM_PROMPT = """\
 Você escreve cards curtos, em português do Brasil, para um app de aprendizado diário.

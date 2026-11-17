@@ -8,8 +8,9 @@ import httpx
 import pytest
 
 from one_percent import cli
+from one_percent.contract import ContractViolationError
 from one_percent.domain.models import ContentItem
-from one_percent.summarizer import Summary
+from one_percent.summarizer import SummarizerError, Summary
 from tests.helpers import fixture_bytes
 
 NOW = datetime(2026, 11, 1, 10, 0, tzinfo=UTC).isoformat()
@@ -115,3 +116,31 @@ def test_skip_if_published_runs_when_latest_is_from_yesterday(
 
     assert exit_code == cli.EXIT_NOT_PUBLISHED
     assert "não publicado" in caplog.text
+
+
+@pytest.mark.usefixtures("network")
+def test_batch_timeout_exits_1_to_be_retried(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    error = SummarizerError("batch msgbatch_x: tempo esgotado; batch cancelado")
+    monkeypatch.setattr(cli, "make_summarizer", lambda args: FailingSummarizer(error))
+
+    exit_code = cli.main(["run", "--out", str(tmp_path), "--now", NOW])
+
+    assert exit_code == cli.EXIT_NOT_PUBLISHED
+    assert "tempo esgotado" in caplog.text
+
+
+@pytest.mark.usefixtures("network")
+def test_contract_violation_exits_2_without_retry(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    def broken_publish(*args: object) -> bool:
+        raise ContractViolationError("1 violação(ões) do contrato: cards/0/title: too long")
+
+    monkeypatch.setattr("one_percent.pipeline.publish", broken_publish)
+
+    exit_code = cli.main(["run", "--out", str(tmp_path), "--now", NOW, "--fake"])
+
+    assert exit_code == cli.EXIT_PERMANENT_ERROR
+    assert "violação(ões) do contrato" in caplog.text
