@@ -19,7 +19,7 @@ export default function ReminderRoute() {
 
   const save = async (settings: ReminderSettings) => {
     const result = await reminderService.update(settings);
-    if (!result.permissionDenied) {
+    if (result.status === 'saved') {
       if (fromOnboarding) router.replace('/');
       else router.back();
     }

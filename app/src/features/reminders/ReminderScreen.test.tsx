@@ -1,13 +1,17 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
-import { DEFAULT_REMINDER, type ReminderSettings } from './reminderScheduler';
+import {
+  DEFAULT_REMINDER,
+  type ReminderSaveStatus,
+  type ReminderSettings,
+} from './reminderScheduler';
 import { ReminderScreen } from './ReminderScreen';
 
 async function setup({
   initial = DEFAULT_REMINDER as ReminderSettings,
-  permissionDenied = false,
+  status = 'saved' as ReminderSaveStatus,
 } = {}) {
-  const onSave = jest.fn(async () => ({ permissionDenied }));
+  const onSave = jest.fn(async () => ({ status }));
   await render(<ReminderScreen initial={initial} saveLabel="Começar" onSave={onSave} />);
   return { onSave };
 }
@@ -47,11 +51,23 @@ test('keeps_a_saved_time_outside_the_suggestions', async () => {
 });
 
 test('explains_when_permission_is_denied', async () => {
-  await setup({ permissionDenied: true });
+  await setup({ status: 'permission-denied' });
 
   await fireEvent.press(toggle());
   await fireEvent.press(screen.getByRole('button', { name: 'Começar' }));
 
   expect(await screen.findByText(/Sem permissão para notificações/)).toBeOnTheScreen();
+  expect(toggle()).not.toBeChecked();
+});
+
+test('explains_when_the_device_cannot_schedule', async () => {
+  await setup({ status: 'unavailable' });
+
+  await fireEvent.press(toggle());
+  await fireEvent.press(screen.getByRole('button', { name: 'Começar' }));
+
+  expect(
+    await screen.findByText(/Não foi possível ativar o lembrete neste aparelho/),
+  ).toBeOnTheScreen();
   expect(toggle()).not.toBeChecked();
 });

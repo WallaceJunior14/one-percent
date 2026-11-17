@@ -38,12 +38,18 @@ export type NotificationScheduler = {
   schedule(at: Date, message: { title: string; body: string }): Promise<void>;
 };
 
+/** `unavailable`: o aparelho não conseguiu pedir permissão ou agendar (ex.: limite do Expo Go). */
+export type ReminderSaveStatus = 'saved' | 'permission-denied' | 'unavailable';
+
 export type ReminderService = {
   settings(): Promise<ReminderSettings>;
-  /** Salva e reagenda. Ao ligar, pede permissão; se negada, o lembrete fica desligado. */
+  /**
+   * Salva e reagenda. Ao ligar, pede permissão; sem permissão ou se o agendamento falhar,
+   * o lembrete fica desligado. Nunca rejeita.
+   */
   update(
     settings: ReminderSettings,
-  ): Promise<{ settings: ReminderSettings; permissionDenied: boolean }>;
+  ): Promise<{ settings: ReminderSettings; status: ReminderSaveStatus }>;
   /** Reagenda a partir de agora: chamar ao abrir o app e ao concluir o dia (H8-2). */
   refresh(): Promise<void>;
 };
@@ -90,11 +96,22 @@ export function createReminderService({
   return {
     settings,
     async update(requested) {
-      const permissionDenied = requested.enabled && !(await scheduler.requestPermission());
-      const saved = permissionDenied ? { ...requested, enabled: false } : requested;
-      await store.setItem(REMINDER_KEY, JSON.stringify(saved));
-      await reschedule(saved);
-      return { settings: saved, permissionDenied };
+      const save = async (settings: ReminderSettings, status: ReminderSaveStatus) => {
+        await store.setItem(REMINDER_KEY, JSON.stringify(settings));
+        return { settings, status };
+      };
+      const off = { ...requested, enabled: false };
+      try {
+        if (requested.enabled && !(await scheduler.requestPermission())) {
+          await reschedule(off);
+          return await save(off, 'permission-denied');
+        }
+        await reschedule(requested);
+        return await save(requested, 'saved');
+      } catch {
+        await scheduler.cancelAll().catch(() => undefined);
+        return save(off, 'unavailable');
+      }
     },
     async refresh() {
       await reschedule(await settings());

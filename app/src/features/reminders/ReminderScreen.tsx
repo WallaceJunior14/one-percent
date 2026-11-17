@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { type Theme, useTheme } from '@/shared/ui/theme';
-import { formatTime, type ReminderSettings } from './reminderScheduler';
+import { formatTime, type ReminderSaveStatus, type ReminderSettings } from './reminderScheduler';
 
 type Props = {
   initial: ReminderSettings;
   /** "Começar" no fim do onboarding, "Salvar" a partir do perfil. */
   saveLabel: string;
-  onSave(settings: ReminderSettings): Promise<{ permissionDenied: boolean }>;
+  onSave(settings: ReminderSettings): Promise<{ status: ReminderSaveStatus }>;
   onBack?(): void;
 };
 
@@ -18,7 +18,7 @@ const SUGGESTED_HOURS = [6, 7, 8, 12, 18, 21];
 export function ReminderScreen({ initial, saveLabel, onSave, onBack }: Props) {
   const styles = makeStyles(useTheme());
   const [settings, setSettings] = useState(initial);
-  const [permissionDenied, setPermissionDenied] = useState(false);
+  const [status, setStatus] = useState<ReminderSaveStatus>('saved');
 
   const times = SUGGESTED_HOURS.map((hour) => ({ hour, minute: 0 }));
   if (!times.some((time) => formatTime(time) === formatTime(initial))) {
@@ -28,8 +28,8 @@ export function ReminderScreen({ initial, saveLabel, onSave, onBack }: Props) {
 
   const save = async () => {
     const result = await onSave(settings);
-    setPermissionDenied(result.permissionDenied);
-    if (result.permissionDenied) setSettings({ ...settings, enabled: false });
+    setStatus(result.status);
+    if (result.status !== 'saved') setSettings({ ...settings, enabled: false });
   };
 
   return (
@@ -84,7 +84,13 @@ export function ReminderScreen({ initial, saveLabel, onSave, onBack }: Props) {
           </View>
         )}
 
-        {permissionDenied && (
+        {status === 'unavailable' && (
+          <Text style={styles.warning}>
+            Não foi possível ativar o lembrete neste aparelho. O restante do app funciona
+            normalmente.
+          </Text>
+        )}
+        {status === 'permission-denied' && (
           <Text style={styles.warning}>
             Sem permissão para notificações. Ative nas configurações do Android para usar o
             lembrete.

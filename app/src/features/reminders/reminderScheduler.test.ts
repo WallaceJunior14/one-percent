@@ -4,7 +4,7 @@ import { createReminderService, type NotificationScheduler } from './reminderSch
 
 type Scheduled = { at: Date; title: string; body: string };
 
-function fakeScheduler({ granted = true } = {}) {
+function fakeScheduler({ granted = true, failing = false } = {}) {
   const scheduled: Scheduled[] = [];
   const scheduler: NotificationScheduler & { scheduled: Scheduled[]; permissionAsked: number } = {
     scheduled,
@@ -17,15 +17,16 @@ function fakeScheduler({ granted = true } = {}) {
       scheduled.length = 0;
     },
     async schedule(at, message) {
+      if (failing) throw new Error('native module rejected');
       scheduled.push({ at, ...message });
     },
   };
   return scheduler;
 }
 
-function setup({ now = new Date(2026, 10, 16, 6, 0), granted = true } = {}) {
+function setup({ now = new Date(2026, 10, 16, 6, 0), granted = true, failing = false } = {}) {
   const clock = fixedClock(now);
-  const scheduler = fakeScheduler({ granted });
+  const scheduler = fakeScheduler({ granted, failing });
   const progress = createProgressRepository(createMemoryStore(), clock);
   const service = createReminderService({ store: createMemoryStore(), scheduler, progress, clock });
   return { service, scheduler, progress };
@@ -50,7 +51,7 @@ test('schedules_at_chosen_time', async () => {
 
   expect(result).toEqual({
     settings: { enabled: true, hour: 7, minute: 30 },
-    permissionDenied: false,
+    status: 'saved',
   });
   expect(days(scheduler.scheduled)).toEqual([16, 17, 18, 19, 20, 21, 22]);
   for (const { at } of scheduler.scheduled) {
@@ -114,7 +115,7 @@ test('stays_off_when_permission_is_denied', async () => {
 
   expect(result).toEqual({
     settings: { enabled: false, hour: 7, minute: 30 },
-    permissionDenied: true,
+    status: 'permission-denied',
   });
   expect(await service.settings()).toEqual({ enabled: false, hour: 7, minute: 30 });
   expect(scheduler.scheduled).toHaveLength(0);
@@ -131,4 +132,29 @@ test('ignores_corrupted_settings', async () => {
   });
 
   expect(await service.settings()).toEqual({ enabled: false, hour: 8, minute: 0 });
+});
+
+test('stays_off_when_the_device_cannot_schedule', async () => {
+  const { service, scheduler } = setup({ failing: true });
+
+  const result = await service.update({ enabled: true, hour: 7, minute: 30 });
+
+  expect(result).toEqual({
+    settings: { enabled: false, hour: 7, minute: 30 },
+    status: 'unavailable',
+  });
+  expect((await service.settings()).enabled).toBe(false);
+  expect(scheduler.scheduled).toHaveLength(0);
+});
+
+test('stays_off_when_asking_permission_fails', async () => {
+  const { service, scheduler } = setup();
+  scheduler.requestPermission = async () => {
+    throw new Error('native module rejected');
+  };
+
+  const result = await service.update({ enabled: true, hour: 7, minute: 30 });
+
+  expect(result.status).toBe('unavailable');
+  expect((await service.settings()).enabled).toBe(false);
 });
