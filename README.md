@@ -2,7 +2,16 @@
 
 App Android que entrega, todo dia, uma dose finita de conhecimento: os principais assuntos de tecnologia, economia, finanças, saúde e ciência, incluindo artigos científicos explicados em linguagem simples, em cards no estilo de uma rede social.
 
-> Status: em desenvolvimento (MVP, spec 001 — pipeline pronto; app em construção).
+> Status: MVP 0.1.0 completo (spec 001). Conteúdo real publicado todo dia; app rodando pelo Expo Go. Veja o [CHANGELOG](CHANGELOG.md).
+
+## Funcionalidades
+
+- Feed diário finito de 15 cards: 50% finanças, economia e saúde; 50% ciência e tecnologia; pelo menos 30% de artigos científicos
+- Card compacto e painel de detalhe com resumo, por que importa e, nos artigos, método, resultado e limitações
+- Stories por área, cards salvos (disponíveis offline) e quiz diário de 3 perguntas
+- "Concluir o dia", sequência de dias e Perfil com progresso acumulado
+- Lembrete diário opcional (notificação local, desligado por padrão)
+- Funciona sem internet com o último conteúdo baixado; tema claro/escuro e fonte do sistema
 
 ## Como funciona
 
@@ -53,17 +62,30 @@ py -3.12 -m venv .venv            # Windows; em Linux/macOS: python3.12 -m venv 
 pip install -e ".[dev]"
 ```
 
+Para usar o LLM real localmente, exporte a chave antes de rodar (modelo em [`pipeline/.env.example`](pipeline/.env.example)):
+
+```bash
+export ANTHROPIC_API_KEY=...      # PowerShell: $env:ANTHROPIC_API_KEY = "..."
+```
+
 | Comando | O que faz |
 |---|---|
 | `python -m one_percent run --fake --out out` | roda o pipeline com fontes reais e resumos falsos (sem custo); gera `out/latest.json` |
-| `python -m one_percent run --limit 3 --out out` | roda com o LLM real em só 3 itens (exige credencial local: `ANTHROPIC_API_KEY` ou `ant auth login`) |
+| `python -m one_percent run --limit 3 --out out` | roda com o LLM real em só 3 itens (exige `ANTHROPIC_API_KEY`) |
 | `pytest` | testes |
 | `ruff check .` / `ruff format .` | lint / formatação |
 | `mypy` | checagem de tipos (strict) |
 
+**Dependências travadas.** O workflow diário instala `pipeline/requirements.lock` com `--require-hashes`. Ao mudar dependências no `pyproject.toml`, regenere o lock e commite junto:
+
+```bash
+pip install pip-tools
+pip-compile --generate-hashes --strip-extras --no-emit-index-url --output-file requirements.lock pyproject.toml
+```
+
 ## Execução diária
 
-O workflow [`daily-content.yml`](.github/workflows/daily-content.yml) é disparado às 05:00 (Brasília) por um agendador externo ([guia](docs/ops/agendador-externo.md), [ADR 0006](docs/adr/0006-agendador-externo.md)), com o cron do GitHub como reserva, e publica o JSON no branch `gh-pages`. Ele se autentica na Anthropic com o secret `ANTHROPIC_API_KEY`, cadastrado em *Settings → Secrets and variables → Actions → Secrets* ([ADR 0005](docs/adr/0005-chave-de-api-no-github-actions.md)).
+O workflow [`daily-content.yml`](.github/workflows/daily-content.yml) é disparado às 05:00 (Brasília) por um agendador externo ([guia](docs/ops/agendador-externo.md), [ADR 0006](docs/adr/0006-agendador-externo.md)), com o cron do GitHub como reserva, e publica o JSON no branch `gh-pages`. Ele tem dois jobs: `generate`, que roda o pipeline sem permissão de escrita no repositório, e `publish`, que só copia o resultado para o `gh-pages`. Ele se autentica na Anthropic com o secret `ANTHROPIC_API_KEY`, cadastrado em *Settings → Secrets and variables → Actions → Secrets* ([ADR 0005](docs/adr/0005-chave-de-api-no-github-actions.md)).
 
 Conteúdo publicado (GitHub Pages):
 
@@ -75,7 +97,7 @@ Conteúdo publicado (GitHub Pages):
 
 ## Metodologia
 
-Desenvolvido com **SDD + TDD**: nenhuma feature começa sem spec aprovada, e nenhum código sem um teste falhando antes. Especificações em [`specs/`](specs), decisões em [`docs/adr/`](docs/adr).
+Desenvolvido com **SDD + TDD**: nenhuma feature começa sem spec aprovada, e nenhum código sem um teste falhando antes. Especificações em [`specs/`](specs), decisões em [`docs/adr/`](docs/adr), code reviews em [`docs/reviews/`](docs/reviews) e auditorias de segurança em [`docs/security/`](docs/security).
 
 ## Licença
 

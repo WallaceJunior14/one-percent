@@ -168,7 +168,8 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 
 ## Fase final — Qualidade
 
-- [ ] T120 `dev-code-review` do pipeline e do app → `dev-review-fix` (ciclo com critério de parada)
-- [ ] T121 `dev-security`: segredos, Actions, parsing de feeds, LLM01/02, links, armazenamento local
-- [ ] T122 `dev-docs`: README final, CHANGELOG `0.1.0`, `.env.example`
+- [x] T120 `dev-code-review` do pipeline e do app → `dev-review-fix` (ciclo com critério de parada)
+- [x] T121 `dev-security`: segredos, Actions, parsing de feeds, LLM01/02, links, armazenamento local
+- [x] T122 `dev-docs`: README final, CHANGELOG `0.1.0`, `.env.example`
 - [ ] T123 Iniciar a medição das métricas de sucesso da spec (14 dias de uso)
+  - Protocolo e planilha prontos em `docs/ops/medicao-mvp.md`; a medição depende do uso diário (junto com T095)
