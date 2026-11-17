@@ -20,31 +20,39 @@ on:
         type: boolean
         default: false
 
-permissions:
-  contents: write # publicar no branch gh-pages
+# Sem permissões por padrão; cada job declara só o que precisa (docs/security/2026-11-16-mvp.md).
+permissions: {}
 
 concurrency:
   group: daily-content
   cancel-in-progress: false
 
+env:
+  FAKE: ${{ github.event_name == 'workflow_dispatch' && inputs.fake }}
+  SKIP_IF_PUBLISHED: ${{ github.event_name == 'workflow_dispatch' && inputs.skip_if_published }}
+
 jobs:
-  publish:
+  # Roda o código do pipeline e de terceiros com conteúdo externo e a chave da API,
+  # mas sem poder escrever no repositório (SEC-002).
+  generate:
     runs-on: ubuntu-latest
     timeout-minutes: 75
-    env:
-      FAKE: ${{ github.event_name == 'workflow_dispatch' && inputs.fake }}
-      SKIP_IF_PUBLISHED: ${{ github.event_name == 'workflow_dispatch' && inputs.skip_if_published }}
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: pipeline/pyproject.toml
+          cache-dependency-path: pipeline/requirements.lock
 
-      - name: Install pipeline
-        run: pip install -e pipeline
+      # Versões e hashes fixos: nenhuma dependência muda sem um commit (SEC-001).
+      - name: Install locked dependencies
+        run: pip install --require-hashes -r pipeline/requirements.lock
 
       - name: Require API key for real runs
         if: env.FAKE != 'true'
@@ -56,15 +64,13 @@ jobs:
             exit 1
           fi
 
-      - name: Check out published site (gh-pages)
+      - name: Download published site (gh-pages)
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git ls-remote --exit-code --heads origin gh-pages > /dev/null; then
-            git fetch --depth=1 origin gh-pages:gh-pages
-            git worktree add site gh-pages
+          if git ls-remote --exit-code --heads "https://github.com/$GITHUB_REPOSITORY" gh-pages > /dev/null; then
+            git clone --quiet --depth 1 --branch gh-pages "https://github.com/$GITHUB_REPOSITORY" site
+            rm -rf site/.git
           else
-            git worktree add --orphan -b gh-pages site
+            mkdir site
           fi
 
       - name: Generate content (up to 2 attempts)
@@ -72,6 +78,7 @@ jobs:
         env:
           # A chave só existe neste passo; o GitHub a mascara nos logs.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PYTHONPATH: src
         run: |
           args="run --out ../site"
           if [ "$FAKE" = "true" ]; then args="$args --fake"; fi
@@ -84,7 +91,7 @@ jobs:
           for attempt in 1 2; do
             if python -m one_percent $args; then exit 0; else code=$?; fi
             if [ "$code" = 2 ]; then
-              echo "::error::Erro permanente (chave, créditos ou permissão). Veja o log acima; sem nova tentativa."
+              echo "::error::Erro permanente (chave, créditos, permissão ou contrato). Veja o log acima; sem nova tentativa."
               exit 2
             fi
             echo "::warning::Tentativa $attempt não publicou o dia."
@@ -92,16 +99,45 @@ jobs:
           done
           exit 1
 
-      - name: Publish to gh-pages
-        working-directory: site
+      - name: Add schema and Pages marker
         run: |
-          mkdir -p schemas
-          cp ../contracts/daily-content.schema.json schemas/daily-content-v1.json
-          touch .nojekyll
+          mkdir -p site/schemas
+          cp contracts/daily-content.schema.json site/schemas/daily-content-v1.json
+          touch site/.nojekyll
+
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: site
+          path: site
+          include-hidden-files: true
+          retention-days: 1
+
+  # Só copia o site gerado para o gh-pages: não roda código do projeto nem de terceiros.
+  publish:
+    needs: generate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # push no branch gh-pages
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: gh-pages
+
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: site
+          path: ${{ runner.temp }}/site
+
+      - name: Publish to gh-pages
+        run: |
+          rsync -a --delete --exclude .git "$RUNNER_TEMP/site/" ./
           git add -A
           if git diff --cached --quiet; then
             echo "Nada novo para publicar."
             exit 0
           fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "content: $(jq -r .date latest.json)$([ "$FAKE" = "true" ] && echo ' (fake)')"
           git push origin gh-pages
