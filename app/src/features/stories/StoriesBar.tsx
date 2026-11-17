@@ -34,7 +34,10 @@ export function StoriesBar({ stories, areaNames, seenAreaIds, onOpen }: Props) {
             style={styles.item}
           >
             <View style={[styles.circle, seen ? styles.circleSeen : styles.circleNew]}>
-              <Text style={styles.initial}>{name.charAt(0)}</Text>
+              {/* O círculo tem tamanho fixo; o nome completo fica no rótulo e no leitor de tela. */}
+              <Text style={styles.initial} maxFontSizeMultiplier={1.3}>
+                {name.charAt(0)}
+              </Text>
             </View>
             <Text style={[styles.label, seen && styles.labelSeen]} numberOfLines={1}>
               {name}

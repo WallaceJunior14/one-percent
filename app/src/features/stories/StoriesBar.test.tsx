@@ -46,3 +46,9 @@ test('renders_nothing_without_stories', async () => {
 
   expect(screen.queryByRole('button')).toBeNull();
 });
+
+test('circle_initial_grows_with_system_font_only_up_to_the_circle_size', async () => {
+  await setup();
+
+  expect(screen.getByText('T').props.maxFontSizeMultiplier).toBe(1.3);
+});

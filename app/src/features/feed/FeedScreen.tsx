@@ -201,6 +201,7 @@ function makeStyles({ colors, spacing }: Theme) {
     screen: { flex: 1, backgroundColor: colors.background },
     header: {
       flexDirection: 'row',
+      flexWrap: 'wrap', // fonte grande do sistema (RNF-007): botões descem de linha
       alignItems: 'center',
       gap: spacing(1),
       paddingHorizontal: spacing(2),

@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 
 import sampleDay from '../../../../contracts/examples/sample-day.json';
 import { parseDailyContent } from '@/features/content/contract';
@@ -143,4 +144,10 @@ test('story_card_shortcut_opens_the_detail_panel', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Ler o card' }));
 
   expect(screen.getByText(card.whyItMatters)).toBeOnTheScreen();
+});
+
+test('header_wraps_with_large_system_fonts', async () => {
+  await setup();
+
+  expect(StyleSheet.flatten(screen.getByTestId('feed-header').props.style).flexWrap).toBe('wrap');
 });

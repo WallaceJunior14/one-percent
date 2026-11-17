@@ -161,8 +161,9 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [x] T111 [P] Perfil: sequência atual e maior, cards e artigos lidos, distribuição por área, média do quiz
   - Teste: `streak/ProfileScreen.test.tsx`
   - Cobre: H9
-- [ ] T112 Acessibilidade e tema: fontes escaláveis, contraste, tema claro/escuro
+- [x] T112 Acessibilidade e tema: fontes escaláveis, contraste, tema claro/escuro
   - Teste: snapshots dos cards nos dois temas + verificação manual com fonte grande
+  - Feito: contraste WCAG AA verificado em teste para as duas paletas; cabeçalho do feed quebra linha com fonte grande. Verificação manual com fonte grande fica para o marco T095
   - Cobre: RNF-007
 
 ## Fase final — Qualidade

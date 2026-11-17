@@ -1,0 +1,649 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`dark theme news_card_snapshot 1`] = `
+<View
+  accessibilityLabel="Ler mais: Empresa lança modelo de linguagem aberto focado em português"
+  accessibilityRole="button"
+  accessibilityState={
+    {
+      "busy": undefined,
+      "checked": undefined,
+      "disabled": undefined,
+      "expanded": undefined,
+      "selected": undefined,
+    }
+  }
+  accessibilityValue={
+    {
+      "max": undefined,
+      "min": undefined,
+      "now": undefined,
+      "text": undefined,
+    }
+  }
+  accessible={true}
+  collapsable={false}
+  focusable={true}
+  onBlur={[Function]}
+  onClick={[Function]}
+  onFocus={[Function]}
+  onResponderGrant={[Function]}
+  onResponderMove={[Function]}
+  onResponderRelease={[Function]}
+  onResponderTerminate={[Function]}
+  onResponderTerminationRequest={[Function]}
+  onStartShouldSetResponder={[Function]}
+  style={
+    [
+      {
+        "backgroundColor": "#1A1D23",
+        "borderColor": "#2C3039",
+        "borderRadius": 24,
+        "borderWidth": 1,
+        "gap": 12,
+        "padding": 24,
+      },
+      false,
+    ]
+  }
+>
+  <View
+    style={
+      {
+        "flexDirection": "row",
+        "flexWrap": "wrap",
+        "gap": 8,
+      }
+    }
+  >
+    <View
+      style={
+        [
+          {
+            "borderRadius": 999,
+            "borderWidth": 1,
+            "paddingHorizontal": 10,
+            "paddingVertical": 3,
+          },
+          {
+            "borderColor": "#7C9CFF",
+          },
+        ]
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#7C9CFF",
+            "fontSize": 13,
+            "fontWeight": "700",
+          }
+        }
+      >
+        Tecnologia
+      </Text>
+    </View>
+  </View>
+  <Text
+    numberOfLines={4}
+    style={
+      {
+        "color": "#F2F3F5",
+        "fontSize": 21,
+        "fontWeight": "700",
+        "lineHeight": 27,
+      }
+    }
+  >
+    Empresa lança modelo de linguagem aberto focado em português
+  </Text>
+  <Text
+    numberOfLines={1}
+    style={
+      {
+        "color": "#A3A9B4",
+        "fontSize": 14,
+      }
+    }
+  >
+    Exemplo Tech · 31 de out.
+  </Text>
+  <Text
+    numberOfLines={4}
+    style={
+      {
+        "color": "#F2F3F5",
+        "fontSize": 17,
+        "lineHeight": 25,
+      }
+    }
+  >
+    Uma startup brasileira fictícia publicou os pesos de um modelo de linguagem treinado majoritariamente em textos em português. O modelo roda em uma única GPU de consumo e foi liberado com licença permissiva.
+  </Text>
+  <Text
+    style={
+      {
+        "color": "#7C9CFF",
+        "fontSize": 15,
+        "fontWeight": "700",
+        "marginTop": 8,
+      }
+    }
+  >
+    Toque para ler mais
+  </Text>
+</View>
+`;
+
+exports[`dark theme paper_card_snapshot 1`] = `
+<View
+  accessibilityLabel="Ler mais: Modelos pequenos aprendem a pedir ajuda a modelos maiores"
+  accessibilityRole="button"
+  accessibilityState={
+    {
+      "busy": undefined,
+      "checked": undefined,
+      "disabled": undefined,
+      "expanded": undefined,
+      "selected": undefined,
+    }
+  }
+  accessibilityValue={
+    {
+      "max": undefined,
+      "min": undefined,
+      "now": undefined,
+      "text": undefined,
+    }
+  }
+  accessible={true}
+  collapsable={false}
+  focusable={true}
+  onBlur={[Function]}
+  onClick={[Function]}
+  onFocus={[Function]}
+  onResponderGrant={[Function]}
+  onResponderMove={[Function]}
+  onResponderRelease={[Function]}
+  onResponderTerminate={[Function]}
+  onResponderTerminationRequest={[Function]}
+  onStartShouldSetResponder={[Function]}
+  style={
+    [
+      {
+        "backgroundColor": "#1A1D23",
+        "borderColor": "#2C3039",
+        "borderRadius": 24,
+        "borderWidth": 1,
+        "gap": 12,
+        "padding": 24,
+      },
+      false,
+    ]
+  }
+>
+  <View
+    style={
+      {
+        "flexDirection": "row",
+        "flexWrap": "wrap",
+        "gap": 8,
+      }
+    }
+  >
+    <View
+      style={
+        [
+          {
+            "borderRadius": 999,
+            "borderWidth": 1,
+            "paddingHorizontal": 10,
+            "paddingVertical": 3,
+          },
+          {
+            "borderColor": "#B08CFF",
+          },
+        ]
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#B08CFF",
+            "fontSize": 13,
+            "fontWeight": "700",
+          }
+        }
+      >
+        Artigo científico
+      </Text>
+    </View>
+    <View
+      style={
+        [
+          {
+            "borderRadius": 999,
+            "borderWidth": 1,
+            "paddingHorizontal": 10,
+            "paddingVertical": 3,
+          },
+          {
+            "borderColor": "#7C9CFF",
+          },
+        ]
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#7C9CFF",
+            "fontSize": 13,
+            "fontWeight": "700",
+          }
+        }
+      >
+        Tecnologia
+      </Text>
+    </View>
+    <View
+      style={
+        [
+          {
+            "borderRadius": 999,
+            "borderWidth": 1,
+            "paddingHorizontal": 10,
+            "paddingVertical": 3,
+          },
+          {
+            "borderColor": "#F59E0B",
+          },
+        ]
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#F59E0B",
+            "fontSize": 13,
+            "fontWeight": "700",
+          }
+        }
+      >
+        Preprint — não revisado por pares
+      </Text>
+    </View>
+  </View>
+  <Text
+    numberOfLines={4}
+    style={
+      {
+        "color": "#F2F3F5",
+        "fontSize": 21,
+        "fontWeight": "700",
+        "lineHeight": 27,
+      }
+    }
+  >
+    Modelos pequenos aprendem a pedir ajuda a modelos maiores
+  </Text>
+  <Text
+    numberOfLines={1}
+    style={
+      {
+        "color": "#A3A9B4",
+        "fontSize": 14,
+      }
+    }
+  >
+    Ana Ribeiro et al. · arXiv
+  </Text>
+  <Text
+    numberOfLines={4}
+    style={
+      {
+        "color": "#F2F3F5",
+        "fontSize": 17,
+        "lineHeight": 25,
+      }
+    }
+  >
+    Os autores treinam um modelo pequeno para decidir quando responder sozinho e quando encaminhar a pergunta a um modelo maior. Em tarefas de perguntas e respostas, o sistema mantém a qualidade gastando menos.
+  </Text>
+  <Text
+    style={
+      {
+        "color": "#7C9CFF",
+        "fontSize": 15,
+        "fontWeight": "700",
+        "marginTop": 8,
+      }
+    }
+  >
+    Toque para ler mais
+  </Text>
+</View>
+`;
+
+exports[`light theme news_card_snapshot 1`] = `
+<View
+  accessibilityLabel="Ler mais: Empresa lança modelo de linguagem aberto focado em português"
+  accessibilityRole="button"
+  accessibilityState={
+    {
+      "busy": undefined,
+      "checked": undefined,
+      "disabled": undefined,
+      "expanded": undefined,
+      "selected": undefined,
+    }
+  }
+  accessibilityValue={
+    {
+      "max": undefined,
+      "min": undefined,
+      "now": undefined,
+      "text": undefined,
+    }
+  }
+  accessible={true}
+  collapsable={false}
+  focusable={true}
+  onBlur={[Function]}
+  onClick={[Function]}
+  onFocus={[Function]}
+  onResponderGrant={[Function]}
+  onResponderMove={[Function]}
+  onResponderRelease={[Function]}
+  onResponderTerminate={[Function]}
+  onResponderTerminationRequest={[Function]}
+  onStartShouldSetResponder={[Function]}
+  style={
+    [
+      {
+        "backgroundColor": "#F4F5F7",
+        "borderColor": "#D9DCE2",
+        "borderRadius": 24,
+        "borderWidth": 1,
+        "gap": 12,
+        "padding": 24,
+      },
+      false,
+    ]
+  }
+>
+  <View
+    style={
+      {
+        "flexDirection": "row",
+        "flexWrap": "wrap",
+        "gap": 8,
+      }
+    }
+  >
+    <View
+      style={
+        [
+          {
+            "borderRadius": 999,
+            "borderWidth": 1,
+            "paddingHorizontal": 10,
+            "paddingVertical": 3,
+          },
+          {
+            "borderColor": "#2F5BEA",
+          },
+        ]
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#2F5BEA",
+            "fontSize": 13,
+            "fontWeight": "700",
+          }
+        }
+      >
+        Tecnologia
+      </Text>
+    </View>
+  </View>
+  <Text
+    numberOfLines={4}
+    style={
+      {
+        "color": "#14161A",
+        "fontSize": 21,
+        "fontWeight": "700",
+        "lineHeight": 27,
+      }
+    }
+  >
+    Empresa lança modelo de linguagem aberto focado em português
+  </Text>
+  <Text
+    numberOfLines={1}
+    style={
+      {
+        "color": "#5A606B",
+        "fontSize": 14,
+      }
+    }
+  >
+    Exemplo Tech · 31 de out.
+  </Text>
+  <Text
+    numberOfLines={4}
+    style={
+      {
+        "color": "#14161A",
+        "fontSize": 17,
+        "lineHeight": 25,
+      }
+    }
+  >
+    Uma startup brasileira fictícia publicou os pesos de um modelo de linguagem treinado majoritariamente em textos em português. O modelo roda em uma única GPU de consumo e foi liberado com licença permissiva.
+  </Text>
+  <Text
+    style={
+      {
+        "color": "#2F5BEA",
+        "fontSize": 15,
+        "fontWeight": "700",
+        "marginTop": 8,
+      }
+    }
+  >
+    Toque para ler mais
+  </Text>
+</View>
+`;
+
+exports[`light theme paper_card_snapshot 1`] = `
+<View
+  accessibilityLabel="Ler mais: Modelos pequenos aprendem a pedir ajuda a modelos maiores"
+  accessibilityRole="button"
+  accessibilityState={
+    {
+      "busy": undefined,
+      "checked": undefined,
+      "disabled": undefined,
+      "expanded": undefined,
+      "selected": undefined,
+    }
+  }
+  accessibilityValue={
+    {
+      "max": undefined,
+      "min": undefined,
+      "now": undefined,
+      "text": undefined,
+    }
+  }
+  accessible={true}
+  collapsable={false}
+  focusable={true}
+  onBlur={[Function]}
+  onClick={[Function]}
+  onFocus={[Function]}
+  onResponderGrant={[Function]}
+  onResponderMove={[Function]}
+  onResponderRelease={[Function]}
+  onResponderTerminate={[Function]}
+  onResponderTerminationRequest={[Function]}
+  onStartShouldSetResponder={[Function]}
+  style={
+    [
+      {
+        "backgroundColor": "#F4F5F7",
+        "borderColor": "#D9DCE2",
+        "borderRadius": 24,
+        "borderWidth": 1,
+        "gap": 12,
+        "padding": 24,
+      },
+      false,
+    ]
+  }
+>
+  <View
+    style={
+      {
+        "flexDirection": "row",
+        "flexWrap": "wrap",
+        "gap": 8,
+      }
+    }
+  >
+    <View
+      style={
+        [
+          {
+            "borderRadius": 999,
+            "borderWidth": 1,
+            "paddingHorizontal": 10,
+            "paddingVertical": 3,
+          },
+          {
+            "borderColor": "#7A3FE4",
+          },
+        ]
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#7A3FE4",
+            "fontSize": 13,
+            "fontWeight": "700",
+          }
+        }
+      >
+        Artigo científico
+      </Text>
+    </View>
+    <View
+      style={
+        [
+          {
+            "borderRadius": 999,
+            "borderWidth": 1,
+            "paddingHorizontal": 10,
+            "paddingVertical": 3,
+          },
+          {
+            "borderColor": "#2F5BEA",
+          },
+        ]
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#2F5BEA",
+            "fontSize": 13,
+            "fontWeight": "700",
+          }
+        }
+      >
+        Tecnologia
+      </Text>
+    </View>
+    <View
+      style={
+        [
+          {
+            "borderRadius": 999,
+            "borderWidth": 1,
+            "paddingHorizontal": 10,
+            "paddingVertical": 3,
+          },
+          {
+            "borderColor": "#B45309",
+          },
+        ]
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#B45309",
+            "fontSize": 13,
+            "fontWeight": "700",
+          }
+        }
+      >
+        Preprint — não revisado por pares
+      </Text>
+    </View>
+  </View>
+  <Text
+    numberOfLines={4}
+    style={
+      {
+        "color": "#14161A",
+        "fontSize": 21,
+        "fontWeight": "700",
+        "lineHeight": 27,
+      }
+    }
+  >
+    Modelos pequenos aprendem a pedir ajuda a modelos maiores
+  </Text>
+  <Text
+    numberOfLines={1}
+    style={
+      {
+        "color": "#5A606B",
+        "fontSize": 14,
+      }
+    }
+  >
+    Ana Ribeiro et al. · arXiv
+  </Text>
+  <Text
+    numberOfLines={4}
+    style={
+      {
+        "color": "#14161A",
+        "fontSize": 17,
+        "lineHeight": 25,
+      }
+    }
+  >
+    Os autores treinam um modelo pequeno para decidir quando responder sozinho e quando encaminhar a pergunta a um modelo maior. Em tarefas de perguntas e respostas, o sistema mantém a qualidade gastando menos.
+  </Text>
+  <Text
+    style={
+      {
+        "color": "#2F5BEA",
+        "fontSize": 15,
+        "fontWeight": "700",
+        "marginTop": 8,
+      }
+    }
+  >
+    Toque para ler mais
+  </Text>
+</View>
+`;
