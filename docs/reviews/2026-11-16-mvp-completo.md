@@ -12,7 +12,7 @@
 | Corrigidos | 4 (CR-001 a CR-004) |
 | Não procede | 0 |
 | Adiados | 0 |
-| Aguardando decisão | 1 (CR-005) |
+| Respondido (sem mudança de código) | 1 (CR-005) |
 
 Não há Crítico nem Alto abertos; o ciclo está encerrado pelo critério de parada. Um re-review do diff das correções do CR-001 é opcional.
 
@@ -71,7 +71,8 @@ O código está bem estruturado: domínio puro e testado (ranking, deduplicaçã
 - **Problema**: quando o pipeline falha, o feed mostra o dia anterior (H1-4), e "Concluir o dia" registra hoje.
 - **Cenário**: pipeline falha num dia → quem já leu aqueles cards ontem os relê e mantém a sequência.
 - **Leitura**: parece intencional e justo (a falha é do sistema, não do usuário). Se for, vale registrar na spec (H4).
-- **Status**: Aguardando decisão (comportamento atual mantido até a resposta do dono do produto)
+- **Status**: Não procede
+- **Decisão**: em 2026-11-16 o autor confirmou o comportamento atual; registrado na spec como H4-6
 
 ## Observações para o futuro
 
