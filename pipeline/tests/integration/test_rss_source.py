@@ -67,3 +67,13 @@ def test_sends_project_user_agent() -> None:
     _source(handler).fetch(NOW)
 
     assert seen == ["one-percent-pipeline/0.1 (+https://github.com/WallaceJunior14/one-percent)"]
+
+
+def test_rejects_redirect_to_plain_http() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.scheme == "https":
+            return httpx.Response(301, headers={"Location": "http://example.com/feed"})
+        return httpx.Response(200, content=fixture_bytes("rss_basic.xml"))
+
+    with pytest.raises(SourceFetchError, match="https"):
+        _source(handler).fetch(NOW)

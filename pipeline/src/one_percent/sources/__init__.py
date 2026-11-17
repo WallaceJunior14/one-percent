@@ -35,7 +35,7 @@ def fetch_bytes(
     params: Mapping[str, str | int] | None = None,
     max_bytes: int = DEFAULT_MAX_BYTES,
 ) -> bytes:
-    """GET com User-Agent do projeto, timeout e limite de tamanho (lido em streaming)."""
+    """GET com User-Agent do projeto, timeout, limite de tamanho (em streaming) e só https."""
     try:
         with client.stream(
             "GET",
@@ -47,6 +47,9 @@ def fetch_bytes(
         ) as response:
             if response.status_code >= 400:
                 raise SourceFetchError(f"{source_id}: HTTP {response.status_code}")
+            if response.url.scheme != "https":
+                # Um redirecionamento para http tiraria o TLS do caminho (SEC-004).
+                raise SourceFetchError(f"{source_id}: redirecionado para fora de https")
             body = bytearray()
             for chunk in response.iter_bytes():
                 body.extend(chunk)
