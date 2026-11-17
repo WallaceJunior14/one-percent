@@ -110,7 +110,8 @@ export function createReminderService({
         return await save(requested, 'saved');
       } catch {
         await scheduler.cancelAll().catch(() => undefined);
-        return save(off, 'unavailable');
+        // Desligar não depende de notificação: o pedido foi atendido mesmo com o erro (CR-004).
+        return save(off, requested.enabled ? 'unavailable' : 'saved');
       }
     },
     async refresh() {

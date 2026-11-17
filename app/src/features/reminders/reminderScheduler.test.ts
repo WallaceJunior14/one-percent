@@ -158,3 +158,14 @@ test('stays_off_when_asking_permission_fails', async () => {
   expect(result.status).toBe('unavailable');
   expect((await service.settings()).enabled).toBe(false);
 });
+
+test('turning_off_is_saved_even_if_cancelling_fails', async () => {
+  const { service, scheduler } = setup();
+  scheduler.cancelAll = async () => {
+    throw new Error('native module rejected');
+  };
+
+  const result = await service.update({ enabled: false, hour: 8, minute: 0 });
+
+  expect(result).toEqual({ settings: { enabled: false, hour: 8, minute: 0 }, status: 'saved' });
+});
