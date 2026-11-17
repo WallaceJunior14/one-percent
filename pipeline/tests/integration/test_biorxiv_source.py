@@ -65,3 +65,53 @@ def test_biorxiv_server_uses_biorxiv_domain() -> None:
 
     assert first.url.startswith("https://www.biorxiv.org/content/")
     assert first.venue == "bioRxiv"
+
+
+def _paginated_api(total: int, page_size: int = 30) -> tuple[httpx.Client, list[int]]:
+    """API fake como a real: `page_size` itens por página, do mais antigo para o mais novo."""
+    cursors: list[int] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        cursor = int(request.url.path.rsplit("/", 1)[1])
+        cursors.append(cursor)
+        papers = [
+            {
+                "doi": f"10.1101/2026.10.{position:05d}",
+                "title": f"Paper {position}",
+                "authors": "Exemplo, A.",
+                "date": "2026-10-25" if position < total - 10 else "2026-10-31",
+                "version": "1",
+                "abstract": "Resumo.",
+                "published": "NA",
+            }
+            for position in range(cursor, min(cursor + page_size, total))
+        ]
+        messages = [{"status": "ok", "cursor": cursor, "count": len(papers), "total": str(total)}]
+        return httpx.Response(200, json={"messages": messages, "collection": papers})
+
+    return mock_client(handler), cursors
+
+
+def test_fetches_the_newest_pages_when_results_are_paginated() -> None:
+    client, cursors = _paginated_api(total=95)
+
+    items = _source(client).fetch(NOW)
+
+    assert cursors == [0, 35, 65]
+    assert [item.title for item in items] == [f"Paper {n}" for n in range(35, 95)]
+    assert items[-1].published_at == datetime(2026, 10, 31, tzinfo=UTC)
+
+
+def test_single_page_needs_a_single_request() -> None:
+    client, cursors = _paginated_api(total=25)
+
+    items = _source(client).fetch(NOW)
+
+    assert cursors == [0]
+    assert len(items) == 25
+
+
+def test_no_posts_found_is_an_empty_result() -> None:
+    body = b'{"messages":[{"status":"no posts found"}], "collection":[]}'
+
+    assert _source(mock_client(serve(body))).fetch(NOW) == []

@@ -14,6 +14,9 @@ from one_percent.sources import SourceFetchError, fetch_bytes, new_item
 API_URL = "https://api.biorxiv.org/details"
 LOOKBACK = timedelta(days=7)
 VENUE_BY_SERVER = {"biorxiv": "bioRxiv", "medrxiv": "medRxiv"}
+MAX_PER_CATEGORY = 60
+"""Teto por categoria. A API pagina (30 por página) do mais antigo para o mais novo, então
+lemos as últimas páginas: as mais recentes da janela (CR-001)."""
 
 
 class BiorxivSource:
@@ -33,17 +36,38 @@ class BiorxivSource:
         items: list[ContentItem] = []
         for category in self._config.categories or ("",):
             params = {"category": category.replace(" ", "_")} if category else None
-            body = fetch_bytes(
-                self._client, self.id, f"{API_URL}/{self._server}/{interval}/0", params=params
-            )
-            items.extend(self._parse(body))
+            items.extend(self._fetch_newest(interval, params))
         return items
 
-    def _parse(self, body: bytes) -> list[ContentItem]:
+    def _fetch_page(self, interval: str, cursor: int, params: dict[str, str] | None) -> Any:
+        url = f"{API_URL}/{self._server}/{interval}/{cursor}"
         try:
-            collection: list[dict[str, Any]] = json.loads(body)["collection"]
-        except (ValueError, KeyError, TypeError) as error:
+            page = json.loads(fetch_bytes(self._client, self.id, url, params=params))
+            collection: list[dict[str, Any]] = page["collection"]
+            # Sem resultados, a API responde "no posts found" e não traz `total`.
+            total = int(page["messages"][0].get("total", len(collection)))
+        except (ValueError, KeyError, TypeError, IndexError) as error:
             raise SourceFetchError(f"{self.id}: resposta JSON inesperada") from error
+        return collection, total
+
+    def _fetch_newest(self, interval: str, params: dict[str, str] | None) -> list[ContentItem]:
+        first_page, total = self._fetch_page(interval, 0, params)
+        page_size = len(first_page)
+        start = max(0, total - MAX_PER_CATEGORY)
+        if page_size == 0 or start == 0 and total <= page_size:
+            return self._parse(first_page)
+
+        papers = first_page if start == 0 else []
+        cursor = page_size if start == 0 else start
+        while cursor < total:
+            page, _ = self._fetch_page(interval, cursor, params)
+            if not page:
+                break
+            papers.extend(page)
+            cursor += len(page)
+        return self._parse(papers)
+
+    def _parse(self, collection: list[dict[str, Any]]) -> list[ContentItem]:
         items = []
         for paper in collection:
             try:
