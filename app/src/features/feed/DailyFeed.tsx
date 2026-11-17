@@ -33,6 +33,7 @@ type Props = {
   onFinished(): void;
   onEditAreas(): void;
   onOpenSaved(): void;
+  onOpenProfile(): void;
 };
 
 type ViewState =
@@ -71,7 +72,14 @@ async function loadView(deps: DailyFeedDependencies): Promise<ViewState> {
 }
 
 /** Junta preferências + conteúdo + composição e escolhe o que mostrar (H1, H3, RNF-006). */
-export function DailyFeed({ deps, onNeedOnboarding, onFinished, onEditAreas, onOpenSaved }: Props) {
+export function DailyFeed({
+  deps,
+  onNeedOnboarding,
+  onFinished,
+  onEditAreas,
+  onOpenSaved,
+  onOpenProfile,
+}: Props) {
   const styles = makeStyles(useTheme());
   const [state, setState] = useState<ViewState>({ kind: 'loading' });
   const [attempt, setAttempt] = useState(0);
@@ -150,6 +158,7 @@ export function DailyFeed({ deps, onNeedOnboarding, onFinished, onEditAreas, onO
           onFinished={() => void completeDay(state.cards)}
           onEditAreas={onEditAreas}
           onOpenSaved={onOpenSaved}
+          onOpenProfile={onOpenProfile}
           savedIds={state.savedIds}
           onToggleSave={(card) => void toggleSave(card)}
           stories={state.stories}

@@ -27,6 +27,7 @@ type Props = {
   onFinished(): void;
   onEditAreas(): void;
   onOpenSaved(): void;
+  onOpenProfile(): void;
   /** Ids dos cards salvos, para o painel mostrar "Salvo" (H6). */
   savedIds: ReadonlySet<string>;
   onToggleSave(card: Card): void;
@@ -56,6 +57,7 @@ export function FeedScreen({
   onFinished,
   onEditAreas,
   onOpenSaved,
+  onOpenProfile,
   savedIds,
   onToggleSave,
   stories,
@@ -112,6 +114,15 @@ export function FeedScreen({
           style={styles.areasButton}
         >
           <Text style={styles.areasLabel}>Salvos</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Ver meu progresso"
+          onPress={onOpenProfile}
+          hitSlop={8}
+          style={styles.areasButton}
+        >
+          <Text style={styles.areasLabel}>Perfil</Text>
         </Pressable>
         <View style={styles.spacer} />
         <Text style={styles.progress}>

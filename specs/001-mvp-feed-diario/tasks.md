@@ -158,7 +158,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [ ] T110 [P] Lembrete diário: oferta no fim do onboarding, desligado por padrão, horário configurável, cancela a notificação do dia ao concluir
   - Teste: `reminders/reminderScheduler.test.ts` com `NotificationScheduler` fake — `off_by_default`, `schedules_at_chosen_time`, `skips_today_when_completed`
   - Cobre: H8
-- [ ] T111 [P] Perfil: sequência atual e maior, cards e artigos lidos, distribuição por área, média do quiz
+- [x] T111 [P] Perfil: sequência atual e maior, cards e artigos lidos, distribuição por área, média do quiz
   - Teste: `streak/ProfileScreen.test.tsx`
   - Cobre: H9
 - [ ] T112 Acessibilidade e tema: fontes escaláveis, contraste, tema claro/escuro

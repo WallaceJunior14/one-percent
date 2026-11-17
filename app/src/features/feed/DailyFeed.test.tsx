@@ -53,6 +53,7 @@ async function setup({
     onFinished: jest.fn(),
     onEditAreas: jest.fn(),
     onOpenSaved: jest.fn(),
+    onOpenProfile: jest.fn(),
   };
   await render(<DailyFeed deps={deps} {...callbacks} />);
   return { ...callbacks, progress, saved, quiz };

@@ -12,6 +12,7 @@ async function setup(props: { stale?: boolean } = {}) {
   const onFinished = jest.fn();
   const onEditAreas = jest.fn();
   const onOpenSaved = jest.fn();
+  const onOpenProfile = jest.fn();
   const onToggleSave = jest.fn();
   const onStorySeen = jest.fn();
   await render(
@@ -22,6 +23,7 @@ async function setup(props: { stale?: boolean } = {}) {
       onFinished={onFinished}
       onEditAreas={onEditAreas}
       onOpenSaved={onOpenSaved}
+      onOpenProfile={onOpenProfile}
       onToggleSave={onToggleSave}
       stories={content.stories.filter((story) => story.areaId === 'science')}
       seenStoryAreaIds={new Set()}
@@ -30,7 +32,7 @@ async function setup(props: { stale?: boolean } = {}) {
       {...props}
     />,
   );
-  return { onFinished, onEditAreas, onOpenSaved, onToggleSave, onStorySeen };
+  return { onFinished, onEditAreas, onOpenSaved, onOpenProfile, onToggleSave, onStorySeen };
 }
 
 test('lists_all_cards_in_one_column', async () => {
@@ -98,6 +100,16 @@ test('header_opens_saved_cards', async () => {
   );
 
   expect(onOpenSaved).toHaveBeenCalledTimes(1);
+});
+
+test('header_opens_profile', async () => {
+  const { onOpenProfile } = await setup();
+
+  await fireEvent.press(
+    within(screen.getByTestId('feed-header')).getByRole('button', { name: 'Ver meu progresso' }),
+  );
+
+  expect(onOpenProfile).toHaveBeenCalledTimes(1);
 });
 
 test('saves_from_the_detail_panel', async () => {
