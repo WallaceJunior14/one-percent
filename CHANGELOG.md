@@ -4,6 +4,20 @@ Todas as mudanças relevantes deste projeto. Formato [Keep a Changelog](https://
 
 ## [Unreleased]
 
+### Changed
+
+- **Divisão do feed por peso de área** (spec 002): cada área tem um peso publicado no conteúdo; com todas as áreas escolhidas, a divisão continua meio a meio entre os grupos, mas com escolha parcial passa a ser proporcional aos pesos (ex.: Tecnologia + Economia = 9 + 6).
+- O app decide se o conteúdo está atrasado pelo horário de publicação (aviso após 30 h), não pela data do celular.
+- Textos do LLM acima do limite são encurtados no fim de frase, em vez de descartar o card.
+- Parâmetros da operação ficam em `pipeline/src/one_percent/config/pipeline.yaml`; o endereço do conteúdo, em `app/app.json` (`expo.extra.contentBaseUrl`).
+
+### Added
+
+- Contrato com grupos, pesos por área e parâmetros do feed (aditivo, `schemaVersion` 1; ADR 0007).
+- Leitura tolerante no app: campos desconhecidos ignorados, só o card inválido é descartado.
+- Dados locais versionados com migração; dado ilegível é preservado, nunca apagado.
+- Custo estimado por execução e alerta de orçamento no log do pipeline.
+
 ## [0.1.0] — 2026-11-16
 
 Primeira versão do MVP (spec [001](specs/001-mvp-feed-diario/spec.md)).

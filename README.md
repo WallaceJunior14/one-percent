@@ -53,6 +53,16 @@ npm start          # abre o servidor; escaneie o QR code com o Expo Go
 | `npm run typecheck` | TypeScript sem emitir arquivos |
 | `npm run format` | formata com Prettier |
 
+## Configuração
+
+| O quê | Onde |
+|---|---|
+| Áreas, grupos, pesos por área e fontes | `pipeline/src/one_percent/config/areas.yaml` |
+| Operação (janelas, retenção, modelo, limites, orçamento, parâmetros do feed) | `pipeline/src/one_percent/config/pipeline.yaml` |
+| Endereço do conteúdo usado pelo app | `app/app.json` → `expo.extra.contentBaseUrl` |
+
+Valor inválido no `pipeline.yaml` faz o pipeline parar antes de coletar. Os parâmetros do feed são publicados no conteúdo e o app usa padrões quando faltam.
+
 ## Pipeline
 
 ```bash
