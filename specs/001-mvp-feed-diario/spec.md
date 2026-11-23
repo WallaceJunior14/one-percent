@@ -1,6 +1,7 @@
 # Spec 001 — MVP: Feed diário de conhecimento
 
 - **Status**: Aprovada (2026-10-31)
+- **Correções propostas**: [spec 002](../002-regras-configuraveis/spec.md) (regras fixas que viram parâmetros)
 - **Criada em**: 2026-10-31
 - **Nome do app**: 1% ao Dia
 
@@ -181,3 +182,4 @@ Todas as dúvidas foram resolvidas em 2026-10-31 com os valores propostos: nome 
 | 2026-11-14 | Card compacto no feed + painel de detalhe ao tocar (H1-2, H1-2a, H2-1) | Primeiro teste no celular: card ocupava a tela inteira e o conteúdo passava dos limites |
 | 2026-11-14 | Feed em coluna única com cards de altura natural e rolagem livre; progresso "n vistos"; conclusão pelo botão "Concluir o dia" no fim (H1-1, H1-3, H4-1) | Segundo teste no celular: card de página inteira ficava grande demais para o conteúdo |
 | 2026-11-16 | Concluir com conteúdo de um dia anterior conta para a sequência de hoje (H4-6) | Decisão do autor sobre o CR-005 do code review do MVP |
+| 2026-11-22 | Spec 002 aberta para corrigir valores fixos desta spec (lista na seção "Correções à spec 001" da 002) | Revisão profunda do código e das specs |
