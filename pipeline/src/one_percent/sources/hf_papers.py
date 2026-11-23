@@ -9,23 +9,28 @@ import httpx
 from one_percent.config import SourceConfig
 from one_percent.domain.models import ContentItem
 from one_percent.domain.normalize import clean_text, to_utc
-from one_percent.sources import SourceFetchError, fetch_bytes, new_item
+from one_percent.sources import NO_RETRY, RetryPolicy, SourceFetchError, fetch_bytes, new_item
 
 API_URL = "https://huggingface.co/api/daily_papers"
 LIMIT = 50
 
 
 class HfDailyPapersSource:
-    def __init__(self, config: SourceConfig, client: httpx.Client) -> None:
+    def __init__(
+        self, config: SourceConfig, client: httpx.Client, retry: RetryPolicy = NO_RETRY
+    ) -> None:
         self._config = config
         self._client = client
+        self._retry = retry
 
     @property
     def id(self) -> str:
         return self._config.id
 
     def fetch(self, now: datetime) -> list[ContentItem]:
-        body = fetch_bytes(self._client, self.id, API_URL, params={"limit": LIMIT})
+        body = fetch_bytes(
+            self._client, self.id, API_URL, params={"limit": LIMIT}, retry=self._retry
+        )
         try:
             entries: list[dict[str, Any]] = json.loads(body)
         except ValueError as error:

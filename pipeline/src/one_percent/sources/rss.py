@@ -7,13 +7,17 @@ import httpx
 from one_percent.config import SourceConfig
 from one_percent.domain.models import ContentItem
 from one_percent.domain.normalize import canonical_url, clean_text
-from one_percent.sources import DEFAULT_MAX_BYTES, fetch_bytes, new_item
+from one_percent.sources import DEFAULT_MAX_BYTES, NO_RETRY, RetryPolicy, fetch_bytes, new_item
 from one_percent.sources._feeds import entry_datetime, parse_feed_entries
 
 
 class RssSource:
     def __init__(
-        self, config: SourceConfig, client: httpx.Client, max_bytes: int = DEFAULT_MAX_BYTES
+        self,
+        config: SourceConfig,
+        client: httpx.Client,
+        max_bytes: int = DEFAULT_MAX_BYTES,
+        retry: RetryPolicy = NO_RETRY,
     ) -> None:
         if config.url is None:
             raise ValueError(f"fonte RSS '{config.id}' sem url")
@@ -21,13 +25,16 @@ class RssSource:
         self._url = config.url
         self._client = client
         self._max_bytes = max_bytes
+        self._retry = retry
 
     @property
     def id(self) -> str:
         return self._config.id
 
     def fetch(self, now: datetime) -> list[ContentItem]:
-        body = fetch_bytes(self._client, self.id, self._url, max_bytes=self._max_bytes)
+        body = fetch_bytes(
+            self._client, self.id, self._url, max_bytes=self._max_bytes, retry=self._retry
+        )
         items: list[ContentItem] = []
         for entry in parse_feed_entries(self.id, body):
             title = clean_text(entry.get("title", ""))

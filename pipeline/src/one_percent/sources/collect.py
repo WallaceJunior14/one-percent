@@ -10,7 +10,7 @@ import httpx
 from one_percent.config import PipelineConfig
 from one_percent.domain.classify import classify_subarea
 from one_percent.domain.models import ContentItem
-from one_percent.sources import ContentSource
+from one_percent.sources import ContentSource, RetryPolicy
 from one_percent.sources.arxiv import MIN_INTERVAL_SECONDS, ArxivSource
 from one_percent.sources.biorxiv import BiorxivSource
 from one_percent.sources.hf_papers import HfDailyPapersSource
@@ -52,20 +52,26 @@ def build_sources(
     config: PipelineConfig,
     client: httpx.Client,
     arxiv_interval: float = MIN_INTERVAL_SECONDS,
+    retry: RetryPolicy | None = None,
 ) -> list[ContentSource]:
-    """Instancia o adapter de cada fonte da configuração."""
+    """Instancia o adapter de cada fonte da configuração.
+
+    Todas as fontes compartilham a mesma política de novas tentativas, com um único orçamento
+    de tempo para a execução.
+    """
+    retry = retry or RetryPolicy()
     arxiv_limiter = RateLimiter(arxiv_interval)
     sources: list[ContentSource] = []
     for source in config.sources:
         match source.type:
             case "rss":
-                sources.append(RssSource(source, client))
+                sources.append(RssSource(source, client, retry=retry))
             case "arxiv":
-                sources.append(ArxivSource(source, client, arxiv_limiter))
+                sources.append(ArxivSource(source, client, arxiv_limiter, retry))
             case "biorxiv":
-                sources.append(BiorxivSource(source, client))
+                sources.append(BiorxivSource(source, client, retry))
             case "hf_daily_papers":
-                sources.append(HfDailyPapersSource(source, client))
+                sources.append(HfDailyPapersSource(source, client, retry))
     return sources
 
 

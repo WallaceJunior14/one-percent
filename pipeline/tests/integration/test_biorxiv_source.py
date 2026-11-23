@@ -1,7 +1,9 @@
 from datetime import UTC, datetime
 
 import httpx
+import pytest
 
+from one_percent.sources import SourceFetchError
 from one_percent.sources.biorxiv import BiorxivSource
 from tests.factories import NOW
 from tests.helpers import fixture_bytes, mock_client, serve, source_config
@@ -115,3 +117,24 @@ def test_no_posts_found_is_an_empty_result() -> None:
     body = b'{"messages":[{"status":"no posts found"}], "collection":[]}'
 
     assert _source(mock_client(serve(body))).fetch(NOW) == []
+
+
+def test_a_failing_category_does_not_drop_the_others() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.params["category"] == "nutrition":
+            raise httpx.ReadTimeout("lento", request=request)
+        return httpx.Response(200, content=fixture_bytes("biorxiv.json"))
+
+    items = _source(
+        mock_client(handler), categories=["nutrition", "psychiatry and clinical psychology"]
+    ).fetch(NOW)
+
+    assert len(items) == 2
+
+
+def test_fails_when_every_category_fails() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ReadTimeout("lento", request=request)
+
+    with pytest.raises(SourceFetchError, match="ReadTimeout"):
+        _source(mock_client(handler), categories=["nutrition", "genomics"]).fetch(NOW)

@@ -1,5 +1,6 @@
 import httpx
 
+from one_percent.sources import RetryPolicy
 from one_percent.sources.arxiv import ArxivSource
 from one_percent.sources.rate_limit import RateLimiter
 from tests.factories import NOW
@@ -69,3 +70,31 @@ def test_waits_between_requests_to_respect_rate_limit() -> None:
     _source(limiter=limiter).fetch(NOW)
 
     assert sleeps == [2.0]
+
+
+def test_waits_the_rate_limit_before_retrying() -> None:
+    calls: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append("request")
+        if len([c for c in calls if c == "request"]) == 1:
+            return httpx.Response(429, headers={"Retry-After": "1"})
+        return httpx.Response(200, content=fixture_bytes("arxiv.xml"))
+
+    limiter = RateLimiter(min_interval_seconds=0, sleep=lambda _: None)
+    limiter_wait = limiter.wait
+
+    def counting_wait() -> None:
+        calls.append("wait")
+        limiter_wait()
+
+    limiter.wait = counting_wait  # type: ignore[method-assign]
+    source = ArxivSource(
+        source_config(**ARXIV),
+        mock_client(handler),
+        limiter,
+        retry=RetryPolicy(sleep=lambda _: None),
+    )
+
+    assert source.fetch(NOW)
+    assert calls == ["wait", "request", "wait", "request"]

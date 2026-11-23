@@ -225,7 +225,7 @@ Só o Haiku 5.5 cabe no orçamento, e com folga. O pipeline usa a **Batch API** 
 | Risco / decisão | Mitigação |
 |---|---|
 | Resumo do LLM impreciso ou inventado | Entrada restrita a título + abstract; schema; links e metadados nunca vêm do LLM; revisão semanal por amostra |
-| Fonte muda o formato ou sai do ar | Um adapter por fonte, com testes de fixture; falha de uma fonte não derruba o pipeline (é registrada no log e o resto segue) |
+| Fonte muda o formato ou sai do ar | Um adapter por fonte, com testes de fixture; falha de uma fonte não derruba o pipeline (é registrada no log e o resto segue); falhas passageiras (timeout, conexão cortada, 429, 5xx) têm até 3 tentativas com espera de 5 e 15 s, respeitando `Retry-After`, dentro de um orçamento de ~3 min por execução; no bioRxiv/medRxiv, uma categoria que falha não derruba as outras |
 | Cron do GitHub atrasa ou falha | Três horários + `--skip-if-published`; retry só em falha temporária; o app usa o último conteúdo (RNF-006). Se ainda assim atrasar, disparar por um agendador externo |
 | Repositório público expõe código | Não há segredo no código nem no repositório: a chave da Anthropic fica em *Actions secrets*, exposta só aos passos que a usam (ADR 0005). Se o repo precisar ser privado, troca-se o Pages por Cloudflare Pages/R2 (mesmo contrato) |
 | Termos de uso das fontes | Verificar cada fonte na task de setup; só RSS/API públicos; nunca republicar o texto integral |
@@ -249,3 +249,4 @@ ADRs a registrar com `dev-docs` na fase de setup: **0001** conteúdo estático p
 | 2026-11-14 | Contrato: `method`, `result` e `limitations` aceitam até 300 caracteres (antes 200); prompt pede até 200 | 15% dos resumos de 14/11 descartados por esses campos. Afrouxar um limite exige atualizar o app antes do pipeline: uma versão antiga rejeitaria o dia e cairia no cache (sem quebrar) |
 | 2026-11-14 | Agendador externo (cron-job.org) às 05:00 via `workflow_dispatch` com `skip_if_published`; cron do GitHub como reserva | Atraso de 7 h em 14/11 mesmo com três horários (ADR 0006) |
 | 2026-11-16 | Lembrete com notificações de data fixa para 7 dias, reagendadas ao abrir e ao concluir, em vez de uma notificação diária repetida | Uma notificação repetida não pula só o dia de hoje; a de data fixa atende H8-2 sem servidor |
+| 2026-11-22 | Novas tentativas nas fontes para falhas passageiras, com orçamento por execução; timeout do arXiv de 20 para 30 s | De 17 a 22/11, arXiv ou bioRxiv falharam em 5 de 6 dias (timeouts, 429, conexão cortada); em 21/11, 4 consultas do arXiv. Uma página lenta do bioRxiv derrubava as 4 categorias |

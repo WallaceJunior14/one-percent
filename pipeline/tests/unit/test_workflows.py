@@ -8,14 +8,15 @@ from typing import Any
 import pytest
 import yaml
 
+from one_percent.sources import RETRY_BUDGET_SECONDS
 from one_percent.summarizer.anthropic import TIMEOUT_SECONDS
 
 ROOT = Path(__file__).resolve().parents[3]
 WORKFLOWS = ROOT / ".github" / "workflows"
 DAILY = WORKFLOWS / "daily-content.yml"
 LOCK = ROOT / "pipeline" / "requirements.lock"
-COLLECTION_MARGIN_MINUTES = 5
-"""Coleta das fontes, instalação e publicação, com folga."""
+COLLECTION_MARGIN_MINUTES = 3 + RETRY_BUDGET_SECONDS / 60
+"""Coleta das fontes, instalação e publicação (~3 min) mais o orçamento de novas tentativas."""
 
 
 def _load(path: Path) -> dict[str, Any]:
