@@ -13,7 +13,7 @@ type Props = {
   onOpen(card: Card): void;
 };
 
-/** Card compacto do feed (H1-2): o essencial para despertar curiosidade; o resto fica no painel. */
+/** Card compacto do feed: o essencial para despertar curiosidade; o resto fica no painel. */
 export function CardPreview({ card, areaName, onOpen }: Props) {
   const theme = useTheme();
   const styles = makeStyles(theme);

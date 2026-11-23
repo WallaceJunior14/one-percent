@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { Pill } from '@/shared/ui/Pill';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import { formatTime, type ReminderSaveStatus, type ReminderSettings } from './reminderScheduler';
 
@@ -14,7 +15,7 @@ type Props = {
 
 const SUGGESTED_HOURS = [6, 7, 8, 12, 18, 21];
 
-/** Lembrete diário (H8): oferecido no fim do onboarding, desligado por padrão. */
+/** Lembrete diário: oferecido no fim do onboarding, desligado por padrão. */
 export function ReminderScreen({ initial, saveLabel, onSave, onBack }: Props) {
   const styles = makeStyles(useTheme());
   const [settings, setSettings] = useState(initial);
@@ -35,11 +36,7 @@ export function ReminderScreen({ initial, saveLabel, onSave, onBack }: Props) {
   return (
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
-        {onBack && (
-          <Pressable accessibilityRole="button" onPress={onBack} hitSlop={8} style={styles.pill}>
-            <Text style={styles.pillLabel}>Voltar</Text>
-          </Pressable>
-        )}
+        {onBack && <Pill label="Voltar" onPress={onBack} style={styles.back} />}
         <Text accessibilityRole="header" style={styles.title}>
           Quer um lembrete?
         </Text>
@@ -109,15 +106,7 @@ function makeStyles({ colors, spacing }: Theme) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
     content: { padding: spacing(3), paddingTop: spacing(6), gap: spacing(2) },
-    pill: {
-      alignSelf: 'flex-start',
-      paddingHorizontal: spacing(1.5),
-      paddingVertical: spacing(0.75),
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    pillLabel: { fontSize: 14, fontWeight: '700', color: colors.text },
+    back: { alignSelf: 'flex-start' },
     title: { fontSize: 28, fontWeight: '700', color: colors.text },
     subtitle: { fontSize: 16, color: colors.textMuted },
     row: {

@@ -1,9 +1,8 @@
 import type { Area } from '@/features/content/contract';
 
 /**
- * Áreas e subáreas oferecidas no onboarding, antes do primeiro download do conteúdo.
- * Espelha `pipeline/src/one_percent/config/areas.yaml`; testes nos dois lados comparam com
- * `contracts/examples/sample-day.json` para as três listas não divergirem.
+ * Áreas oferecidas no onboarding, antes do primeiro download do conteúdo. Espelha a
+ * configuração do pipeline; testes nos dois lados comparam com o exemplo do contrato.
  */
 export const AREA_CATALOG: readonly Area[] = [
   {
@@ -53,3 +52,7 @@ export const AREA_CATALOG: readonly Area[] = [
     ],
   },
 ];
+
+export const AREA_NAMES: Readonly<Record<string, string>> = Object.fromEntries(
+  AREA_CATALOG.map((area) => [area.id, area.name]),
+);

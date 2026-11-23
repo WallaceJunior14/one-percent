@@ -1,5 +1,4 @@
-// Grupos de áreas para compor o feed (RF-011). Conceito de personalização: fica no app,
-// e o contrato do conteúdo não precisa conhecê-lo (ADR 0001).
+// Grupos de áreas usados para dividir o feed. É personalização: fica no app, fora do contrato.
 
 export type GroupId = 'sci-tech' | 'markets-health';
 
@@ -13,5 +12,5 @@ export const AREA_GROUPS: readonly AreaGroup[] = [
 
 export type GroupWeights = Record<GroupId, number>;
 
-/** Padrão do MVP: metade para cada grupo. Configurável pelo usuário no futuro. */
+/** Divisão padrão do feed entre os grupos. */
 export const DEFAULT_GROUP_WEIGHTS: GroupWeights = { 'sci-tech': 0.5, 'markets-health': 0.5 };

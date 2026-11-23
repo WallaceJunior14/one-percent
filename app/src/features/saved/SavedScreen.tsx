@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 import type { Card } from '@/features/content/contract';
 import { CardDetailSheet } from '@/features/feed/CardDetailSheet';
 import { CardPreview } from '@/features/feed/CardPreview';
+import { Pill } from '@/shared/ui/Pill';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import type { SavedCard } from './savedCards';
 
@@ -15,7 +16,7 @@ type Props = {
   onBack(): void;
 };
 
-/** Biblioteca pessoal (H6-2): cards salvos, com filtro por área e o mesmo painel de detalhe. */
+/** Biblioteca pessoal: cards salvos, com filtro por área e o mesmo painel de detalhe. */
 export function SavedScreen({ items, areaNames, onToggleSave, onBack }: Props) {
   const styles = makeStyles(useTheme());
   const [areaFilter, setAreaFilter] = useState<string | null>(null);
@@ -31,9 +32,7 @@ export function SavedScreen({ items, areaNames, onToggleSave, onBack }: Props) {
   return (
     <View style={styles.screen}>
       <View style={styles.header}>
-        <Pressable accessibilityRole="button" onPress={onBack} hitSlop={8} style={styles.pill}>
-          <Text style={styles.pillLabel}>Voltar</Text>
-        </Pressable>
+        <Pill label="Voltar" onPress={onBack} />
         <Text accessibilityRole="header" style={styles.title}>
           Salvos
         </Text>
@@ -49,23 +48,15 @@ export function SavedScreen({ items, areaNames, onToggleSave, onBack }: Props) {
       ) : (
         <>
           <View style={styles.filters}>
-            {filters.map((filter) => {
-              const active = filter.id === areaFilter;
-              return (
-                <Pressable
-                  key={filter.id ?? 'all'}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Filtrar: ${filter.label}`}
-                  accessibilityState={{ selected: active }}
-                  onPress={() => setAreaFilter(filter.id)}
-                  style={[styles.pill, active && styles.pillActive]}
-                >
-                  <Text style={[styles.pillLabel, active && styles.pillLabelActive]}>
-                    {filter.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
+            {filters.map((filter) => (
+              <Pill
+                key={filter.id ?? 'all'}
+                label={filter.label}
+                accessibilityLabel={`Filtrar: ${filter.label}`}
+                selected={filter.id === areaFilter}
+                onPress={() => setAreaFilter(filter.id)}
+              />
+            ))}
           </View>
           <FlatList
             data={visible}
@@ -113,16 +104,6 @@ function makeStyles({ colors, spacing }: Theme) {
       paddingHorizontal: spacing(2),
       paddingBottom: spacing(1),
     },
-    pill: {
-      paddingHorizontal: spacing(1.5),
-      paddingVertical: spacing(0.75),
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-    pillLabel: { fontSize: 14, fontWeight: '700', color: colors.text },
-    pillLabelActive: { color: colors.onPrimary },
     list: { paddingHorizontal: spacing(2), paddingTop: spacing(1), paddingBottom: spacing(4) },
     separator: { height: spacing(1.5) },
     empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing(4), gap: 8 },

@@ -1,24 +1,20 @@
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
 
 import { preferencesRepository } from '@/dependencies';
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen';
 import type { Preferences } from '@/features/onboarding/preferences';
+import { useLoaded } from '@/shared/lib/useLoaded';
 
 export default function OnboardingRoute() {
   const router = useRouter();
-  const [initial, setInitial] = useState<Preferences | null | undefined>(undefined);
-
-  useEffect(() => {
-    void preferencesRepository.load().then(setInitial);
-  }, []);
+  const [initial] = useLoaded(() => preferencesRepository.load());
 
   if (initial === undefined) return null;
+  const isFirstTime = initial === null;
 
   const complete = async (preferences: Preferences) => {
     await preferencesRepository.save(preferences);
-    // Primeira vez: oferece o lembrete diário antes do feed (H8-3).
-    if (initial === null) router.replace({ pathname: '/reminder', params: { first: '1' } });
+    if (isFirstTime) router.replace({ pathname: '/reminder', params: { first: '1' } });
     else if (router.canGoBack()) router.back();
     else router.replace('/');
   };

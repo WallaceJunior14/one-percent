@@ -11,7 +11,7 @@ type Props = {
   onOpenUrl?(url: string): void;
 };
 
-/** Conteúdo completo da notícia, no painel de detalhe (H1-2a): textos do LLM exibidos como texto puro; link sempre da fonte. */
+/** Conteúdo completo da notícia, no painel de detalhe: textos do LLM exibidos como texto puro; link sempre da fonte. */
 export function NewsDetail({ card, areaName, onOpenUrl = openUrlOrWarn }: Props) {
   const styles = useCardStyles();
   return (

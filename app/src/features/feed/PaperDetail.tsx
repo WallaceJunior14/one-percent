@@ -12,7 +12,7 @@ type Props = {
   onOpenUrl?(url: string): void;
 };
 
-/** Conteúdo completo do artigo, no painel de detalhe (H2-1, H2-2): método, resultado e limitações com destaque. */
+/** Conteúdo completo do artigo, no painel de detalhe: método, resultado e limitações com destaque. */
 export function PaperDetail({ card, areaName, onOpenUrl = openUrlOrWarn }: Props) {
   const styles = useCardStyles();
   const { colors } = useTheme();

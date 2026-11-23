@@ -17,7 +17,7 @@ export function configureNotificationHandler() {
   });
 }
 
-/** Notificações locais via expo-notifications, sem servidor de push (plan, H8). */
+/** Notificações locais via expo-notifications, sem servidor de push. */
 export function createExpoNotificationScheduler(): NotificationScheduler {
   let channelReady = false;
 

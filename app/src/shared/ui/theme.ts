@@ -1,6 +1,6 @@
 import { useColorScheme } from 'react-native';
 
-/** Cores verificadas contra WCAG AA em `theme.test.tsx` (RNF-007). */
+/** Cores verificadas contra WCAG AA em `theme.test.tsx`. */
 export const palettes = {
   light: {
     background: '#FFFFFF',
@@ -42,7 +42,7 @@ function luminance(hex: string): number {
 
 export type Theme = { colors: (typeof palettes)['light']; spacing: (n: number) => number };
 
-/** Tema claro/escuro conforme o sistema (RNF-007). */
+/** Tema claro/escuro conforme o sistema. */
 export function useTheme(): Theme {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   return { colors: palettes[scheme], spacing: (n) => n * 8 };

@@ -17,7 +17,7 @@ const settingsSchema = z.object({
 
 export type ReminderSettings = z.infer<typeof settingsSchema>;
 
-/** Desligado por padrão (H8-3); 08:00 é só a sugestão inicial de horário. */
+/** Desligado por padrão; o horário é só a sugestão inicial. */
 export const DEFAULT_REMINDER: ReminderSettings = { enabled: false, hour: 8, minute: 0 };
 
 export const REMINDER_MESSAGE = {
@@ -50,7 +50,7 @@ export type ReminderService = {
   update(
     settings: ReminderSettings,
   ): Promise<{ settings: ReminderSettings; status: ReminderSaveStatus }>;
-  /** Reagenda a partir de agora: chamar ao abrir o app e ao concluir o dia (H8-2). */
+  /** Reagenda a partir de agora: chamar ao abrir o app e ao concluir o dia. */
   refresh(): Promise<void>;
 };
 
@@ -62,9 +62,9 @@ type Dependencies = {
 };
 
 /**
- * Lembrete diário (H8) com notificações de data fixa, uma por dia, nos próximos
- * {@link DAYS_AHEAD} dias. Pular o dia de hoje quando ele já foi concluído atende ao
- * critério H8-2 sem servidor de push.
+ * Lembrete diário com notificações de data fixa, uma por dia, nos próximos
+ * {@link DAYS_AHEAD} dias. Pular o dia de hoje quando ele já foi concluído evita o aviso
+ * sem precisar de servidor de push.
  */
 export function createReminderService({
   store,
@@ -110,7 +110,7 @@ export function createReminderService({
         return await save(requested, 'saved');
       } catch {
         await scheduler.cancelAll().catch(() => undefined);
-        // Desligar não depende de notificação: o pedido foi atendido mesmo com o erro (CR-004).
+        // Desligar não depende de notificação: o pedido foi atendido mesmo com o erro.
         return save(off, requested.enabled ? 'unavailable' : 'saved');
       }
     },

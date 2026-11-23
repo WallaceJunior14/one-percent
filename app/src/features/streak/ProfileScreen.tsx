@@ -1,10 +1,11 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import type { ScoreEntry } from '@/features/quiz/quizRepository';
 import { formatTime, type ReminderSettings } from '@/features/reminders/reminderScheduler';
+import { Pill } from '@/shared/ui/Pill';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import type { Streak } from './calculateStreak';
 import type { Progress } from './progress';
+import { Stat, StreakSummary } from './StreakSummary';
 
 type Props = {
   streak: Streak;
@@ -17,17 +18,7 @@ type Props = {
   onEditReminder(): void;
 };
 
-/** Acertos sobre perguntas respondidas em todo o histórico, em % arredondado (H9-1). */
-export function quizAverage(history: readonly ScoreEntry[]): number | null {
-  const questions = history.reduce((sum, entry) => sum + entry.total, 0);
-  if (questions === 0) return null;
-  const correct = history.reduce((sum, entry) => sum + entry.score, 0);
-  return Math.round((correct / questions) * 100);
-}
-
-const days = (n: number) => `${n} ${n === 1 ? 'dia' : 'dias'}`;
-
-/** Progresso acumulado (H9): sequências, totais lidos, distribuição por área e quiz. */
+/** Progresso acumulado: sequências, totais lidos, distribuição por área e quiz. */
 export function ProfileScreen({
   streak,
   totals,
@@ -47,24 +38,17 @@ export function ProfileScreen({
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Pressable accessibilityRole="button" onPress={onBack} hitSlop={8} style={styles.pill}>
-          <Text style={styles.pillLabel}>Voltar</Text>
-        </Pressable>
+        <Pill label="Voltar" onPress={onBack} />
         <Text accessibilityRole="header" style={styles.title}>
           Meu progresso
         </Text>
       </View>
 
-      <View style={styles.box}>
-        <Text style={styles.streakValue}>
-          {streak.current} {streak.current === 1 ? 'dia seguido' : 'dias seguidos'}
-        </Text>
-        <Text style={styles.muted}>Maior sequência: {days(streak.best)}</Text>
-      </View>
+      <StreakSummary streak={streak} />
 
       <View style={styles.stats}>
-        <Stat value={totals.cards} label="cards lidos" styles={styles} />
-        <Stat value={totals.papers} label="artigos científicos" styles={styles} />
+        <Stat value={totals.cards} label="cards lidos" />
+        <Stat value={totals.papers} label="artigos científicos" />
       </View>
 
       <Text style={styles.quiz}>
@@ -118,30 +102,11 @@ export function ProfileScreen({
   );
 }
 
-type Styles = ReturnType<typeof makeStyles>;
-
-function Stat({ value, label, styles }: { value: number; label: string; styles: Styles }) {
-  return (
-    <View style={styles.stat}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.muted}>{label}</Text>
-    </View>
-  );
-}
-
 function makeStyles({ colors, spacing }: Theme) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
     content: { padding: spacing(2), paddingTop: spacing(5), gap: spacing(2) },
     header: { flexDirection: 'row', alignItems: 'center', gap: spacing(2) },
-    pill: {
-      paddingHorizontal: spacing(1.5),
-      paddingVertical: spacing(0.75),
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    pillLabel: { fontSize: 14, fontWeight: '700', color: colors.text },
     title: { fontSize: 26, fontWeight: '700', color: colors.text },
     box: {
       gap: spacing(1),
@@ -149,10 +114,7 @@ function makeStyles({ colors, spacing }: Theme) {
       borderRadius: 16,
       backgroundColor: colors.surface,
     },
-    streakValue: { fontSize: 24, fontWeight: '700', color: colors.primary },
     stats: { flexDirection: 'row', justifyContent: 'space-around' },
-    stat: { alignItems: 'center' },
-    statValue: { fontSize: 32, fontWeight: '700', color: colors.text },
     muted: { fontSize: 15, color: colors.textMuted },
     quiz: { fontSize: 17, fontWeight: '700', color: colors.text, textAlign: 'center' },
     sectionTitle: { fontSize: 17, fontWeight: '700', color: colors.text },

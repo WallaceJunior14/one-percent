@@ -6,7 +6,7 @@ import { DailyFeed } from '@/features/feed/DailyFeed';
 
 export default function FeedRoute() {
   const router = useRouter();
-  // Recarrega ao voltar para esta tela (ex.: depois de editar as áreas).
+  // Recarrega ao voltar para esta tela, por exemplo depois de editar as áreas.
   const [reloadKey, setReloadKey] = useState(0);
   useFocusEffect(useCallback(() => setReloadKey((key) => key + 1), []));
 

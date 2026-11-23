@@ -9,7 +9,7 @@ export function previousDay(day: string): string {
 export type Streak = { current: number; best: number };
 
 /**
- * Sequência de dias concluídos (H4-2 a H4-5). `today` é o dia no fuso do celular.
+ * Sequência de dias concluídos. `today` é o dia no fuso do celular.
  * A sequência atual continua viva enquanto hoje não termina: se ontem foi concluído, ela conta
  * até ontem; perder um dia inteiro zera a sequência.
  */

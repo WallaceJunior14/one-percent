@@ -23,7 +23,7 @@ const progressSchema = z.object({
   lastDay: daySummarySchema.nullable(),
 });
 
-/** Resumo de um dia concluído, mostrado na tela "Dia concluído" (H4-1). */
+/** Resumo de um dia concluído, mostrado na tela "Dia concluído". */
 export type DaySummary = z.infer<typeof daySummarySchema>;
 export type Progress = z.infer<typeof progressSchema>;
 
@@ -35,7 +35,7 @@ const EMPTY: Progress = {
 
 export type ProgressRepository = {
   load(): Promise<Progress>;
-  /** Registra o dia de hoje como concluído. Repetir no mesmo dia não conta nada de novo (H4-4). */
+  /** Registra o dia de hoje como concluído. Repetir no mesmo dia não conta nada de novo. */
   completeDay(cards: readonly Card[]): Promise<DaySummary>;
 };
 

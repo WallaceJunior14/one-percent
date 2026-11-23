@@ -3,7 +3,7 @@ import type { Card } from '@/features/content/contract';
 export const QUIZ_SIZE = 3;
 
 /**
- * Escolhe as perguntas do quiz do dia (H7-1): alterna entre as áreas do feed, na ordem em que
+ * Escolhe as perguntas do quiz do dia: alterna entre as áreas do feed, na ordem em que
  * aparecem, para cobrir assuntos diferentes; dentro de cada área, segue a ordem do feed.
  */
 export function selectQuiz(feed: readonly Card[], size = QUIZ_SIZE): Card[] {

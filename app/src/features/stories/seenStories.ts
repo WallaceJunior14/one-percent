@@ -8,7 +8,7 @@ export const SEEN_STORIES_KEY = 'stories.seen.v1';
 const storedSchema = z.object({ date: z.string(), areaIds: z.array(z.string()) });
 
 export type SeenStoriesRepository = {
-  /** Áreas cujo story já foi visto hoje (H5-3). Zera a cada dia. */
+  /** Áreas cujo story já foi visto hoje. Zera a cada dia. */
   seenToday(): Promise<Set<string>>;
   markSeen(areaId: string): Promise<void>;
 };

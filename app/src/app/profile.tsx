@@ -1,47 +1,35 @@
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useRouter } from 'expo-router';
 
 import { progressRepository, quizRepository, reminderService } from '@/dependencies';
+import { quizAverage } from '@/features/quiz/quizStats';
 import { calculateStreak } from '@/features/streak/calculateStreak';
-import { ProfileScreen, quizAverage } from '@/features/streak/ProfileScreen';
-import { AREA_CATALOG } from '@/shared/config/areas';
+import { ProfileScreen } from '@/features/streak/ProfileScreen';
+import { AREA_NAMES } from '@/shared/config/areas';
 import { systemClock, toLocalDateString } from '@/shared/lib/dates';
+import { useLoadedOnFocus } from '@/shared/lib/useLoadedOnFocus';
 
-const AREA_NAMES = Object.fromEntries(AREA_CATALOG.map((area) => [area.id, area.name]));
-
-type View = Omit<Parameters<typeof ProfileScreen>[0], 'areaNames' | 'onBack' | 'onEditReminder'>;
+async function loadProfile() {
+  const [progress, history, reminder] = await Promise.all([
+    progressRepository.load(),
+    quizRepository.history(),
+    reminderService.settings(),
+  ]);
+  return {
+    streak: calculateStreak(progress.completedDays, toLocalDateString(systemClock.now())),
+    totals: progress.totals,
+    quizAveragePercent: quizAverage(history),
+    reminder,
+  };
+}
 
 export default function ProfileRoute() {
   const router = useRouter();
-  const [view, setView] = useState<View | null>(null);
+  const [profile] = useLoadedOnFocus(loadProfile);
 
-  // Recarrega ao voltar da tela de lembrete.
-  useFocusEffect(
-    useCallback(() => {
-      let cancelled = false;
-      void Promise.all([
-        progressRepository.load(),
-        quizRepository.history(),
-        reminderService.settings(),
-      ]).then(([progress, history, reminder]) => {
-        if (cancelled) return;
-        setView({
-          streak: calculateStreak(progress.completedDays, toLocalDateString(systemClock.now())),
-          totals: progress.totals,
-          quizAveragePercent: quizAverage(history),
-          reminder,
-        });
-      });
-      return () => {
-        cancelled = true;
-      };
-    }, []),
-  );
-
-  if (view === null) return null;
+  if (profile === undefined) return null;
   return (
     <ProfileScreen
-      {...view}
+      {...profile}
       areaNames={AREA_NAMES}
       onBack={() => router.back()}
       onEditReminder={() => router.push('/reminder')}

@@ -9,13 +9,13 @@ export const SLIDE_DURATION_MS = 5000;
 type Props = {
   story: Story;
   areaName: string;
-  /** Chamado uma vez, ao passar da última manchete: o story conta como visto (H5-3). */
+  /** Chamado uma vez, ao passar da última manchete: o story conta como visto. */
   onFinished(): void;
   onClose(): void;
   onOpenCard(cardId: string): void;
 };
 
-/** Story em tela cheia (H5-2): manchetes que avançam por toque ou sozinhas. */
+/** Story em tela cheia: manchetes que avançam por toque ou sozinhas. */
 export function StoryViewer({ story, areaName, onFinished, onClose, onOpenCard }: Props) {
   const styles = makeStyles(useTheme());
   const [index, setIndex] = useState(0);

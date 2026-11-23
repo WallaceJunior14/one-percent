@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
-import { ProfileScreen, quizAverage } from './ProfileScreen';
+import { ProfileScreen } from './ProfileScreen';
 
 const AREA_NAMES = { tech: 'Tecnologia', economy: 'Economia', health: 'Saúde' };
 const TOTALS = { cards: 42, papers: 12, byArea: { tech: 20, economy: 15, health: 7 } };
@@ -96,21 +96,4 @@ test('shows_reminder_time_when_on', async () => {
   await renderScreen({ reminder: { enabled: true, hour: 7, minute: 30 } });
 
   expect(screen.getByRole('button', { name: 'Lembrete diário: 07:30' })).toBeOnTheScreen();
-});
-
-describe('quizAverage', () => {
-  test('is_null_without_history', () => {
-    expect(quizAverage([])).toBeNull();
-  });
-
-  test('weights_by_number_of_questions', () => {
-    const history = [
-      { date: '2026-11-14', score: 3, total: 3 },
-      { date: '2026-11-15', score: 0, total: 3 },
-      { date: '2026-11-16', score: 1, total: 1 },
-    ];
-
-    // 4 acertos em 7 perguntas
-    expect(quizAverage(history)).toBe(57);
-  });
 });

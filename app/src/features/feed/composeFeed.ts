@@ -18,7 +18,7 @@ export type FeedPreferences = {
 type ActiveGroup = { id: GroupId; queues: Card[][]; picked: Card[] };
 
 /**
- * Monta o feed do dia (RF-007, RF-011, H3-3 a H3-5):
+ * Monta o feed do dia:
  * cotas por grupo de áreas → rodízio entre as áreas do grupo por rank → sobra de um grupo vai
  * para o outro → garantia de artigos dentro do mesmo grupo. Função pura e determinística.
  */
@@ -103,7 +103,7 @@ function fillShortfall(groups: ActiveGroup[]): void {
   }
 }
 
-/** Garante ≥ 30% de artigos trocando a pior notícia por um artigo do mesmo grupo. */
+/** Garante a fatia mínima de artigos trocando a pior notícia por um artigo do mesmo grupo. */
 function ensurePaperShare(groups: ActiveGroup[]): void {
   const feedSize = groups.reduce((acc, group) => acc + group.picked.length, 0);
   const minimum = Math.ceil(MIN_PAPER_SHARE * feedSize);

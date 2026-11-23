@@ -10,7 +10,6 @@ import { createProgressRepository } from '@/features/streak/progress';
 import { systemClock } from '@/shared/lib/dates';
 import { asyncStorageStore } from '@/shared/lib/keyValueStore';
 
-/** Conteúdo publicado pelo pipeline no GitHub Pages (T053). */
 export const CONTENT_BASE_URL = 'https://wallacejunior14.github.io/one-percent/';
 
 /** Dependências reais do app; os testes usam as versões de `src/test/fakes`. */

@@ -8,12 +8,12 @@ import { type Theme, useTheme } from '@/shared/ui/theme';
 type Props = {
   questions: Card[];
   areaNames: Record<string, string>;
-  /** Chamado uma vez, com o número de acertos, ao ver o resultado (H7-3). */
+  /** Chamado uma vez, com o número de acertos, ao ver o resultado. */
   onComplete(score: number): void;
   onExit(): void;
 };
 
-/** Quiz do dia (H7): uma pergunta por vez, resposta revelada na hora e atalho para o card. */
+/** Quiz do dia: uma pergunta por vez, resposta revelada na hora e atalho para o card. */
 export function QuizScreen({ questions, areaNames, onComplete, onExit }: Props) {
   const theme = useTheme();
   const styles = makeStyles(theme);

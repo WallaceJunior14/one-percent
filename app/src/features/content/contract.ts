@@ -1,8 +1,7 @@
 import { z } from 'zod';
 
-// Espelho de contracts/daily-content.schema.json (fonte da verdade, ADR 0001).
-// Os testes deste módulo usam o mesmo sample-day.json e os mesmos casos inválidos
-// que os testes do pipeline, para manter os dois validadores em sincronia.
+// Espelho de contracts/daily-content.schema.json, a fonte da verdade. Os testes usam os
+// mesmos exemplos válidos e inválidos do pipeline, para os dois validadores não divergirem.
 
 const utcTimestamp = z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
 const areaId = z.string().regex(/^[a-z]+$/);

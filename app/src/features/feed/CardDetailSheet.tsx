@@ -11,13 +11,12 @@ type Props = {
   areaName: string;
   onClose(): void;
   onOpenUrl?(url: string): void;
-  /** Se o card aberto já está nos salvos (H6). */
   saved?: boolean;
   /** Sem esta função, o botão de salvar não aparece. */
   onToggleSave?(card: Card): void;
 };
 
-/** Painel que sobe de baixo com o conteúdo completo e rolagem própria (H1-2a). */
+/** Painel que sobe de baixo com o conteúdo completo e rolagem própria. */
 export function CardDetailSheet({
   card,
   areaName,

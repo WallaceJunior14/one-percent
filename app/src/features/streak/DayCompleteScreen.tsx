@@ -3,20 +3,19 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import type { Streak } from './calculateStreak';
 import type { DaySummary } from './progress';
+import { Stat, StreakSummary } from './StreakSummary';
 
 type Props = {
   summary: DaySummary;
   streak: Streak;
   areaNames: Record<string, string>;
   onReview(): void;
-  /** Quiz de hoje: `null` se não houver; `score` nulo enquanto não for respondido (H7). */
+  /** Quiz de hoje: `null` se não houver; `score` nulo enquanto não for respondido. */
   quiz?: { score: number | null; total: number } | null;
   onStartQuiz?(): void;
 };
 
-const days = (n: number) => `${n} ${n === 1 ? 'dia' : 'dias'}`;
-
-/** Recompensa do fim do dia (H4-1): o que foi lido e a sequência de dias. */
+/** Recompensa do fim do dia: o que foi lido e a sequência de dias. */
 export function DayCompleteScreen({
   summary,
   streak,
@@ -35,16 +34,11 @@ export function DayCompleteScreen({
       </Text>
       <Text style={styles.subtitle}>Você ficou 1% mais sábio hoje.</Text>
 
-      <View style={styles.streak}>
-        <Text style={styles.streakValue}>
-          {streak.current} {streak.current === 1 ? 'dia seguido' : 'dias seguidos'}
-        </Text>
-        <Text style={styles.muted}>Maior sequência: {days(streak.best)}</Text>
-      </View>
+      <StreakSummary streak={streak} />
 
       <View style={styles.stats}>
-        <Stat value={summary.cardsRead} label="cards lidos" styles={styles} />
-        <Stat value={summary.papersRead} label="artigos científicos" styles={styles} />
+        <Stat value={summary.cardsRead} label="cards lidos" />
+        <Stat value={summary.papersRead} label="artigos científicos" />
       </View>
       {areas.length > 0 && <Text style={styles.muted}>{areas}</Text>}
 
@@ -66,17 +60,6 @@ export function DayCompleteScreen({
   );
 }
 
-type Styles = ReturnType<typeof makeStyles>;
-
-function Stat({ value, label, styles }: { value: number; label: string; styles: Styles }) {
-  return (
-    <View style={styles.stat}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.muted}>{label}</Text>
-    </View>
-  );
-}
-
 function makeStyles({ colors, spacing }: Theme) {
   return StyleSheet.create({
     screen: {
@@ -89,18 +72,7 @@ function makeStyles({ colors, spacing }: Theme) {
     },
     title: { fontSize: 30, fontWeight: '700', color: colors.text },
     subtitle: { fontSize: 17, color: colors.textMuted, textAlign: 'center' },
-    streak: {
-      alignItems: 'center',
-      gap: 4,
-      paddingVertical: spacing(2),
-      paddingHorizontal: spacing(4),
-      borderRadius: 20,
-      backgroundColor: colors.surface,
-    },
-    streakValue: { fontSize: 26, fontWeight: '700', color: colors.primary },
     stats: { flexDirection: 'row', gap: spacing(4) },
-    stat: { alignItems: 'center' },
-    statValue: { fontSize: 32, fontWeight: '700', color: colors.text },
     muted: { fontSize: 15, color: colors.textMuted, textAlign: 'center' },
     button: {
       marginTop: spacing(2),

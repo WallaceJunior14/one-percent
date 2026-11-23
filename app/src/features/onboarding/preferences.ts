@@ -5,7 +5,7 @@ export const PREFERENCES_KEY = 'preferences.v1';
 
 export type Preferences = {
   areaIds: string[];
-  /** Subáreas escolhidas; uma área sem subárea listada recebe todas (H3-1). */
+  /** Subáreas escolhidas; uma área sem subárea listada recebe todas. */
   subareaIds: string[];
 };
 

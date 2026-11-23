@@ -7,12 +7,11 @@ import { type Theme, useTheme } from '@/shared/ui/theme';
 import type { Preferences } from './preferences';
 
 type Props = {
-  /** Escolhas atuais, ao editar pelas configurações (H3-2). */
+  /** Escolhas atuais, ao editar pelas configurações. */
   initial?: Preferences;
   onComplete(preferences: Preferences): void;
 };
 
-/** Escolha de áreas e, opcionalmente, subáreas (H3-1, H3-2). */
 export function OnboardingScreen({ initial, onComplete }: Props) {
   const theme = useTheme();
   const [areaIds, setAreaIds] = useState<string[]>(initial?.areaIds ?? []);

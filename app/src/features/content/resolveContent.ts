@@ -6,8 +6,8 @@ import { type DailyContent, parseDailyContent } from './contract';
 export const CONTENT_CACHE_KEY = 'content.latest';
 
 /**
- * - `today`: conteúdo do dia (H1-1).
- * - `stale`: o mais recente disponível, de um dia anterior; a tela mostra um aviso (H1-4).
+ * - `today`: conteúdo do dia.
+ * - `stale`: o mais recente disponível, de um dia anterior; a tela mostra um aviso.
  * - `empty`: nada disponível (primeiro acesso sem internet); a tela oferece tentar de novo.
  */
 export type ContentState =
@@ -41,7 +41,7 @@ function newest(a: DailyContent | null, b: DailyContent | null): DailyContent | 
   return b.date > a.date ? b : a; // datas AAAA-MM-DD comparam corretamente como texto
 }
 
-/** Decide o que mostrar: hoje → cache de hoje → mais recente com aviso → vazio (RNF-002, RNF-006). */
+/** Decide o que mostrar: hoje → cache de hoje → mais recente com aviso → vazio. */
 export async function resolveContent({ api, cache, clock }: Dependencies): Promise<ContentState> {
   const today = toLocalDateString(clock.now());
   const cached = await readCache(cache);

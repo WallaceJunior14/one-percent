@@ -82,7 +82,7 @@ async function refreshReminders(deps: DailyFeedDependencies) {
   }
 }
 
-/** Junta preferências + conteúdo + composição e escolhe o que mostrar (H1, H3, RNF-006). */
+/** Junta preferências + conteúdo + composição e escolhe o que mostrar. */
 export function DailyFeed({
   deps,
   onNeedOnboarding,
@@ -95,7 +95,6 @@ export function DailyFeed({
   const [state, setState] = useState<ViewState>({ kind: 'loading' });
   const [attempt, setAttempt] = useState(0);
 
-  // Renova os lembretes dos próximos dias a cada abertura (H8).
   useEffect(() => {
     void refreshReminders(deps);
   }, [deps]);
@@ -112,15 +111,14 @@ export function DailyFeed({
     };
   }, [deps, attempt, onNeedOnboarding]);
 
-  /** Registra o progresso (H4) e prepara o quiz (H7) antes de ir para a tela de dia concluído. */
+  /** Registra o progresso e prepara o quiz antes de ir para a tela de dia concluído. */
   const completeDay = async (cards: Card[]) => {
     await deps.progress.completeDay(cards);
     await deps.quiz.prepare(selectQuiz(cards));
-    await refreshReminders(deps); // tira o lembrete de hoje (H8-2)
+    await refreshReminders(deps); // tira o lembrete de hoje
     onFinished();
   };
 
-  /** Salva ou remove o card (H6-1) e atualiza o estado do painel. */
   const toggleSave = async (card: Card) => {
     const nowSaved = await deps.saved.toggle(card);
     setState((current) => {
@@ -132,7 +130,6 @@ export function DailyFeed({
     });
   };
 
-  /** Marca o story como visto (H5-3) e atualiza o círculo. */
   const markStorySeen = async (areaId: string) => {
     await deps.seenStories.markSeen(areaId);
     setState((current) =>

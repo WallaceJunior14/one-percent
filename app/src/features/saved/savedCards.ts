@@ -9,14 +9,14 @@ export const SAVED_KEY = 'saved.v1';
 const savedCardSchema = z.object({ card: cardSchema, savedAt: z.string() });
 const savedListSchema = z.array(savedCardSchema);
 
-/** Card salvo por inteiro, para continuar disponível depois que o dia muda e sem internet (H6-2). */
+/** Card salvo por inteiro, para continuar disponível depois que o dia muda e sem internet. */
 export type SavedCard = z.infer<typeof savedCardSchema>;
 
 export type SavedCardsRepository = {
   /** Do mais recente para o mais antigo. */
   list(): Promise<SavedCard[]>;
   savedIds(): Promise<Set<string>>;
-  /** Salva ou remove; devolve `true` se o card ficou salvo (H6-1). */
+  /** Salva ou remove; devolve `true` se o card ficou salvo. */
   toggle(card: Card): Promise<boolean>;
 };
 

@@ -3,7 +3,7 @@ import { Alert, Linking } from 'react-native';
 const HTTPS = /^https:\/\/\S+$/i;
 
 /**
- * Abre o link no navegador do celular, fora do app (RF-010). Só aceita https: mesmo que o
+ * Abre o link no navegador do celular, fora do app. Só aceita https: mesmo que o
  * contrato já garanta isso, um link `javascript:`/`file:`/`intent:` nunca chega ao sistema.
  */
 export async function openExternalUrl(

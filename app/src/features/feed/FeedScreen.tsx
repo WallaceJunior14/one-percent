@@ -12,6 +12,7 @@ import {
 import type { Card, Story } from '@/features/content/contract';
 import { StoriesBar } from '@/features/stories/StoriesBar';
 import { StoryViewer } from '@/features/stories/StoryViewer';
+import { Pill } from '@/shared/ui/Pill';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import { CardDetailSheet } from './CardDetailSheet';
 import { CardPreview } from './CardPreview';
@@ -21,17 +22,15 @@ type OnViewableItemsChanged = NonNullable<FlatListProps<Card>['onViewableItemsCh
 type Props = {
   cards: Card[];
   areaNames: Record<string, string>;
-  /** Conteúdo de um dia anterior (H1-4): mostra um aviso abaixo da barra superior. */
+  /** Conteúdo de um dia anterior: mostra um aviso abaixo da barra superior. */
   stale?: boolean;
-  /** Chamado uma vez, ao tocar em "Concluir o dia" no fim da lista (H1-3, H4-1). */
+  /** Chamado uma vez, ao tocar em "Concluir o dia" no fim da lista. */
   onFinished(): void;
   onEditAreas(): void;
   onOpenSaved(): void;
   onOpenProfile(): void;
-  /** Ids dos cards salvos, para o painel mostrar "Salvo" (H6). */
   savedIds: ReadonlySet<string>;
   onToggleSave(card: Card): void;
-  /** Stories das áreas escolhidas (H5). */
   stories: Story[];
   seenStoryAreaIds: ReadonlySet<string>;
   onStorySeen(areaId: string): void;
@@ -47,8 +46,8 @@ export function updateSeenCount(previous: number, visibleIndexes: number[], tota
 }
 
 /**
- * Feed finito em coluna única (H1-1): cards com a altura do conteúdo, rolagem livre,
- * painel de detalhe ao tocar (H1-2a) e encerramento com "Concluir o dia" no fim (H1-3).
+ * Feed finito em coluna única: cards com a altura do conteúdo, rolagem livre,
+ * painel de detalhe ao tocar e encerramento com "Concluir o dia" no fim.
  */
 export function FeedScreen({
   cards,
@@ -97,33 +96,9 @@ export function FeedScreen({
   return (
     <View style={styles.screen}>
       <View testID="feed-header" style={styles.header}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Editar áreas"
-          onPress={onEditAreas}
-          hitSlop={8}
-          style={styles.areasButton}
-        >
-          <Text style={styles.areasLabel}>Áreas</Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Ver salvos"
-          onPress={onOpenSaved}
-          hitSlop={8}
-          style={styles.areasButton}
-        >
-          <Text style={styles.areasLabel}>Salvos</Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Ver meu progresso"
-          onPress={onOpenProfile}
-          hitSlop={8}
-          style={styles.areasButton}
-        >
-          <Text style={styles.areasLabel}>Perfil</Text>
-        </Pressable>
+        <Pill label="Áreas" accessibilityLabel="Editar áreas" onPress={onEditAreas} />
+        <Pill label="Salvos" accessibilityLabel="Ver salvos" onPress={onOpenSaved} />
+        <Pill label="Perfil" accessibilityLabel="Ver meu progresso" onPress={onOpenProfile} />
         <View style={styles.spacer} />
         <Text style={styles.progress}>
           {seen} de {cards.length} vistos
@@ -201,21 +176,13 @@ function makeStyles({ colors, spacing }: Theme) {
     screen: { flex: 1, backgroundColor: colors.background },
     header: {
       flexDirection: 'row',
-      flexWrap: 'wrap', // fonte grande do sistema (RNF-007): botões descem de linha
+      flexWrap: 'wrap', // com fonte grande, os botões descem de linha
       alignItems: 'center',
       gap: spacing(1),
       paddingHorizontal: spacing(2),
       paddingTop: spacing(5),
       paddingBottom: spacing(1),
     },
-    areasButton: {
-      paddingHorizontal: spacing(1.5),
-      paddingVertical: spacing(0.75),
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    areasLabel: { fontSize: 14, fontWeight: '700', color: colors.text },
     spacer: { flex: 1 },
     progress: { fontSize: 14, color: colors.textMuted },
     warning: {

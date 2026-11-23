@@ -34,7 +34,7 @@ export type QuizRepository = {
   today(): Promise<TodaysQuiz | null>;
   /** Guarda as perguntas de hoje; repetir no mesmo dia mantém as primeiras. */
   prepare(questions: readonly Card[]): Promise<void>;
-  /** Registra a pontuação de hoje no histórico (H7-3). Não mexe na sequência (H7-4). */
+  /** Registra a pontuação de hoje no histórico. Não mexe na sequência. */
   recordScore(score: number): Promise<void>;
   history(): Promise<ScoreEntry[]>;
 };
