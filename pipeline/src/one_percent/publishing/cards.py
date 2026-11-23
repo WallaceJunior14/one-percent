@@ -9,12 +9,11 @@ from typing import Any
 
 from one_percent.domain.identity import card_id
 from one_percent.domain.models import RankedItem
-from one_percent.summarizer import Summary
+from one_percent.summarizer import LIMITS, Summary
 
 logger = logging.getLogger(__name__)
 
 MAX_AUTHORS = 3
-ORIGINAL_TITLE_MAX = 400
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 
@@ -64,7 +63,7 @@ def build_card(ranked: RankedItem, summary: Summary) -> dict[str, Any] | None:
         return None
     card.update(
         {
-            "originalTitle": item.title[:ORIGINAL_TITLE_MAX],
+            "originalTitle": item.title[: LIMITS.original_title],
             "method": summary.method,
             "result": summary.result,
             "limitations": summary.limitations,

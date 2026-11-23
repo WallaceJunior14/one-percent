@@ -58,6 +58,7 @@ def test_pipeline_publishes_a_valid_day(tmp_path: Path) -> None:
 def test_pipeline_summarizes_best_ranked_items_first(tmp_path: Path) -> None:
     class RecordingSummarizer(FakeSummarizer):
         def __init__(self) -> None:
+            super().__init__()
             self.seen: list[ContentItem] = []
 
         def summarize(self, items):  # type: ignore[no-untyped-def]

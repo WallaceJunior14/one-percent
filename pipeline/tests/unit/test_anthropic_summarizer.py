@@ -1,14 +1,25 @@
 import json
 import logging
+import re
 from types import SimpleNamespace
 from typing import Any
 
 import pytest
 
-from one_percent.config.settings import LlmSettings, PipelineSettings
+from one_percent.config.settings import (
+    ContentSettings,
+    LlmSettings,
+    PipelineSettings,
+    QuizSettings,
+)
+from one_percent.contract import TextLimits, text_limits
 from one_percent.domain.identity import card_id
 from one_percent.summarizer import SummarizerError
-from one_percent.summarizer.anthropic import AnthropicSummarizer
+from one_percent.summarizer.anthropic import (
+    SYSTEM_PROMPT_TEMPLATE,
+    AnthropicSummarizer,
+    system_prompt,
+)
 from tests.factories import make_item
 
 VALID_NEWS = {
@@ -215,3 +226,42 @@ def test_times_out_and_cancels_the_batch() -> None:
         _summarizer(batches, _llm(batch_timeout_minutes=2)).summarize([make_item()])
 
     assert batches.canceled
+
+
+def test_prompt_has_no_hand_written_numbers() -> None:
+    assert not re.search(r"\d", SYSTEM_PROMPT_TEMPLATE)
+
+
+def test_prompt_limits_follow_the_contract() -> None:
+    limits = TextLimits(short=100, medium=50, long=1000, original_title=400)
+    llm = LlmSettings(prompt_target_ratio=0.5, prompt_target_overrides={"quiz": 0.2})
+
+    prompt = system_prompt(limits, llm, distractors=4)
+
+    assert "title: título em português, até 50 caracteres" in prompt
+    assert "no máximo 500 caracteres" in prompt
+    assert "method até 25, result até 25 e limitations até 25 caracteres" in prompt
+    assert "distractors são 4 alternativas erradas" in prompt
+    assert "(até 20 caracteres cada)" in prompt
+
+
+def test_request_uses_prompt_from_contract_limits_and_settings() -> None:
+    item = make_item()
+    batches = FakeBatches([_succeeded(card_id(item), VALID_NEWS)])
+    settings = PipelineSettings()
+
+    _summarizer(batches, settings).summarize([item])
+
+    expected = system_prompt(text_limits(), settings.llm, settings.content.quiz.distractors)
+    assert batches.requests[0]["params"]["system"] == expected
+
+
+def test_distractor_count_follows_settings() -> None:
+    items = [make_item(), make_item()]
+    two = {**VALID_NEWS, "quiz": {**VALID_NEWS["quiz"], "distractors": ["A", "B"]}}
+    results = [_succeeded(card_id(items[0]), two), _succeeded(card_id(items[1]), VALID_NEWS)]
+    settings = PipelineSettings(content=ContentSettings(quiz=QuizSettings(distractors=2)))
+
+    summaries = _summarizer(FakeBatches(results), settings).summarize(items)
+
+    assert list(summaries) == [card_id(items[0])]

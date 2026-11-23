@@ -1,24 +1,45 @@
-"""Porta `Summarizer`: transforma itens coletados em textos de card."""
+"""Porta `Summarizer`: transforma itens coletados em textos de card.
 
-from collections.abc import Sequence
+Os limites de texto vêm do contrato (`contract.text_limits`), lidos uma vez na importação.
+"""
+
+from collections.abc import Mapping, Sequence
+from functools import cache
 from typing import Annotated, Protocol
 
-from pydantic import BaseModel, ConfigDict, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, create_model
 
+from one_percent.contract import TextLimits, text_limits
 from one_percent.domain.models import ContentItem
 
-SHORT_TEXT_MAX = 200
-MEDIUM_TEXT_MAX = 300
-LONG_TEXT_MAX = 600
+LIMITS = text_limits()
 
 
 def _text(max_length: int) -> object:
     return StringConstraints(strip_whitespace=True, min_length=1, max_length=max_length)
 
 
-ShortText = Annotated[str, _text(SHORT_TEXT_MAX)]
-MediumText = Annotated[str, _text(MEDIUM_TEXT_MAX)]
-LongText = Annotated[str, _text(LONG_TEXT_MAX)]
+ShortText = Annotated[str, _text(LIMITS.short)]
+MediumText = Annotated[str, _text(LIMITS.medium)]
+LongText = Annotated[str, _text(LIMITS.long)]
+
+
+def field_limits(limits: TextLimits) -> dict[str, int]:
+    """Limite de cada campo escrito pelo LLM, pelo caminho do campo no resumo."""
+    return {
+        "title": limits.short,
+        "summary": limits.long,
+        "why_it_matters": limits.short,
+        "method": limits.medium,
+        "result": limits.medium,
+        "limitations": limits.medium,
+        "quiz.question": limits.short,
+        "quiz.correct_answer": limits.short,
+        "quiz.distractors": limits.short,
+    }
+
+
+FIELD_LIMITS: Mapping[str, int] = field_limits(LIMITS)
 
 
 class SummarizerError(RuntimeError):
@@ -30,7 +51,7 @@ class Quiz(BaseModel):
 
     question: ShortText
     correct_answer: ShortText
-    distractors: tuple[ShortText, ShortText, ShortText]
+    distractors: tuple[ShortText, ...] = Field(min_length=1)
 
 
 class Summary(BaseModel):
@@ -45,6 +66,16 @@ class Summary(BaseModel):
     result: MediumText | None = None
     limitations: MediumText | None = None
     quiz: Quiz
+
+
+@cache
+def summary_model(distractors: int) -> type[Summary]:
+    """`Summary` que exige exatamente `distractors` alternativas erradas no quiz."""
+    exact = Field(min_length=distractors, max_length=distractors)
+    quiz = create_model(
+        "Quiz", __base__=Quiz, distractors=(Annotated[tuple[ShortText, ...], exact], ...)
+    )
+    return create_model("Summary", __base__=Summary, quiz=(quiz, ...))
 
 
 class Summarizer(Protocol):

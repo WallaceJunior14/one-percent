@@ -47,7 +47,7 @@ def make_arxiv_interval() -> float:
 
 def make_summarizer(args: argparse.Namespace, settings: PipelineSettings) -> Summarizer:
     if args.fake:
-        return FakeSummarizer()
+        return FakeSummarizer(settings.content.quiz.distractors)
     return AnthropicSummarizer(anthropic.Anthropic(), settings, max_items=args.limit)
 
 

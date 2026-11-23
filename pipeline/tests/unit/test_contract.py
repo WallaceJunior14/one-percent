@@ -6,7 +6,9 @@ import pytest
 
 from one_percent.contract import (
     SAMPLE_DAY_PATH,
+    SCHEMA_PATH,
     ContractViolationError,
+    text_limits,
     validate_daily_content,
 )
 
@@ -131,3 +133,15 @@ def test_paper_scientific_fields_reject_over_300_chars(
 
     with pytest.raises(ContractViolationError):
         validate_daily_content(day)
+
+
+def test_reads_text_limits_from_schema() -> None:
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    defs = schema["$defs"]
+
+    limits = text_limits()
+
+    assert limits.short == defs["shortText"]["maxLength"]
+    assert limits.medium == defs["mediumText"]["maxLength"]
+    assert limits.long == defs["longText"]["maxLength"]
+    assert limits.original_title == defs["card"]["properties"]["originalTitle"]["maxLength"]

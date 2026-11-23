@@ -1,6 +1,7 @@
 """Validação do JSON diário contra o contrato compartilhado com o app (ADR 0001)."""
 
 import json
+from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 from typing import Any
@@ -16,12 +17,40 @@ class ContractViolationError(ValueError):
     """O conteúdo do dia não respeita `daily-content.schema.json`."""
 
 
+@dataclass(frozen=True, slots=True)
+class TextLimits:
+    """Tamanho máximo, em caracteres, de cada tipo de texto do card."""
+
+    short: int
+    medium: int
+    long: int
+    original_title: int
+
+
+@cache
+def _schema() -> dict[str, Any]:
+    with SCHEMA_PATH.open(encoding="utf-8") as file:
+        schema: dict[str, Any] = json.load(file)
+    return schema
+
+
 @cache
 def _validator() -> Draft202012Validator:
-    with SCHEMA_PATH.open(encoding="utf-8") as file:
-        schema = json.load(file)
+    schema = _schema()
     Draft202012Validator.check_schema(schema)
     return Draft202012Validator(schema)
+
+
+@cache
+def text_limits() -> TextLimits:
+    """Os `maxLength` do contrato: a única definição dos limites de texto."""
+    defs = _schema()["$defs"]
+    return TextLimits(
+        short=defs["shortText"]["maxLength"],
+        medium=defs["mediumText"]["maxLength"],
+        long=defs["longText"]["maxLength"],
+        original_title=defs["card"]["properties"]["originalTitle"]["maxLength"],
+    )
 
 
 def validate_daily_content(content: dict[str, Any]) -> None:

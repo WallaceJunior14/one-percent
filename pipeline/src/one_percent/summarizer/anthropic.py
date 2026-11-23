@@ -13,16 +13,17 @@ from anthropic.types.messages.batch_create_params import Request
 from pydantic import ValidationError
 from pydantic_core import ErrorDetails
 
-from one_percent.config.settings import PipelineSettings
+from one_percent.config.settings import LlmSettings, PipelineSettings, PromptField
+from one_percent.contract import TextLimits, text_limits
 from one_percent.domain.identity import card_id
 from one_percent.domain.models import ContentItem, ContentKind
-from one_percent.summarizer import SummarizerError, Summary
+from one_percent.summarizer import SummarizerError, Summary, field_limits, summary_model
 
 logger = logging.getLogger(__name__)
 
 POLL_INTERVAL_SECONDS = 30.0
 
-SYSTEM_PROMPT = """\
+SYSTEM_PROMPT_TEMPLATE = """\
 Você escreve cards curtos, em português do Brasil, para um app de aprendizado diário.
 
 Regras:
@@ -39,15 +40,41 @@ a descrever instrumentos e técnicas de medição.
 - Não use Markdown, HTML, emojis nem links.
 
 Campos:
-- title: título em português, até 120 caracteres (traduza se o original estiver em outro idioma).
-- summary: até 3 frases, no máximo 500 caracteres.
-- why_it_matters: 1 frase, até 160 caracteres, sobre por que isso importa para o leitor.
-- method, result, limitations (só para artigos científicos): 1 frase curta cada, de preferência \
-até 200 caracteres e nunca mais de 280. Diga o essencial; detalhes de técnica podem ficar de fora.
+- title: título em português, até {title} caracteres (traduza se o original estiver em outro \
+idioma).
+- summary: até três frases, no máximo {summary} caracteres.
+- why_it_matters: uma frase, até {why_it_matters} caracteres, sobre por que isso importa para o \
+leitor.
+- method, result, limitations (só para artigos científicos): uma frase curta cada, com method até \
+{method}, result até {result} e limitations até {limitations} caracteres. Diga o essencial; \
+detalhes de técnica podem ficar de fora.
 - quiz: uma pergunta de múltipla escolha sobre o fato principal do item; correct_answer é a \
-resposta certa e distractors são 3 alternativas erradas, plausíveis e diferentes entre si \
-(até 100 caracteres cada).
+resposta certa e distractors são {distractors} alternativas erradas, plausíveis e diferentes entre \
+si (até {quiz} caracteres cada).
 """
+"""Os números vêm dos limites do contrato e da configuração, nunca escritos aqui."""
+
+_PROMPT_FIELDS: dict[PromptField, str] = {
+    "title": "title",
+    "summary": "summary",
+    "why_it_matters": "why_it_matters",
+    "method": "method",
+    "result": "result",
+    "limitations": "limitations",
+    "quiz": "quiz.question",
+}
+"""Campo do prompt → campo do resumo cujo limite ele usa."""
+
+
+def system_prompt(limits: TextLimits, llm: LlmSettings, distractors: int) -> str:
+    """Prompt com cada limite do contrato reduzido pela margem configurada para o campo."""
+    by_field = field_limits(limits)
+    targets = {
+        prompt_field: max(1, round(by_field[summary_field] * llm.prompt_ratio(prompt_field)))
+        for prompt_field, summary_field in _PROMPT_FIELDS.items()
+    }
+    return SYSTEM_PROMPT_TEMPLATE.format(distractors=distractors, **targets)
+
 
 _TEXT = {"type": "string"}
 _QUIZ_SCHEMA = {
@@ -107,6 +134,9 @@ class AnthropicSummarizer:
         self._max_items = settings.llm.max_items_per_run if max_items is None else max_items
         self._poll_interval = poll_interval_seconds
         self._timeout = settings.llm.batch_timeout_minutes * 60
+        distractors = settings.content.quiz.distractors
+        self._system = system_prompt(text_limits(), settings.llm, distractors)
+        self._summary_model = summary_model(distractors)
         self._sleep = sleep
         self._clock = clock
 
@@ -135,7 +165,7 @@ class AnthropicSummarizer:
             params=MessageCreateParamsNonStreaming(
                 model=self._llm.model,
                 max_tokens=self._llm.max_tokens,
-                system=SYSTEM_PROMPT,
+                system=self._system,
                 messages=[{"role": "user", "content": user_message(item)}],
                 output_config={
                     "effort": "low",
@@ -168,7 +198,7 @@ class AnthropicSummarizer:
                 continue
             text = next((block.text for block in message.content if block.type == "text"), "")
             try:
-                summaries[entry.custom_id] = Summary.model_validate_json(text)
+                summaries[entry.custom_id] = self._summary_model.model_validate_json(text)
             except ValidationError as error:
                 problems = [_describe(issue) for issue in error.errors()]
                 invalid_fields.update(problem.split(" ")[0] for problem in problems)
