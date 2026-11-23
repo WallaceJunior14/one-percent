@@ -85,6 +85,7 @@ class SummaryBatch:
     """Resumos indexados por `card_id`; itens que falharam ficam de fora."""
     shortened_fields: int = 0
     """Textos acima do limite que foram encurtados em vez de descartados."""
+    estimated_cost_usd: float = 0.0
 
 
 class Summarizer(Protocol):

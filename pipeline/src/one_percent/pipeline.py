@@ -31,6 +31,7 @@ class RunReport:
     summarized: int
     cards: int
     shortened_fields: int
+    estimated_cost_usd: float
     failed_sources: tuple[str, ...]
     published: bool
 
@@ -72,6 +73,7 @@ def run_pipeline(
         summarized=len(batch.summaries),
         cards=len(day["cards"]),
         shortened_fields=batch.shortened_fields,
+        estimated_cost_usd=batch.estimated_cost_usd,
         failed_sources=collected.failed_sources,
         published=published,
     )

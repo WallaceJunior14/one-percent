@@ -7,9 +7,11 @@ from typing import Any
 import pytest
 
 from one_percent.config.settings import (
+    BudgetSettings,
     ContentSettings,
     LlmSettings,
     PipelineSettings,
+    PriceSettings,
     QuizSettings,
 )
 from one_percent.contract import TextLimits, text_limits
@@ -279,3 +281,40 @@ def test_long_summary_is_shortened_not_dropped(caplog: pytest.LogCaptureFixture)
     assert batch.summaries[card_id(item)].summary == "Frase curta."
     assert batch.shortened_fields == 1
     assert "textos encurtados por campo: {'summary': 1}" in caplog.text
+
+
+def _priced(monthly_usd: float) -> PipelineSettings:
+    return PipelineSettings(
+        llm=LlmSettings(price_per_mtok=PriceSettings(input=10, output=50)),
+        budget=BudgetSettings(monthly_usd=monthly_usd, alert_ratio=0.5),
+    )
+
+
+def test_estimates_cost_from_tokens_and_configured_prices() -> None:
+    items = [make_item(), make_item()]
+    results = [_succeeded(card_id(item), VALID_NEWS) for item in items]
+
+    batch = _summarizer(FakeBatches(results), _priced(monthly_usd=100)).summarize(items)
+
+    assert batch.estimated_cost_usd == pytest.approx(0.03)
+
+
+def test_warns_when_projected_cost_exceeds_budget(caplog: pytest.LogCaptureFixture) -> None:
+    items = [make_item(), make_item()]
+    results = [_succeeded(card_id(item), VALID_NEWS) for item in items]
+
+    with caplog.at_level(logging.WARNING):
+        _summarizer(FakeBatches(results), _priced(monthly_usd=1)).summarize(items)
+
+    assert "orçamento" in caplog.text
+    assert "US$ 0.90" in caplog.text
+
+
+def test_no_budget_warning_within_limit(caplog: pytest.LogCaptureFixture) -> None:
+    items = [make_item(), make_item()]
+    results = [_succeeded(card_id(item), VALID_NEWS) for item in items]
+
+    with caplog.at_level(logging.WARNING):
+        _summarizer(FakeBatches(results), _priced(monthly_usd=100)).summarize(items)
+
+    assert "orçamento" not in caplog.text

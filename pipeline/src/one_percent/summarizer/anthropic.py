@@ -14,7 +14,13 @@ from anthropic.types.messages.batch_create_params import Request
 from pydantic import ValidationError
 from pydantic_core import ErrorDetails
 
-from one_percent.config.settings import LlmSettings, PipelineSettings, PromptField
+from one_percent.config.settings import (
+    BudgetSettings,
+    LlmSettings,
+    PipelineSettings,
+    PriceSettings,
+    PromptField,
+)
 from one_percent.contract import TextLimits, text_limits
 from one_percent.domain.identity import card_id
 from one_percent.domain.models import ContentItem, ContentKind
@@ -31,6 +37,8 @@ from one_percent.summarizer.shorten import shorten_fields
 logger = logging.getLogger(__name__)
 
 POLL_INTERVAL_SECONDS = 30.0
+DAYS_PER_MONTH = 30
+"""Projeção do mês: uma execução por dia."""
 
 SYSTEM_PROMPT_TEMPLATE = """\
 Você escreve cards curtos, em português do Brasil, para um app de aprendizado diário.
@@ -121,6 +129,24 @@ def user_message(item: ContentItem) -> str:
     )
 
 
+def estimate_cost(input_tokens: int, output_tokens: int, price: PriceSettings) -> float:
+    return (input_tokens * price.input + output_tokens * price.output) / 1_000_000
+
+
+def check_budget(cost_usd: float, budget: BudgetSettings) -> None:
+    projected = cost_usd * DAYS_PER_MONTH
+    limit = budget.monthly_usd * budget.alert_ratio
+    logger.info("custo estimado: US$ %.4f (projeção mensal US$ %.2f; orçamento US$ %.2f)",
+                cost_usd, projected, budget.monthly_usd)  # fmt: skip
+    if projected > limit:
+        logger.warning(
+            "custo projetado do mês (US$ %.2f) passa de %.0f%% do orçamento de US$ %.2f",
+            projected,
+            budget.alert_ratio * 100,
+            budget.monthly_usd,
+        )
+
+
 def _describe(issue: ErrorDetails) -> str:
     """Ex.: 'quiz.distractors.2 (string_too_long)'."""
     location = ".".join(str(part) for part in issue["loc"]) or "<raiz>"
@@ -140,6 +166,7 @@ class AnthropicSummarizer:
     ) -> None:
         self._client = client
         self._llm = settings.llm
+        self._budget = settings.budget
         self._max_items = settings.llm.max_items_per_run if max_items is None else max_items
         self._poll_interval = poll_interval_seconds
         self._timeout = settings.llm.batch_timeout_minutes * 60
@@ -215,7 +242,11 @@ class AnthropicSummarizer:
         if shortened:
             logger.info("textos encurtados por campo: %s", dict(shortened.most_common()))
         logger.info("tokens: %d de entrada, %d de saída", input_tokens, output_tokens)
-        return SummaryBatch(summaries, shortened_fields=sum(shortened.values()))
+        cost = estimate_cost(input_tokens, output_tokens, self._llm.price_per_mtok)
+        check_budget(cost, self._budget)
+        return SummaryBatch(
+            summaries, shortened_fields=sum(shortened.values()), estimated_cost_usd=cost
+        )
 
     def _parse(
         self, custom_id: str, text: str, invalid_fields: Counter[str], shortened: Counter[str]

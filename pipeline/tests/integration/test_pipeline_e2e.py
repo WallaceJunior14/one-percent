@@ -11,6 +11,7 @@ from one_percent.config.settings import ContentSettings, PipelineSettings
 from one_percent.contract import validate_daily_content
 from one_percent.domain.models import ContentItem
 from one_percent.pipeline import run_pipeline
+from one_percent.summarizer import SummaryBatch
 from one_percent.summarizer.fake import FakeSummarizer
 from tests.factories import NOW, make_item
 from tests.helpers import fixture_bytes
@@ -70,6 +71,20 @@ def test_pipeline_summarizes_best_ranked_items_first(tmp_path: Path) -> None:
 
     subareas_in_first_round = {item.subarea_id for item in summarizer.seen[:16]}
     assert len(subareas_in_first_round) == 16
+
+
+def test_reports_estimated_cost(tmp_path: Path) -> None:
+    class CostlySummarizer(FakeSummarizer):
+        def summarize(self, items):  # type: ignore[no-untyped-def]
+            batch = super().summarize(items)
+            return SummaryBatch(batch.summaries, estimated_cost_usd=0.12, shortened_fields=2)
+
+    report = run_pipeline(
+        CONFIG, SETTINGS, _sources_covering_all_areas(), CostlySummarizer(), NOW, tmp_path
+    )
+
+    assert report.estimated_cost_usd == 0.12
+    assert report.shortened_fields == 2
 
 
 def test_uses_configured_retention(tmp_path: Path) -> None:
