@@ -6,7 +6,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 
 ## Fase 0 — Decisão
 
-- [ ] T200 ADR 0007: política de versão do contrato (aditivo mantém a versão principal; incompatível publica `latest-v2.json` em paralelo)
+- [x] T200 ADR 0007: política de versão do contrato (aditivo mantém a versão principal; incompatível publica `latest-v2.json` em paralelo)
   - Teste: —
   - Cobre: RF-102
 
