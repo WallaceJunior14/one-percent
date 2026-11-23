@@ -1,6 +1,6 @@
 # Spec 003 — Histórico das publicações capturadas
 
-- **Status**: Rascunho
+- **Status**: Aprovada (2026-11-22), com as propostas para as dúvidas
 - **Criada em**: 2026-11-22
 - **Depende de**: [Spec 002](../002-regras-configuraveis/spec.md) (implementada antes desta)
 
@@ -76,7 +76,7 @@ Como mantenedor, quero gerar de novo os cards de um dia a partir dos itens guard
 **Critérios de aceite**
 1. **Dado** um dia com itens coletados no histórico, **quando** peço para reprocessá-lo com outros parâmetros, **então** o pipeline refaz as etapas a partir dos itens guardados, sem coletar das fontes, e grava o resultado como uma nova versão daquele dia, sem apagar a original.
 2. **Dado** duas versões de um dia, **quando** as comparo, **então** vejo lado a lado os cards de cada uma e o custo de cada uma.
-3. **Dado** um reprocessamento, **quando** ele termina, **então** nada é publicado para o app, a não ser que eu peça explicitamente e o dia seja o atual (ver dúvidas). Um dia passado nunca substitui o conteúdo atual do app.
+3. **Dado** um reprocessamento, **quando** ele termina, **então** nada é publicado para o app, a não ser que eu peça explicitamente e o dia seja o atual; nesse caso, a nova versão passa pelas mesmas validações e pelo mínimo para publicar de uma execução diária. Um dia passado nunca substitui o conteúdo atual do app.
 4. **Dado** um reprocessamento, **quando** ele chama o LLM, **então** seu custo entra no custo do mês (H3-1) e respeita o mesmo teto de itens e o mesmo orçamento das execuções diárias.
 5. **Dado** os itens guardados, **quando** são reprocessados, **então** recebem o mesmo tratamento de conteúdo não confiável que recebem na coleta (são dados de terceiros, não instruções).
 
@@ -96,7 +96,7 @@ Como mantenedor, quero buscar no histórico por texto, área, fonte e período, 
 **Critérios de aceite**
 1. **Dado** o histórico, **quando** busco um termo num período, **então** recebo os cards publicados e os itens coletados que o contêm no título ou no resumo, com a data e a fonte.
 2. **Dado** um filtro por área, subárea, fonte, tipo (notícia ou artigo) ou situação (publicado ou descartado), **quando** busco, **então** o resultado respeita o filtro.
-3. A busca pelo app fica para uma spec futura (ver dúvidas); esta spec só garante que os dados guardados a permitem.
+3. A busca pelo app fica para uma spec futura (ver "Fora de escopo"); esta spec só garante que os dados guardados a permitem.
 
 ## Requisitos funcionais
 
@@ -108,7 +108,7 @@ Como mantenedor, quero buscar no histórico por texto, área, fonte e período, 
 - **RF-206**: o relatório de cada execução fica no histórico: contagens por etapa (coletados, na janela, únicos, selecionados, resumidos, cards), descartes por motivo, fontes que falharam e por quê, tentativas repetidas, tokens de entrada e saída, custo estimado, encurtamentos e alertas.
 - **RF-207**: cada execução guarda uma cópia dos parâmetros em vigor (spec 002) e da versão do pipeline, para que qualquer dia possa ser entendido e reprocessado com os valores da época.
 - **RF-208**: o histórico permite consultar: conteúdo de um dia, custo de um período, falhas por fonte, resumo da operação de um período e versões de um dia.
-- **RF-209**: o pipeline compara os itens do dia com os cards publicados dentro de uma janela de repetição configurável (H4); zero desliga a comparação.
+- **RF-209**: o pipeline compara os itens do dia com os cards publicados dentro de uma janela de repetição configurável (H4); zero desliga a comparação. Padrão: **7 dias**, ligada desde a ativação do histórico.
 - **RF-210**: um dia pode ser reprocessado a partir dos itens guardados (H5); cada reprocessamento gera uma nova versão do dia, sem sobrescrever as anteriores.
 - **RF-211**: os dias ainda publicados quando o histórico for ativado são importados uma única vez, marcados como importados (H2-3). Importar de novo não duplica.
 - **RF-212**: a avaliação de qualidade de um card pode ser registrada e consultada por semana e por modelo (H6).
@@ -122,9 +122,9 @@ Como mantenedor, quero buscar no histórico por texto, área, fonte e período, 
 - **RNF-203** (Volume): o histórico deve suportar pelo menos 3 anos de execuções diárias no volume atual (algumas centenas de itens coletados por execução, até 3 execuções por dia) sem ultrapassar o limite de custo do RNF-201.
 - **RNF-204** (Privacidade): o histórico guarda só conteúdo público coletado das fontes e dados da operação. Nenhum dado de usuário do app (preferências, progresso, identificadores de aparelho, uso) é enviado ou guardado; o app continua sem enviar nada (spec 001, RNF-004).
 - **RNF-205** (Segredos): nenhum segredo (chave do LLM, credencial de acesso ao histórico) aparece em registros, relatórios ou parâmetros guardados. A credencial de escrita no histórico segue as mesmas regras das demais credenciais da operação ([ADR 0005](../../docs/adr/0005-chave-de-api-no-github-actions.md)).
-- **RNF-206** (Respeito às fontes): o histórico guarda só o que o pipeline já coleta (título, resumo ou abstract, metadados e link), nunca o texto integral das fontes, e não é republicado em lugar nenhum (spec 001, RNF-008). [PRECISA ESCLARECER: o histórico pode ficar público ou precisa ser privado?]
+- **RNF-206** (Respeito às fontes): o histórico guarda só o que o pipeline já coleta (título, resumo ou abstract, metadados e link), nunca o texto integral das fontes, e não é republicado em lugar nenhum (spec 001, RNF-008). O histórico é **privado**: só o pipeline e o mantenedor têm acesso, e ele não fica dentro do repositório público do projeto.
 - **RNF-207** (Publicação primeiro): uma falha ao ler ou gravar o histórico nunca impede nem atrasa além do horário-limite (spec 002, RF-107) a publicação do dia. A falha entra no relatório e gera alerta; os dias publicados nesse período podem ser recuperados depois pela importação (RF-211) enquanto ainda estiverem no endereço público.
-- **RNF-208** (Retenção): cada tipo de registro tem um prazo de retenção configurável. Proposta de padrão: dias publicados, resumos dos cards publicados, relatórios de execução e avaliações sem prazo (volume pequeno); itens coletados e não publicados e respostas do LLM que não viraram card por [PRECISA ESCLARECER: prazo, proposta de 180 dias]. Itens apagados pela retenção não quebram a ligação dos cards publicados com seus dados de origem.
+- **RNF-208** (Retenção): cada tipo de registro tem um prazo de retenção configurável. Padrão: dias publicados, resumos dos cards publicados, relatórios de execução e avaliações sem prazo (volume pequeno); itens coletados e não publicados e respostas do LLM que não viraram card por **180 dias**. Itens apagados pela retenção não quebram a ligação dos cards publicados com seus dados de origem.
 - **RNF-209** (Formato versionado): o formato dos registros tem versão. Registros gravados por versões anteriores do pipeline continuam legíveis ou são convertidos sem perda, como os dados locais do app (spec 002, RF-103).
 - **RNF-210** (Integridade): só o pipeline e o mantenedor escrevem no histórico; uma execução nunca apaga ou altera registros de outra execução, exceto pela retenção (RNF-208).
 - **RNF-211** (Testabilidade): o pipeline continua testável sem acesso ao histórico real, com um substituto local nos testes, como já acontece com as fontes e o LLM.
@@ -152,14 +152,16 @@ A spec 002 separa regras de parâmetros e torna o contrato tolerante a versões.
 - Recuperar itens coletados ou relatórios de antes da ativação do histórico (já foram perdidos).
 - Republicar dias passados para o app.
 
-## Dúvidas em aberto
+## Decisões tomadas
 
-- [PRECISA ESCLARECER: onde hospedar o histórico. As opções vão para o plan, mas a decisão depende de duas respostas: ele pode ficar junto do repositório do projeto ou precisa ser um serviço à parte? Pode ser público ou precisa ser privado (RNF-206)? O repositório `one-percent` é público hoje, então guardar o histórico dentro dele o torna público. Proposta: privado, porque reúne resumos e abstracts de terceiros em volume.]
-- [PRECISA ESCLARECER: o app vai consultar o histórico um dia? Proposta: não nesta spec; só o pipeline e o mantenedor. Se a resposta for "sim, em breve", o plan precisa evitar escolhas que impeçam uma leitura pública somente de cards publicados.]
-- [PRECISA ESCLARECER: janela de repetição padrão (H4). Proposta: 7 dias, que cobre a janela de artigos científicos, onde a repetição é mais provável. A comparação entra ligada ou desligada (zero) no início?]
-- [PRECISA ESCLARECER: prazo de retenção dos itens coletados e não publicados (RNF-208). Proposta: 180 dias, o bastante para reprocessar e medir qualidade de um semestre.]
-- [PRECISA ESCLARECER: reprocessar pode republicar o dia atual para o app (H5-3)? Proposta: sim, só o dia atual e só com pedido explícito, passando pelas mesmas validações e pelo mínimo para publicar.]
-- [PRECISA ESCLARECER: a avaliação semanal de qualidade (H6) passa a ser registrada no histórico, substituindo a tabela de `docs/ops/medicao-mvp.md`, ou a tabela continua e o histórico só a complementa?]
+O autor aceitou as propostas em 2026-11-22:
+
+1. **Hospedagem e visibilidade**: o histórico é privado e fica fora do repositório público `one-percent` (RNF-206). O serviço concreto é escolhido no plan, dentro do RNF-201.
+2. **App e histórico**: o app não consulta o histórico nesta spec; só o pipeline e o mantenedor. Ainda assim, o plan não deve impedir que uma spec futura exponha, à parte, só os cards publicados.
+3. **Janela de repetição**: 7 dias, ligada desde a ativação (RF-209). Cobre a janela de artigos científicos, onde a repetição é mais provável.
+4. **Retenção dos itens não publicados**: 180 dias (RNF-208), o bastante para reprocessar e medir a qualidade de um semestre.
+5. **Republicar ao reprocessar**: permitido só para o dia atual, só com pedido explícito, com as mesmas validações e o mesmo mínimo para publicar (H5-3).
+6. **Avaliação de qualidade**: quando a H6 for implementada, o registro no histórico substitui a tabela de `docs/ops/medicao-mvp.md` para as semanas seguintes; a tabela fica como registro do período do MVP. (A spec não trazia proposta para este item; esta foi a escolhida ao aprovar.)
 
 ## Como saber que funcionou
 
@@ -173,3 +175,4 @@ A spec 002 separa regras de parâmetros e torna o contrato tolerante a versões.
 | Data | Mudança | Motivo |
 |---|---|---|
 | 2026-11-22 | Criação (rascunho) | Pedido do autor: guardar as publicações capturadas pelo pipeline, depois da spec 002 |
+| 2026-11-22 | Aprovada; dúvidas resolvidas: histórico privado fora do repositório público, app não consulta, repetição de 7 dias ligada, retenção de 180 dias, republicar só o dia atual, avaliação de qualidade migra para o histórico | Autor aceitou as propostas |
