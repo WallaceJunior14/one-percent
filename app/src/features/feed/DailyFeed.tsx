@@ -15,6 +15,7 @@ import type { Clock } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import { composeFeed } from './composeFeed';
+import { resolveFeedSettings } from './feedSettings';
 import { FeedScreen, UPDATE_SUGGESTION } from './FeedScreen';
 
 export type DailyFeedDependencies = {
@@ -46,6 +47,8 @@ type ViewState =
       kind: 'ready';
       cards: Card[];
       areaNames: Record<string, string>;
+      expectedSize: number;
+      quizQuestions: number;
       stale: boolean;
       updateSuggested: boolean;
       savedIds: Set<string>;
@@ -63,9 +66,16 @@ async function loadView(deps: DailyFeedDependencies): Promise<ViewState> {
   const updateSuggested = content.updateSuggested === true;
   if (content.status === 'empty') return { kind: 'empty', updateSuggested };
 
+  const published = new Set(content.content.areas.map((area) => area.id));
+  const areaIds = preferences.areaIds.filter((id) => published.has(id));
+  if (areaIds.length === 0) return { kind: 'redirect' };
+  const settings = resolveFeedSettings(content.content.settings);
+
   return {
     kind: 'ready',
-    cards: composeFeed(content.content, preferences),
+    cards: composeFeed(content.content, { ...preferences, areaIds }, settings),
+    expectedSize: settings.feedSize,
+    quizQuestions: settings.quizQuestions,
     areaNames: Object.fromEntries(content.content.areas.map((area) => [area.id, area.name])),
     stale: content.status === 'stale',
     updateSuggested,
@@ -115,9 +125,9 @@ export function DailyFeed({
   }, [deps, attempt, onNeedOnboarding]);
 
   /** Registra o progresso e prepara o quiz antes de ir para a tela de dia concluído. */
-  const completeDay = async (cards: Card[]) => {
+  const completeDay = async (cards: Card[], quizQuestions: number) => {
     await deps.progress.completeDay(cards);
-    await deps.quiz.prepare(selectQuiz(cards));
+    await deps.quiz.prepare(selectQuiz(cards, quizQuestions));
     await refreshReminders(deps); // tira o lembrete de hoje
     onFinished();
   };
@@ -174,7 +184,8 @@ export function DailyFeed({
           areaNames={state.areaNames}
           stale={state.stale}
           updateSuggested={state.updateSuggested}
-          onFinished={() => void completeDay(state.cards)}
+          expectedSize={state.expectedSize}
+          onFinished={() => void completeDay(state.cards, state.quizQuestions)}
           onEditAreas={onEditAreas}
           onOpenSaved={onOpenSaved}
           onOpenProfile={onOpenProfile}

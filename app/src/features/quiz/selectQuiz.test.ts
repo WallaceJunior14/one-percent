@@ -41,3 +41,7 @@ test('returns_fewer_when_feed_is_small', () => {
 test('same_input_same_output', () => {
   expect(selectQuiz(cards)).toEqual(selectQuiz(cards));
 });
+
+test('uses_configured_question_count', () => {
+  expect(selectQuiz(cards, 5)).toHaveLength(5);
+});

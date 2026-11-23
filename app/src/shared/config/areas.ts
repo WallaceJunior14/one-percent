@@ -1,8 +1,13 @@
-import type { Area } from '@/features/content/contract';
+import type { Area, Group } from '@/features/content/contract';
+
+export const BUNDLED_GROUPS: readonly Group[] = [
+  { id: 'sci-tech', name: 'Ciência & Tecnologia' },
+  { id: 'markets-health', name: 'Mercado & Saúde' },
+];
 
 /**
- * Áreas oferecidas no onboarding, antes do primeiro download do conteúdo. Espelha a
- * configuração do pipeline; testes nos dois lados comparam com o exemplo do contrato.
+ * Catálogo usado antes do primeiro download do conteúdo. Espelha a configuração do pipeline;
+ * testes nos dois lados comparam com o exemplo do contrato.
  */
 export const AREA_CATALOG: readonly Area[] = [
   {

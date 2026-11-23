@@ -1,15 +1,19 @@
 import { useRouter } from 'expo-router';
 
-import { preferencesRepository } from '@/dependencies';
+import { loadCatalog, preferencesRepository } from '@/dependencies';
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen';
 import type { Preferences } from '@/features/onboarding/preferences';
 import { useLoaded } from '@/shared/lib/useLoaded';
 
 export default function OnboardingRoute() {
   const router = useRouter();
-  const [initial] = useLoaded(() => preferencesRepository.load());
+  const [loaded] = useLoaded(async () => ({
+    initial: await preferencesRepository.load(),
+    catalog: await loadCatalog(),
+  }));
 
-  if (initial === undefined) return null;
+  if (loaded === undefined) return null;
+  const { initial, catalog } = loaded;
   const isFirstTime = initial === null;
 
   const complete = async (preferences: Preferences) => {
@@ -19,5 +23,7 @@ export default function OnboardingRoute() {
     else router.replace('/');
   };
 
-  return <OnboardingScreen initial={initial ?? undefined} onComplete={complete} />;
+  return (
+    <OnboardingScreen initial={initial ?? undefined} catalog={catalog} onComplete={complete} />
+  );
 }

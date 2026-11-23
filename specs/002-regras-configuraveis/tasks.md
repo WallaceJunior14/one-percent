@@ -28,10 +28,10 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 
 ## Fase 2 — Contrato com campos novos (aditivo)
 
-- [ ] T210 Schema: `groups`, `areas[].groupId`, `areas[].weight`, `settings`; quiz com 2 a 6 alternativas; stories com pelo menos 1 tela. Exemplo `sample-day.json` atualizado
+- [x] T210 Schema: `groups`, `areas[].groupId`, `areas[].weight`, `settings`; quiz com 2 a 6 alternativas; stories com pelo menos 1 tela. Exemplo `sample-day.json` atualizado
   - Teste: `test_contract.py` e `contract.test.ts` com o exemplo novo; `old_reader_fixture_still_parses` (payload sem os campos novos)
   - Cobre: RF-104, RF-105
-- [ ] T211 Compatibilidade cruzada: fixture gerada pelo pipeline (`--fake`) lida pelo parser do app; payload com campo desconhecido e um card inválido lido sem perder os demais
+- [x] T211 Compatibilidade cruzada: fixture gerada pelo pipeline (`--fake`) lida pelo parser do app; payload com campo desconhecido e um card inválido lido sem perder os demais
   - Teste: `contract.test.ts` — `reads_pipeline_output_fixture`, `reads_payload_with_unknown_field`
   - Cobre: RNF-101
 
@@ -43,10 +43,10 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [x] T221 Injetar `PipelineSettings` em janela, retenção, stories, fuso do conteúdo, mínimo total, modelo, teto de itens, `max_tokens` e timeout do batch; remover as constantes equivalentes do código
   - Teste: testes existentes passando com os padrões + `uses_configured_window`, `uses_configured_retention`, `uses_configured_story_range`
   - Cobre: RF-107, RF-108, RF-110
-- [ ] T222 `areas.yaml` com `groups`, `group` e `weight` por área; publicação do catálogo no dia
+- [x] T222 `areas.yaml` com `groups`, `group` e `weight` por área; publicação do catálogo no dia
   - Teste: `test_config.py` — `weights_must_be_positive`, `every_area_belongs_to_a_known_group`; `test_day.py` — `publishes_catalog_with_groups_and_weights`
   - Cobre: RF-104, H3-4
-- [ ] T223 Publicar `settings` do feed a partir de `feed:` no `pipeline.yaml`
+- [x] T223 Publicar `settings` do feed a partir de `feed:` no `pipeline.yaml`
   - Teste: `test_day.py` — `publishes_feed_settings`
   - Cobre: RF-105, H4-4
 - [x] T224 Limites de texto lidos do schema; `Summary`/`Quiz` montados a partir deles e da quantidade de alternativas; prompt como template preenchido pelos limites × margem
@@ -55,7 +55,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [x] T225 `shorten`: corta no último fim de frase que caiba, senão no último espaço com reticências; aplicado antes da validação; contagem no relatório
   - Teste: `test_shorten.py` — `cuts_at_last_sentence_end`, `falls_back_to_word_boundary_with_ellipsis`, `keeps_text_within_limit`; `test_anthropic_summarizer.py` — `long_summary_is_shortened_not_dropped`
   - Cobre: H6-3
-- [ ] T226 Mínimo para publicar por grupo além do total
+- [x] T226 Mínimo para publicar por grupo além do total
   - Teste: `test_day.py` — `skips_publishing_when_a_group_is_below_minimum`
   - Cobre: H7-3
 - [x] T227 Custo estimado no `RunReport` e alerta quando a projeção mensal passa do limite do orçamento
@@ -65,28 +65,28 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 
 ## Fase 4 — App usa os parâmetros (H3, H4, H5, H7-5)
 
-- [ ] T230 `catalogRepository`: último catálogo publicado, catálogo embutido no primeiro acesso; onboarding e edição de áreas usam o catálogo atual
+- [x] T230 `catalogRepository`: último catálogo publicado, catálogo embutido no primeiro acesso; onboarding e edição de áreas usam o catálogo atual
   - Teste: `onboarding/catalog.test.ts` — `uses_bundled_catalog_without_content`, `uses_latest_published_catalog`; `OnboardingScreen.test.tsx` — `shows_published_area`
   - Cobre: H3-1, H3-2
-- [ ] T231 Preferências com áreas que sumiram: removidas sem erro; nenhuma sobrando → onboarding
+- [x] T231 Preferências com áreas que sumiram: removidas sem erro; nenhuma sobrando → onboarding
   - Teste: `preferences.test.ts` — `drops_areas_missing_from_catalog`; `DailyFeed.test.tsx` — `redirects_when_no_chosen_area_remains`
   - Cobre: H3-3
-- [ ] T232 `composeFeed` com pesos por área (maior resto), sobra redistribuída pelos pesos, fatia de artigos na mesma área ou grupo, intercalação por área
+- [x] T232 `composeFeed` com pesos por área (maior resto), sobra redistribuída pelos pesos, fatia de artigos na mesma área ou grupo, intercalação por área
   - Teste: `composeFeed.test.ts` — `splits_by_area_weight`, `all_areas_with_default_weights_keep_half_per_group`, `redistributes_shortfall_by_weight`, `subareas_have_no_weight`
   - Cobre: H3-4, H3-5, RF-104
-- [ ] T233 `resolveFeedSettings`: publicados com padrão para ausente ou inválido; `FEED_DEFAULTS` igual ao `feed:` do `pipeline.yaml`
+- [x] T233 `resolveFeedSettings`: publicados com padrão para ausente ou inválido; `FEED_DEFAULTS` igual ao `feed:` do `pipeline.yaml`
   - Teste: `feed/feedSettings.test.ts` — `falls_back_to_defaults`, `ignores_invalid_values`; `defaults_match_pipeline_config`
   - Cobre: H4-4, RNF-103
-- [ ] T234 Contador "n de N", aviso de feed curto no encerramento, quiz com a quantidade configurada
+- [x] T234 Contador "n de N", aviso de feed curto no encerramento, quiz com a quantidade configurada
   - Teste: `FeedScreen.test.tsx` — `counter_uses_real_feed_size`, `explains_short_feed`; `selectQuiz.test.ts` — `uses_configured_question_count`
   - Cobre: H4-1, H4-2
-- [ ] T235 Lembrete com tamanho e tempo estimado calculados a partir dos parâmetros
+- [x] T235 Lembrete com tamanho e tempo estimado calculados a partir dos parâmetros
   - Teste: `reminderScheduler.test.ts` — `message_uses_feed_settings`
   - Cobre: H4-3
-- [ ] T236 Atualidade por `generatedAt`: busca após o intervalo, aviso após intervalo + tolerância, independente do fuso
+- [x] T236 Atualidade por `generatedAt`: busca após o intervalo, aviso após intervalo + tolerância, independente do fuso
   - Teste: `resolveContent.test.ts` — `uses_cache_before_interval`, `fetches_after_interval`, `warns_only_after_tolerance`, `same_result_in_any_timezone`
   - Cobre: H5-1, H5-2, RF-106
-- [ ] T237 Endereço do conteúdo via `expo.extra.contentBaseUrl`
+- [x] T237 Endereço do conteúdo via `expo.extra.contentBaseUrl`
   - Teste: `dependencies.test.ts` — `reads_content_url_from_build_config`, `fails_clearly_without_it`
   - Cobre: H7-5, RF-111
 
@@ -107,7 +107,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 
 ## Fase final — Qualidade
 
-- [ ] T250 Teste de fonte única que falta: catálogo embutido no app = `areas.yaml` (ids, nomes, grupos, pesos). Os outros já estão na T224 e na T233
+- [x] T250 Teste de fonte única que falta: catálogo embutido no app = `areas.yaml` (ids, nomes, grupos, pesos). Os outros já estão na T224 e na T233
   - Teste: `test_contract_sample_sync.py` e `shared/config/areas.test.ts` — `bundled_catalog_matches_pipeline_config`
   - Cobre: RNF-103
 - [ ] T251 `dev-code-review` do diff da spec 002 → `dev-review-fix`

@@ -1,13 +1,13 @@
 import sampleDay from '../../../../contracts/examples/sample-day.json';
-import { AREA_GROUPS } from './areaGroups';
-import { AREA_CATALOG } from './areas';
+import { AREA_CATALOG, BUNDLED_GROUPS } from './areas';
 
-test('catalog_matches_contract_sample_areas', () => {
+test('bundled_catalog_matches_contract_sample', () => {
   expect(AREA_CATALOG).toEqual(sampleDay.areas);
+  expect(BUNDLED_GROUPS).toEqual(sampleDay.groups);
 });
 
-test('every_area_belongs_to_exactly_one_group', () => {
-  const grouped = AREA_GROUPS.flatMap((group) => group.areaIds);
+test('every_area_belongs_to_a_bundled_group', () => {
+  const groupIds = new Set(BUNDLED_GROUPS.map((group) => group.id));
 
-  expect([...grouped].sort()).toEqual(AREA_CATALOG.map((area) => area.id).sort());
+  expect(AREA_CATALOG.every((area) => area.groupId && groupIds.has(area.groupId))).toBe(true);
 });

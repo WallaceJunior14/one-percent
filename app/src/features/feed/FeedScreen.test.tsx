@@ -9,7 +9,7 @@ const content = parseDailyContent(sampleDay);
 const cards = content.cards.slice(0, 3);
 const areaNames = Object.fromEntries(content.areas.map((area) => [area.id, area.name]));
 
-async function setup(props: { stale?: boolean } = {}) {
+async function setup(props: { stale?: boolean; expectedSize?: number } = {}) {
   const onFinished = jest.fn();
   const onEditAreas = jest.fn();
   const onOpenSaved = jest.fn();
@@ -150,4 +150,18 @@ test('header_wraps_with_large_system_fonts', async () => {
   await setup();
 
   expect(StyleSheet.flatten(screen.getByTestId('feed-header').props.style).flexWrap).toBe('wrap');
+});
+
+test('explains_short_feed', async () => {
+  await setup({ expectedSize: 15 });
+
+  expect(
+    screen.getByText('Hoje houve menos conteúdo nas áreas que você escolheu.'),
+  ).toBeOnTheScreen();
+});
+
+test('no_short_feed_notice_when_full', async () => {
+  await setup({ expectedSize: cards.length });
+
+  expect(screen.queryByText(/menos conteúdo/)).toBeNull();
 });

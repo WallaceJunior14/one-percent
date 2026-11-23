@@ -12,10 +12,11 @@ test('requires_at_least_one_area', () => {
   );
 });
 
-test('rejects_unknown_area', () => {
-  expect(() => validatePreferences({ areaIds: ['astrology'], subareaIds: [] })).toThrow(
-    InvalidPreferencesError,
-  );
+test('accepts_areas_published_after_this_app_version', () => {
+  expect(validatePreferences({ areaIds: ['arts'], subareaIds: ['arts.music'] })).toEqual({
+    areaIds: ['arts'],
+    subareaIds: ['arts.music'],
+  });
 });
 
 test('drops_subareas_of_unselected_areas_and_duplicates', () => {

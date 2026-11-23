@@ -94,7 +94,7 @@ test('feed_has_only_selected_areas', async () => {
 });
 
 test('shows_warning_with_previous_day_content', async () => {
-  await setup({ clock: fixedClock(new Date(2026, 10, 2, 8, 0)) });
+  await setup({ clock: fixedClock(new Date(2026, 10, 3, 8, 0)) });
 
   expect(await screen.findByText(/conteúdo de hoje ainda não chegou/i)).toBeOnTheScreen();
 });
@@ -103,7 +103,7 @@ test('suggests_updating_the_app', async () => {
   await setup({
     api: contentApiFailing(new UnsupportedContentVersionError(2)),
     cache: createMemoryStore({ [CONTENT_CACHE_KEY]: JSON.stringify(SAMPLE) }),
-    clock: fixedClock(new Date(2026, 10, 2, 8, 0)),
+    clock: fixedClock(new Date(2026, 10, 3, 8, 0)),
   });
 
   expect(await screen.findByText(/conteúdo de hoje ainda não chegou/i)).toBeOnTheScreen();
@@ -118,7 +118,7 @@ test('suggests_updating_the_app_when_nothing_is_cached', async () => {
 });
 
 test('stale_content_without_new_version_does_not_suggest_updating', async () => {
-  await setup({ clock: fixedClock(new Date(2026, 10, 2, 8, 0)) });
+  await setup({ clock: fixedClock(new Date(2026, 10, 3, 8, 0)) });
 
   await screen.findByText(/conteúdo de hoje ainda não chegou/i);
   expect(screen.queryByText(/atualize o app/i)).toBeNull();
@@ -233,4 +233,28 @@ test('reminder_failures_do_not_block_completing_the_day', async () => {
   await fireEvent.press(await screen.findByRole('button', { name: 'Concluir o dia' }));
 
   await waitFor(() => expect(onFinished).toHaveBeenCalledTimes(1));
+});
+
+test('redirects_when_no_chosen_area_remains', async () => {
+  const { onNeedOnboarding } = await setup({ preferences: { areaIds: ['arts'], subareaIds: [] } });
+
+  await waitFor(() => expect(onNeedOnboarding).toHaveBeenCalledTimes(1));
+});
+
+test('ignores_chosen_area_missing_from_catalog', async () => {
+  await setup({ preferences: { areaIds: ['arts', 'economy'], subareaIds: [] } });
+
+  await screen.findByTestId('feed-list');
+  const areas = SAMPLE.cards.filter((card) => card.areaId === 'economy').length;
+  expect(screen.getByText(new RegExp(`de ${areas} vistos$`))).toBeOnTheScreen();
+});
+
+test('uses_published_quiz_question_count', async () => {
+  const content = { ...SAMPLE, settings: { ...SAMPLE.settings, quizQuestions: 2 } };
+  const { onFinished, quiz } = await setup({ api: contentApiReturning(content) });
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'Concluir o dia' }));
+
+  await waitFor(() => expect(onFinished).toHaveBeenCalled());
+  expect((await quiz.today())?.questions).toHaveLength(2);
 });

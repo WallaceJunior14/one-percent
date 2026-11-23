@@ -26,6 +26,9 @@
     "scheme": "onepercent",
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "contentBaseUrl": "https://wallacejunior14.github.io/one-percent/"
     }
   }
 }

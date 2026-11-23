@@ -1,18 +1,19 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { AREA_GROUPS } from '@/shared/config/areaGroups';
-import { AREA_CATALOG } from '@/shared/config/areas';
+import { BUNDLED_CATALOG, type Catalog } from '@/features/content/catalog';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import type { Preferences } from './preferences';
 
 type Props = {
   /** Escolhas atuais, ao editar pelas configurações. */
   initial?: Preferences;
+  /** Áreas e grupos do último conteúdo baixado; sem nenhum, o catálogo embutido. */
+  catalog?: Catalog;
   onComplete(preferences: Preferences): void;
 };
 
-export function OnboardingScreen({ initial, onComplete }: Props) {
+export function OnboardingScreen({ initial, catalog = BUNDLED_CATALOG, onComplete }: Props) {
   const theme = useTheme();
   const [areaIds, setAreaIds] = useState<string[]>(initial?.areaIds ?? []);
   const [subareaIds, setSubareaIds] = useState<string[]>(initial?.subareaIds ?? []);
@@ -36,9 +37,9 @@ export function OnboardingScreen({ initial, onComplete }: Props) {
     const inCatalogOrder = <T extends { id: string }>(items: readonly T[], ids: string[]) =>
       items.filter((item) => ids.includes(item.id)).map((item) => item.id);
     onComplete({
-      areaIds: inCatalogOrder(AREA_CATALOG, areaIds),
+      areaIds: inCatalogOrder(catalog.areas, areaIds),
       subareaIds: inCatalogOrder(
-        AREA_CATALOG.flatMap((area) => area.subareas),
+        catalog.areas.flatMap((area) => area.subareas),
         subareaIds,
       ),
     });
@@ -54,38 +55,40 @@ export function OnboardingScreen({ initial, onComplete }: Props) {
           todas.
         </Text>
 
-        {AREA_GROUPS.map((group) => (
+        {catalog.groups.map((group) => (
           <View key={group.id} style={styles.group}>
             <Text accessibilityRole="header" style={styles.groupTitle}>
               {group.name}
             </Text>
-            {AREA_CATALOG.filter((area) => group.areaIds.includes(area.id)).map((area) => {
-              const selected = areaIds.includes(area.id);
-              return (
-                <View key={area.id}>
-                  <Option
-                    label={area.name}
-                    checked={selected}
-                    onPress={() => toggleArea(area.id)}
-                    theme={theme}
-                  />
-                  {selected && (
-                    <View style={styles.subareas}>
-                      {area.subareas.map((subarea) => (
-                        <Option
-                          key={subarea.id}
-                          label={subarea.name}
-                          checked={subareaIds.includes(subarea.id)}
-                          onPress={() => toggleSubarea(subarea.id)}
-                          theme={theme}
-                          compact
-                        />
-                      ))}
-                    </View>
-                  )}
-                </View>
-              );
-            })}
+            {catalog.areas
+              .filter((area) => area.groupId === group.id)
+              .map((area) => {
+                const selected = areaIds.includes(area.id);
+                return (
+                  <View key={area.id}>
+                    <Option
+                      label={area.name}
+                      checked={selected}
+                      onPress={() => toggleArea(area.id)}
+                      theme={theme}
+                    />
+                    {selected && (
+                      <View style={styles.subareas}>
+                        {area.subareas.map((subarea) => (
+                          <Option
+                            key={subarea.id}
+                            label={subarea.name}
+                            checked={subareaIds.includes(subarea.id)}
+                            onPress={() => toggleSubarea(subarea.id)}
+                            theme={theme}
+                            compact
+                          />
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
           </View>
         ))}
       </ScrollView>

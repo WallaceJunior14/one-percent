@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { FEED_SIZE } from '@/features/feed/composeFeed';
+import { estimatedMinutes, FEED_DEFAULTS, type FeedSettings } from '@/features/feed/feedSettings';
 import type { ProgressRepository } from '@/features/streak/progress';
 import { type Clock, toLocalDateString } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
@@ -21,10 +21,12 @@ export type ReminderSettings = z.infer<typeof settingsSchema>;
 /** Desligado por padrão; o horário é só a sugestão inicial. */
 export const DEFAULT_REMINDER: ReminderSettings = { enabled: false, hour: 8, minute: 0 };
 
-export const REMINDER_MESSAGE = {
-  title: '1% ao Dia',
-  body: `Seu dia está pronto: ${FEED_SIZE} cards, ~10 min`,
-};
+export function reminderMessage(feed: FeedSettings) {
+  return {
+    title: '1% ao Dia',
+    body: `Seu dia está pronto: ${feed.feedSize} cards, ~${estimatedMinutes(feed)} min`,
+  };
+}
 
 const pad = (value: number) => String(value).padStart(2, '0');
 /** Ex.: "07:30". */
@@ -60,6 +62,8 @@ type Dependencies = {
   scheduler: NotificationScheduler;
   progress: ProgressRepository;
   clock: Clock;
+  /** Parâmetros do último conteúdo baixado, para a mensagem refletir o feed real. */
+  feedSettings?: () => Promise<FeedSettings>;
 };
 
 /**
@@ -72,6 +76,7 @@ export function createReminderService({
   scheduler,
   progress,
   clock,
+  feedSettings = async () => FEED_DEFAULTS,
 }: Dependencies): ReminderService {
   const stored = createVersionedStore({
     store,
@@ -90,8 +95,9 @@ export function createReminderService({
     const now = clock.now();
     const { completedDays } = await progress.load();
     const completedToday = completedDays.includes(toLocalDateString(now));
+    const message = reminderMessage(await feedSettings());
     for (const at of upcomingTimes(current, now, completedToday)) {
-      await scheduler.schedule(at, REMINDER_MESSAGE);
+      await scheduler.schedule(at, message);
     }
   };
 

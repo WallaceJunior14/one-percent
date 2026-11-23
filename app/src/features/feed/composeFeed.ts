@@ -1,13 +1,6 @@
+import { type CatalogArea, catalogFrom } from '@/features/content/catalog';
 import type { Card, DailyContent } from '@/features/content/contract';
-import {
-  AREA_GROUPS,
-  DEFAULT_GROUP_WEIGHTS,
-  type GroupId,
-  type GroupWeights,
-} from '@/shared/config/areaGroups';
-
-export const FEED_SIZE = 15;
-export const MIN_PAPER_SHARE = 0.3;
+import { FEED_DEFAULTS, type FeedSettings } from './feedSettings';
 
 export type FeedPreferences = {
   areaIds: readonly string[];
@@ -15,53 +8,45 @@ export type FeedPreferences = {
   subareaIds?: readonly string[];
 };
 
-type ActiveGroup = { id: GroupId; queues: Card[][]; picked: Card[] };
+type AreaSlot = { area: CatalogArea; queue: Card[]; picked: Card[] };
 
 /**
- * Monta o feed do dia:
- * cotas por grupo de áreas → rodízio entre as áreas do grupo por rank → sobra de um grupo vai
- * para o outro → garantia de artigos dentro do mesmo grupo. Função pura e determinística.
+ * Monta o feed do dia: divide o tamanho do feed entre as áreas escolhidas pelo peso de cada
+ * uma → pega os cards de cada área por rank → a cota que uma área não preencher vai para as
+ * outras, pelos pesos → garante a fatia mínima de artigos → intercala as áreas.
+ * Função pura e determinística.
  */
 export function composeFeed(
   content: DailyContent,
   preferences: FeedPreferences,
-  weights: GroupWeights = DEFAULT_GROUP_WEIGHTS,
+  settings: FeedSettings = FEED_DEFAULTS,
 ): Card[] {
-  const groups = activeGroups(content, preferences);
-  const quotas = allocate(
-    FEED_SIZE,
-    groups.map((group) => weights[group.id] ?? 0),
-  );
-
-  groups.forEach((group, i) => group.picked.push(...takeRoundRobin(group.queues, quotas[i])));
-  fillShortfall(groups);
-  ensurePaperShare(groups);
-
-  return interleave(groups.map((group) => group.picked));
+  const slots = areaSlots(content, preferences);
+  fill(slots, settings.feedSize);
+  ensurePaperShare(slots, settings.minPaperShare);
+  return interleave(slots.map((slot) => slot.picked));
 }
 
-function activeGroups(content: DailyContent, preferences: FeedPreferences): ActiveGroup[] {
+function areaSlots(content: DailyContent, preferences: FeedPreferences): AreaSlot[] {
+  const catalog = catalogFrom(content);
   const subareaOrder = new Map(
-    content.areas.flatMap((area) => area.subareas.map((s, i) => [s.id, i] as const)),
+    catalog.areas.flatMap((area) => area.subareas.map((s, i) => [s.id, i] as const)),
   );
   const byRank = (a: Card, b: Card) =>
     a.rank - b.rank ||
     (subareaOrder.get(a.subareaId) ?? 0) - (subareaOrder.get(b.subareaId) ?? 0) ||
     a.id.localeCompare(b.id);
 
-  const queueFor = (areaId: string): Card[] => {
-    const wanted = (preferences.subareaIds ?? []).filter((id) => id.startsWith(`${areaId}.`));
-    return content.cards
-      .filter((card) => card.areaId === areaId)
-      .filter((card) => wanted.length === 0 || wanted.includes(card.subareaId))
-      .sort(byRank);
-  };
-
-  return AREA_GROUPS.map((group) => ({
-    id: group.id,
-    queues: group.areaIds.filter((id) => preferences.areaIds.includes(id)).map(queueFor),
-    picked: [],
-  })).filter((group) => group.queues.length > 0);
+  return catalog.areas
+    .filter((area) => preferences.areaIds.includes(area.id))
+    .map((area) => {
+      const wanted = (preferences.subareaIds ?? []).filter((id) => id.startsWith(`${area.id}.`));
+      const queue = content.cards
+        .filter((card) => card.areaId === area.id)
+        .filter((card) => wanted.length === 0 || wanted.includes(card.subareaId))
+        .sort(byRank);
+      return { area, queue, picked: [] };
+    });
 }
 
 /** Divide `total` proporcionalmente aos pesos (método do maior resto; empate → primeiro). */
@@ -79,46 +64,42 @@ export function allocate(total: number, weights: number[]): number[] {
   return quotas;
 }
 
-/** Tira até `count` cards alternando entre as filas (consome as filas). */
-function takeRoundRobin(queues: Card[][], count: number): Card[] {
-  const taken: Card[] = [];
-  while (taken.length < count && queues.some((queue) => queue.length > 0)) {
-    for (const queue of queues) {
-      if (taken.length === count) break;
-      const card = queue.shift();
-      if (card) taken.push(card);
-    }
-  }
-  return taken;
-}
-
-/** Se um grupo não preencheu a cota, os outros completam até o tamanho do feed. */
-function fillShortfall(groups: ActiveGroup[]): void {
-  let missing = FEED_SIZE - groups.reduce((acc, group) => acc + group.picked.length, 0);
-  for (const group of groups) {
-    if (missing <= 0) return;
-    const extra = takeRoundRobin(group.queues, missing);
-    group.picked.push(...extra);
-    missing -= extra.length;
+/** Distribui as vagas pelos pesos e repassa a sobra às áreas que ainda têm cards. */
+function fill(slots: AreaSlot[], feedSize: number): void {
+  let missing = feedSize;
+  while (missing > 0) {
+    const open = slots.filter((slot) => slot.queue.length > 0);
+    if (open.length === 0) return;
+    const quotas = allocate(
+      missing,
+      open.map((slot) => slot.area.weight),
+    );
+    open.forEach((slot, i) => {
+      const taken = slot.queue.splice(0, quotas[i]);
+      slot.picked.push(...taken);
+      missing -= taken.length;
+    });
   }
 }
 
-/** Garante a fatia mínima de artigos trocando a pior notícia por um artigo do mesmo grupo. */
-function ensurePaperShare(groups: ActiveGroup[]): void {
-  const feedSize = groups.reduce((acc, group) => acc + group.picked.length, 0);
-  const minimum = Math.ceil(MIN_PAPER_SHARE * feedSize);
+/** Troca a pior notícia por um artigo da mesma área ou, se não houver, do mesmo grupo. */
+function ensurePaperShare(slots: AreaSlot[], minPaperShare: number): void {
+  const feedSize = slots.reduce((acc, slot) => acc + slot.picked.length, 0);
+  const minimum = Math.ceil(minPaperShare * feedSize);
   const papers = () =>
-    groups.reduce((acc, g) => acc + g.picked.filter((c) => c.type === 'paper').length, 0);
+    slots.reduce((acc, slot) => acc + slot.picked.filter((c) => c.type === 'paper').length, 0);
 
   let swapped = true;
   while (papers() < minimum && swapped) {
     swapped = false;
-    for (const group of groups) {
+    for (const slot of slots) {
       if (papers() >= minimum) return;
-      const newsIndex = worstNewsIndex(group.picked);
-      const paper = newsIndex >= 0 ? takeBestPaper(group.queues) : undefined;
+      const newsIndex = worstNewsIndex(slot.picked);
+      if (newsIndex < 0) continue;
+      const sameGroup = slots.filter((other) => other.area.groupId === slot.area.groupId);
+      const paper = takeBestPaper([slot]) ?? takeBestPaper(sameGroup);
       if (paper) {
-        group.picked[newsIndex] = paper;
+        slot.picked[newsIndex] = paper;
         swapped = true;
       }
     }
@@ -133,9 +114,9 @@ function worstNewsIndex(cards: Card[]): number {
   return worst;
 }
 
-function takeBestPaper(queues: Card[][]): Card | undefined {
+function takeBestPaper(slots: AreaSlot[]): Card | undefined {
   let best: { queue: Card[]; index: number } | undefined;
-  for (const queue of queues) {
+  for (const { queue } of slots) {
     const index = queue.findIndex((card) => card.type === 'paper');
     if (index >= 0 && (!best || queue[index].rank < best.queue[best.index].rank)) {
       best = { queue, index };
@@ -144,7 +125,7 @@ function takeBestPaper(queues: Card[][]): Card | undefined {
   return best ? best.queue.splice(best.index, 1)[0] : undefined;
 }
 
-/** Alterna os grupos no feed final, para dar variedade ao rolar. */
+/** Alterna as áreas no feed final, para dar variedade ao rolar. */
 function interleave(lists: Card[][]): Card[] {
   const result: Card[] = [];
   for (let i = 0; i < Math.max(0, ...lists.map((list) => list.length)); i++) {

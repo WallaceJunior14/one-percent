@@ -1,3 +1,4 @@
+import { FEED_DEFAULTS } from '@/features/feed/feedSettings';
 import { createProgressRepository } from '@/features/streak/progress';
 import { createMemoryStore, fixedClock, readJson } from '@/test/fakes';
 import {
@@ -187,4 +188,20 @@ test('reads_settings_saved_by_the_previous_version', async () => {
 
   expect(await service.settings()).toEqual(legacy);
   expect(await readJson(store, REMINDER_KEY)).toEqual({ version: 2, data: legacy });
+});
+
+test('message_uses_feed_settings', async () => {
+  const clock = fixedClock(new Date(2026, 10, 16, 6, 0));
+  const scheduler = fakeScheduler();
+  const service = createReminderService({
+    store: createMemoryStore(),
+    scheduler,
+    progress: createProgressRepository(createMemoryStore(), clock),
+    clock,
+    feedSettings: async () => ({ ...FEED_DEFAULTS, feedSize: 9, secondsPerCard: 60 }),
+  });
+
+  await service.update({ enabled: true, hour: 7, minute: 30 });
+
+  expect(scheduler.scheduled[0].body).toBe('Seu dia está pronto: 9 cards, ~9 min');
 });

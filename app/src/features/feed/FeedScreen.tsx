@@ -24,6 +24,8 @@ type Props = {
   areaNames: Record<string, string>;
   /** Conteúdo de um dia anterior: mostra um aviso abaixo da barra superior. */
   stale?: boolean;
+  /** Tamanho que o feed teria com conteúdo suficiente; menos cards mostram um aviso no fim. */
+  expectedSize?: number;
   /** O conteúdo novo saiu num formato que só uma versão nova do app lê. */
   updateSuggested?: boolean;
   /** Chamado uma vez, ao tocar em "Concluir o dia" no fim da lista. */
@@ -59,6 +61,7 @@ export function FeedScreen({
   areaNames,
   stale,
   updateSuggested,
+  expectedSize,
   onFinished,
   onEditAreas,
   onOpenSaved,
@@ -138,6 +141,11 @@ export function FeedScreen({
         ListFooterComponent={
           <View style={styles.end}>
             <Text style={styles.endTitle}>Você chegou ao fim de hoje</Text>
+            {expectedSize !== undefined && cards.length < expectedSize && (
+              <Text style={styles.endText}>
+                Hoje houve menos conteúdo nas áreas que você escolheu.
+              </Text>
+            )}
             <Text style={styles.endText}>
               Sem rolagem infinita: o conteúdo de amanhã chega cedo.
             </Text>

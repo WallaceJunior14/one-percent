@@ -8,19 +8,29 @@ import {
 } from '@/test/fakes';
 import { ContentUnavailableError } from './contentApi';
 import { type DailyContent, parseDailyContent, UnsupportedContentVersionError } from './contract';
-import { CONTENT_CACHE_KEY, resolveContent } from './resolveContent';
+import { CONTENT_CACHE_KEY, readCachedContent, resolveContent } from './resolveContent';
 
-const TODAY = new Date(2026, 10, 14, 9, 0);
-const clock = fixedClock(TODAY);
+const NOW = new Date(Date.UTC(2026, 10, 14, 12, 0));
+const clock = fixedClock(NOW);
 const offline = () => contentApiFailing(new ContentUnavailableError('sem rede'));
+const HOUR = 60 * 60 * 1000;
 
-function dayOf(date: string): DailyContent {
-  return { ...parseDailyContent(sampleDay), date };
+/** Conteúdo publicado há `hoursAgo` horas (intervalo padrão 24 h, tolerância 6 h). */
+function published(hoursAgo: number, overrides: Partial<DailyContent> = {}): DailyContent {
+  const at = new Date(NOW.getTime() - hoursAgo * HOUR);
+  return {
+    ...parseDailyContent(sampleDay),
+    date: at.toISOString().slice(0, 10),
+    generatedAt: at.toISOString().replace(/\.\d{3}Z$/, 'Z'),
+    ...overrides,
+  };
 }
 
-async function cachedDate(cache: ReturnType<typeof createMemoryStore>) {
-  const stored = (await readJson(cache, CONTENT_CACHE_KEY)) as { data?: { date?: string } } | null;
-  return stored?.data?.date;
+async function cachedGeneratedAt(cache: ReturnType<typeof createMemoryStore>) {
+  const stored = (await readJson(cache, CONTENT_CACHE_KEY)) as {
+    data?: { generatedAt?: string };
+  } | null;
+  return stored?.data?.generatedAt;
 }
 
 function cacheWith(content: DailyContent | string) {
@@ -28,48 +38,73 @@ function cacheWith(content: DailyContent | string) {
   return createMemoryStore({ [CONTENT_CACHE_KEY]: value });
 }
 
-test('uses_today_from_network', async () => {
-  const cache = createMemoryStore();
+test('uses_cache_before_interval', async () => {
+  const api = contentApiReturning(published(1));
 
-  const state = await resolveContent({
-    api: contentApiReturning(dayOf('2026-11-14')),
-    cache,
-    clock,
-  });
-
-  expect(state).toMatchObject({ status: 'today', content: { date: '2026-11-14' } });
-  expect(await cachedDate(cache)).toBe('2026-11-14');
-});
-
-test('uses_cached_today_without_network', async () => {
-  const api = contentApiReturning(dayOf('2026-11-14'));
-
-  const state = await resolveContent({ api, cache: cacheWith(dayOf('2026-11-14')), clock });
+  const state = await resolveContent({ api, cache: cacheWith(published(2)), clock });
 
   expect(state.status).toBe('today');
   expect(api.calls).toBe(0);
 });
 
-test('falls_back_to_cache_offline', async () => {
-  const state = await resolveContent({
-    api: offline(),
-    cache: cacheWith(dayOf('2026-11-13')),
-    clock,
-  });
+test('fetches_after_interval', async () => {
+  const cache = cacheWith(published(25));
+  const newer = published(1);
 
-  expect(state).toMatchObject({ status: 'stale', content: { date: '2026-11-13' } });
+  const state = await resolveContent({ api: contentApiReturning(newer), cache, clock });
+
+  expect(state).toMatchObject({ status: 'today', content: { generatedAt: newer.generatedAt } });
+  expect(await cachedGeneratedAt(cache)).toBe(newer.generatedAt);
+});
+
+test('no_warning_within_tolerance_even_offline', async () => {
+  const state = await resolveContent({ api: offline(), cache: cacheWith(published(29)), clock });
+
+  expect(state.status).toBe('today');
+});
+
+test('warns_only_after_tolerance', async () => {
+  const state = await resolveContent({ api: offline(), cache: cacheWith(published(31)), clock });
+
+  expect(state.status).toBe('stale');
+});
+
+test('uses_publication_time_not_calendar_date', async () => {
+  const tomorrowLabel = published(2, { date: '2026-11-15' });
+  const todayLabelButOld = published(40, { date: '2026-11-14' });
+
+  const fresh = await resolveContent({ api: offline(), cache: cacheWith(tomorrowLabel), clock });
+  const old = await resolveContent({ api: offline(), cache: cacheWith(todayLabelButOld), clock });
+
+  expect(fresh.status).toBe('today');
+  expect(old.status).toBe('stale');
+});
+
+test('uses_the_interval_published_in_the_content', async () => {
+  const api = contentApiReturning(published(1));
+  const cached = published(13, { settings: { publishIntervalHours: 12 } });
+
+  await resolveContent({ api, cache: cacheWith(cached), clock });
+
+  expect(api.calls).toBe(1);
+});
+
+test('uses_today_from_network', async () => {
+  const cache = createMemoryStore();
+  const fresh = published(1);
+
+  const state = await resolveContent({ api: contentApiReturning(fresh), cache, clock });
+
+  expect(state.status).toBe('today');
+  expect(await cachedGeneratedAt(cache)).toBe(fresh.generatedAt);
 });
 
 test('shows_previous_day_with_warning', async () => {
   const cache = createMemoryStore();
 
-  const state = await resolveContent({
-    api: contentApiReturning(dayOf('2026-11-13')),
-    cache,
-    clock,
-  });
+  const state = await resolveContent({ api: contentApiReturning(published(40)), cache, clock });
 
-  expect(state).toMatchObject({ status: 'stale', content: { date: '2026-11-13' } });
+  expect(state.status).toBe('stale');
   expect(await cache.getItem(CONTENT_CACHE_KEY)).not.toBeNull();
 });
 
@@ -80,7 +115,7 @@ test('empty_state_when_nothing_available', async () => {
 });
 
 test('ignores_corrupted_cache', async () => {
-  const api = contentApiReturning(dayOf('2026-11-14'));
+  const api = contentApiReturning(published(1));
 
   const state = await resolveContent({ api, cache: cacheWith('{not json'), clock });
 
@@ -88,41 +123,38 @@ test('ignores_corrupted_cache', async () => {
   expect(api.calls).toBe(1);
 });
 
-test('keeps_newest_when_network_returns_older_day', async () => {
-  const cache = cacheWith(dayOf('2026-11-13'));
+test('keeps_newest_when_network_returns_older_content', async () => {
+  const cached = published(31);
+  const cache = cacheWith(cached);
 
-  const state = await resolveContent({
-    api: contentApiReturning(dayOf('2026-11-12')),
-    cache,
-    clock,
-  });
+  const state = await resolveContent({ api: contentApiReturning(published(50)), cache, clock });
 
-  expect(state).toMatchObject({ status: 'stale', content: { date: '2026-11-13' } });
-  expect(await cachedDate(cache)).toBe('2026-11-13');
+  expect(state).toMatchObject({ status: 'stale', content: { generatedAt: cached.generatedAt } });
+  expect(await cachedGeneratedAt(cache)).toBe(cached.generatedAt);
 });
 
 test('invalid_payload_from_network_falls_back_to_cache', async () => {
   const api = contentApiFailing(new Error('ContractViolationError'));
 
-  const state = await resolveContent({ api, cache: cacheWith(dayOf('2026-11-13')), clock });
+  const state = await resolveContent({ api, cache: cacheWith(published(31)), clock });
 
-  expect(state).toMatchObject({ status: 'stale', content: { date: '2026-11-13' } });
+  expect(state.status).toBe('stale');
 });
 
 describe('newer_major_version', () => {
   const newerVersion = () => contentApiFailing(new UnsupportedContentVersionError(2));
 
   test('keeps_cache_when_major_version_is_newer', async () => {
-    const cache = cacheWith(dayOf('2026-11-13'));
+    const cached = published(31);
+    const cache = cacheWith(cached);
 
     const state = await resolveContent({ api: newerVersion(), cache, clock });
 
     expect(state).toMatchObject({
       status: 'stale',
-      content: { date: '2026-11-13' },
+      content: { generatedAt: cached.generatedAt },
       updateSuggested: true,
     });
-    expect(await cachedDate(cache)).toBe('2026-11-13');
   });
 
   test('suggests_update_even_without_cache', async () => {
@@ -132,27 +164,28 @@ describe('newer_major_version', () => {
   });
 
   test('other_failures_do_not_suggest_update', async () => {
-    const state = await resolveContent({
-      api: offline(),
-      cache: cacheWith(dayOf('2026-11-13')),
-      clock,
-    });
+    const state = await resolveContent({ api: offline(), cache: cacheWith(published(31)), clock });
 
     expect(state).not.toHaveProperty('updateSuggested');
   });
 });
 
 test('reads_cache_written_by_the_previous_version', async () => {
-  const legacy = dayOf('2026-11-14');
-  const cache = cacheWith(legacy);
-  const api = contentApiReturning(dayOf('2026-11-14'));
+  const cache = cacheWith(published(2));
+  const api = contentApiReturning(published(1));
 
   const state = await resolveContent({ api, cache, clock });
 
   expect(state.status).toBe('today');
   expect(api.calls).toBe(0);
-  expect(await readJson(cache, CONTENT_CACHE_KEY)).toMatchObject({
-    version: 2,
-    data: { date: '2026-11-14' },
+  expect(await readJson(cache, CONTENT_CACHE_KEY)).toMatchObject({ version: 2 });
+});
+
+test('reads_cached_content_without_network', async () => {
+  const cached = published(2);
+
+  expect(await readCachedContent(cacheWith(cached), clock)).toMatchObject({
+    generatedAt: cached.generatedAt,
   });
+  expect(await readCachedContent(createMemoryStore(), clock)).toBeNull();
 });

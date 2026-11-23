@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-import { AREA_CATALOG } from '@/shared/config/areas';
 import { type Clock, systemClock } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
 import { createVersionedStore, sameFormat } from '@/shared/lib/versionedStore';
@@ -20,17 +19,14 @@ export class InvalidPreferencesError extends Error {
   }
 }
 
-const KNOWN_AREAS = new Set(AREA_CATALOG.map((area) => area.id));
-
-/** Normaliza (sem duplicatas, sem subáreas órfãs) e valida as escolhas do usuário. */
+/**
+ * Normaliza as escolhas (sem duplicatas, sem subáreas órfãs). Áreas que o catálogo atual não
+ * tem são filtradas por quem monta o feed, porque o catálogo muda com o conteúdo publicado.
+ */
 export function validatePreferences(input: Preferences): Preferences {
   const areaIds = [...new Set(input.areaIds)];
   if (areaIds.length === 0) {
     throw new InvalidPreferencesError('escolha pelo menos uma área');
-  }
-  const unknown = areaIds.filter((id) => !KNOWN_AREAS.has(id));
-  if (unknown.length > 0) {
-    throw new InvalidPreferencesError(`áreas desconhecidas: ${unknown.join(', ')}`);
   }
   const subareaIds = [...new Set(input.subareaIds)].filter((id) =>
     areaIds.includes(id.split('.')[0]),
