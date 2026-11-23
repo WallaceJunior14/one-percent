@@ -2,54 +2,130 @@
   "schemaVersion": 1,
   "date": "2026-11-01",
   "generatedAt": "2026-11-01T08:12:00Z",
+  "groups": [
+    {
+      "id": "sci-tech",
+      "name": "Ciência & Tecnologia"
+    },
+    {
+      "id": "markets-health",
+      "name": "Mercado & Saúde"
+    }
+  ],
   "areas": [
     {
       "id": "tech",
       "name": "Tecnologia",
       "subareas": [
-        { "id": "tech.ai", "name": "IA" },
-        { "id": "tech.dev", "name": "Desenvolvimento de software" },
-        { "id": "tech.security", "name": "Segurança" },
-        { "id": "tech.hardware", "name": "Hardware" }
-      ]
+        {
+          "id": "tech.ai",
+          "name": "IA"
+        },
+        {
+          "id": "tech.dev",
+          "name": "Desenvolvimento de software"
+        },
+        {
+          "id": "tech.security",
+          "name": "Segurança"
+        },
+        {
+          "id": "tech.hardware",
+          "name": "Hardware"
+        }
+      ],
+      "groupId": "sci-tech",
+      "weight": 3
     },
     {
       "id": "science",
       "name": "Ciência",
       "subareas": [
-        { "id": "science.ml", "name": "IA/ML" },
-        { "id": "science.computing", "name": "Computação" },
-        { "id": "science.physics", "name": "Física" },
-        { "id": "science.biology", "name": "Biologia" }
-      ]
+        {
+          "id": "science.ml",
+          "name": "IA/ML"
+        },
+        {
+          "id": "science.computing",
+          "name": "Computação"
+        },
+        {
+          "id": "science.physics",
+          "name": "Física"
+        },
+        {
+          "id": "science.biology",
+          "name": "Biologia"
+        }
+      ],
+      "groupId": "sci-tech",
+      "weight": 3
     },
     {
       "id": "economy",
       "name": "Economia",
       "subareas": [
-        { "id": "economy.brazil", "name": "Brasil" },
-        { "id": "economy.world", "name": "Mundo" }
-      ]
+        {
+          "id": "economy.brazil",
+          "name": "Brasil"
+        },
+        {
+          "id": "economy.world",
+          "name": "Mundo"
+        }
+      ],
+      "groupId": "markets-health",
+      "weight": 2
     },
     {
       "id": "finance",
       "name": "Finanças",
       "subareas": [
-        { "id": "finance.markets", "name": "Mercado" },
-        { "id": "finance.investing", "name": "Investimentos" },
-        { "id": "finance.personal", "name": "Finanças pessoais" }
-      ]
+        {
+          "id": "finance.markets",
+          "name": "Mercado"
+        },
+        {
+          "id": "finance.investing",
+          "name": "Investimentos"
+        },
+        {
+          "id": "finance.personal",
+          "name": "Finanças pessoais"
+        }
+      ],
+      "groupId": "markets-health",
+      "weight": 2
     },
     {
       "id": "health",
       "name": "Saúde",
       "subareas": [
-        { "id": "health.medicine", "name": "Medicina" },
-        { "id": "health.nutrition", "name": "Nutrição" },
-        { "id": "health.mental", "name": "Saúde mental" }
-      ]
+        {
+          "id": "health.medicine",
+          "name": "Medicina"
+        },
+        {
+          "id": "health.nutrition",
+          "name": "Nutrição"
+        },
+        {
+          "id": "health.mental",
+          "name": "Saúde mental"
+        }
+      ],
+      "groupId": "markets-health",
+      "weight": 2
     }
   ],
+  "settings": {
+    "feedSize": 15,
+    "minPaperShare": 0.3,
+    "quizQuestions": 3,
+    "publishIntervalHours": 24,
+    "freshnessToleranceHours": 6,
+    "secondsPerCard": 40
+  },
   "cards": [
     {
       "id": "c_000000000001",
@@ -110,7 +186,11 @@
       "method": "Ajuste fino de um modelo pequeno com sinais de confiança, avaliado em três benchmarks de perguntas e respostas.",
       "result": "Atingiu 95% da acurácia do modelo grande usando-o em apenas 30% das perguntas.",
       "limitations": "Avaliado só em inglês e em tarefas de resposta curta.",
-      "authors": ["Ana Ribeiro", "Tomás Lindqvist", "Mei Okafor"],
+      "authors": [
+        "Ana Ribeiro",
+        "Tomás Lindqvist",
+        "Mei Okafor"
+      ],
       "authorsTruncated": true,
       "venue": "arXiv",
       "isPreprint": true,
@@ -142,7 +222,10 @@
       "method": "120 tarefas de engenharia de software com duração estimada de 1 a 6 horas, executadas por cinco agentes.",
       "result": "A taxa de sucesso caiu pela metade a cada dobra na duração da tarefa.",
       "limitations": "Tarefas restritas a engenharia de software; poucos agentes avaliados.",
-      "authors": ["Lucas Prado", "Hana Sato"],
+      "authors": [
+        "Lucas Prado",
+        "Hana Sato"
+      ],
       "authorsTruncated": false,
       "venue": "Exemplo Conference on AI Systems",
       "isPreprint": false,
@@ -151,7 +234,12 @@
       "publishedAt": "2026-10-28T09:00:00Z",
       "quiz": {
         "question": "O que aconteceu com a taxa de sucesso quando a duração da tarefa dobrou?",
-        "options": ["Dobrou", "Ficou estável", "Caiu pela metade", "Zerou"],
+        "options": [
+          "Dobrou",
+          "Ficou estável",
+          "Caiu pela metade",
+          "Zerou"
+        ],
         "answerIndex": 2
       }
     },
@@ -237,7 +325,11 @@
       "method": "Teste de quatro agentes em 500 páginas com instruções ocultas de diferentes tipos.",
       "result": "Os agentes seguiram as instruções ocultas em 18% a 41% dos casos.",
       "limitations": "Páginas sintéticas; defesas mais recentes não foram avaliadas.",
-      "authors": ["Rafael Monteiro", "Ingrid Halvorsen", "Kwame Asante"],
+      "authors": [
+        "Rafael Monteiro",
+        "Ingrid Halvorsen",
+        "Kwame Asante"
+      ],
       "authorsTruncated": false,
       "venue": "arXiv",
       "isPreprint": true,
@@ -269,7 +361,11 @@
       "method": "Treino de 40 modelos com diferentes proporções de dados filtrados por um classificador de qualidade.",
       "result": "Modelos treinados com 60% dos dados superaram os treinados com 100% em 7 de 9 tarefas.",
       "limitations": "O classificador de qualidade pode carregar vieses próprios.",
-      "authors": ["Beatriz Nogueira", "Samuel Achebe", "Yuki Tanaka"],
+      "authors": [
+        "Beatriz Nogueira",
+        "Samuel Achebe",
+        "Yuki Tanaka"
+      ],
       "authorsTruncated": true,
       "venue": "arXiv",
       "isPreprint": true,
@@ -301,7 +397,10 @@
       "method": "Análise teórica e experimentos em três arquiteturas de processador.",
       "result": "Ordenação até 1,8 vez mais rápida em conjuntos de dados maiores que a memória cache.",
       "limitations": "Ganho pequeno em conjuntos de dados que cabem na cache.",
-      "authors": ["Carlos Menezes", "Elena Petrova"],
+      "authors": [
+        "Carlos Menezes",
+        "Elena Petrova"
+      ],
       "authorsTruncated": false,
       "venue": "Exemplo Journal of Algorithms",
       "isPreprint": false,
@@ -332,7 +431,11 @@
       "method": "Fabricação de amostras em camadas e medição do fluxo de calor nos dois sentidos.",
       "result": "Fluxo de calor 3 vezes maior em um sentido do que no outro.",
       "limitations": "Amostras pequenas; durabilidade não foi testada.",
-      "authors": ["Fernanda Lopes", "Arjun Mehta", "Clara Weiss"],
+      "authors": [
+        "Fernanda Lopes",
+        "Arjun Mehta",
+        "Clara Weiss"
+      ],
       "authorsTruncated": false,
       "venue": "Exemplo Physical Letters",
       "isPreprint": false,
@@ -363,7 +466,11 @@
       "method": "Sequenciamento de amostras de solo a cada semana durante três meses.",
       "result": "Genes de resistência apareceram em novas espécies em média após 3 semanas.",
       "limitations": "Uma única região agrícola estudada.",
-      "authors": ["Juliana Campos", "Pieter de Vries", "Amara Nwosu"],
+      "authors": [
+        "Juliana Campos",
+        "Pieter de Vries",
+        "Amara Nwosu"
+      ],
       "authorsTruncated": true,
       "venue": "bioRxiv",
       "isPreprint": true,
@@ -373,7 +480,12 @@
       "publishedAt": "2026-10-29T08:00:00Z",
       "quiz": {
         "question": "Em quanto tempo, em média, os genes apareceram em novas espécies?",
-        "options": ["3 dias", "3 semanas", "3 meses", "3 anos"],
+        "options": [
+          "3 dias",
+          "3 semanas",
+          "3 meses",
+          "3 anos"
+        ],
         "answerIndex": 1
       }
     },
@@ -391,7 +503,12 @@
       "publishedAt": "2026-10-31T12:00:00Z",
       "quiz": {
         "question": "O que mais contribuiu para a desaceleração da inflação?",
-        "options": ["Combustíveis", "Alimentos", "Energia elétrica", "Aluguel"],
+        "options": [
+          "Combustíveis",
+          "Alimentos",
+          "Energia elétrica",
+          "Aluguel"
+        ],
         "answerIndex": 1
       }
     },
@@ -546,7 +663,11 @@
       "method": "Ensaio randomizado com 180 adultos acompanhados por 12 semanas.",
       "result": "O grupo que caminhou teve picos de glicose 15% menores após as refeições.",
       "limitations": "Curta duração; resultado ainda não revisado por pares.",
-      "authors": ["Marina Duarte", "Oliver Grant", "Sofia Haddad"],
+      "authors": [
+        "Marina Duarte",
+        "Oliver Grant",
+        "Sofia Haddad"
+      ],
       "authorsTruncated": true,
       "venue": "medRxiv",
       "isPreprint": true,
@@ -556,7 +677,12 @@
       "publishedAt": "2026-10-28T13:00:00Z",
       "quiz": {
         "question": "Quanto tempo de caminhada após as refeições foi testado?",
-        "options": ["2 minutos", "10 minutos", "1 hora", "3 horas"],
+        "options": [
+          "2 minutos",
+          "10 minutos",
+          "1 hora",
+          "3 horas"
+        ],
         "answerIndex": 1
       }
     },
@@ -615,42 +741,90 @@
           "headline": "Modelo de linguagem aberto focado em português",
           "cardId": "c_000000000001"
         },
-        { "headline": "Assistentes de código rodam testes antes de sugerir", "cardId": "c_000000000002" },
-        { "headline": "Chaves de API esquecidas em apps", "cardId": "c_000000000007" },
-        { "headline": "Framework mobile simplifica rotas e testes", "cardId": "c_000000000005" }
+        {
+          "headline": "Assistentes de código rodam testes antes de sugerir",
+          "cardId": "c_000000000002"
+        },
+        {
+          "headline": "Chaves de API esquecidas em apps",
+          "cardId": "c_000000000007"
+        },
+        {
+          "headline": "Framework mobile simplifica rotas e testes",
+          "cardId": "c_000000000005"
+        }
       ]
     },
     {
       "areaId": "science",
       "slides": [
-        { "headline": "Filtrar dados melhora o treino de modelos", "cardId": "c_000000000009" },
-        { "headline": "Ordenação mais rápida com memória moderna", "cardId": "c_00000000000a" },
-        { "headline": "Material conduz calor em uma só direção", "cardId": "c_00000000000b" }
+        {
+          "headline": "Filtrar dados melhora o treino de modelos",
+          "cardId": "c_000000000009"
+        },
+        {
+          "headline": "Ordenação mais rápida com memória moderna",
+          "cardId": "c_00000000000a"
+        },
+        {
+          "headline": "Material conduz calor em uma só direção",
+          "cardId": "c_00000000000b"
+        }
       ]
     },
     {
       "areaId": "economy",
       "slides": [
-        { "headline": "Inflação desacelera em outubro", "cardId": "c_00000000000d" },
-        { "headline": "Desemprego estável no trimestre", "cardId": "c_00000000000e" },
-        { "headline": "Comércio global cresce menos", "cardId": "c_00000000000f" }
+        {
+          "headline": "Inflação desacelera em outubro",
+          "cardId": "c_00000000000d"
+        },
+        {
+          "headline": "Desemprego estável no trimestre",
+          "cardId": "c_00000000000e"
+        },
+        {
+          "headline": "Comércio global cresce menos",
+          "cardId": "c_00000000000f"
+        }
       ]
     },
     {
       "areaId": "finance",
       "slides": [
-        { "headline": "Bolsa sobe com bancos", "cardId": "c_000000000010" },
-        { "headline": "Dólar recua", "cardId": "c_000000000011" },
-        { "headline": "Quanto guardar na reserva de emergência", "cardId": "c_000000000012" }
+        {
+          "headline": "Bolsa sobe com bancos",
+          "cardId": "c_000000000010"
+        },
+        {
+          "headline": "Dólar recua",
+          "cardId": "c_000000000011"
+        },
+        {
+          "headline": "Quanto guardar na reserva de emergência",
+          "cardId": "c_000000000012"
+        }
       ]
     },
     {
       "areaId": "health",
       "slides": [
-        { "headline": "Vacinação contra gripe prorrogada", "cardId": "c_000000000013" },
-        { "headline": "Caminhadas curtas controlam a glicose", "cardId": "c_000000000014" },
-        { "headline": "Alerta de açúcar mais visível nos rótulos", "cardId": "c_000000000015" },
-        { "headline": "Pausas sem tela reduzem o cansaço", "cardId": "c_000000000016" }
+        {
+          "headline": "Vacinação contra gripe prorrogada",
+          "cardId": "c_000000000013"
+        },
+        {
+          "headline": "Caminhadas curtas controlam a glicose",
+          "cardId": "c_000000000014"
+        },
+        {
+          "headline": "Alerta de açúcar mais visível nos rótulos",
+          "cardId": "c_000000000015"
+        },
+        {
+          "headline": "Pausas sem tela reduzem o cansaço",
+          "cardId": "c_000000000016"
+        }
       ]
     }
   ]

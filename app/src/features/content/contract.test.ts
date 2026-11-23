@@ -1,3 +1,4 @@
+import pipelineOutput from '../../../../contracts/examples/pipeline-output.json';
 import sampleDay from '../../../../contracts/examples/sample-day.json';
 import {
   ContractViolationError,
@@ -62,7 +63,7 @@ test('ignores_unknown_fields', () => {
 
 describe('drops_only_the_invalid_card', () => {
   test.each<[string, (card: Record<string, unknown>) => void]>([
-    ['quiz with three options', (card) => (card.quiz as { options: string[] }).options.pop()],
+    ['quiz with one option', (card) => ((card.quiz as { options: string[] }).options = ['Só uma'])],
     [
       'quiz answer out of range',
       (card) => ((card.quiz as { answerIndex: number }).answerIndex = 4),
@@ -157,7 +158,7 @@ describe('schema_version', () => {
 
 describe('rejects_invalid_payload', () => {
   test.each<[string, (day: MutableDay) => void]>([
-    ['story with two slides', (day) => (day.stories[0].slides = day.stories[0].slides.slice(0, 2))],
+    ['story without slides', (day) => (day.stories[0].slides = [])],
     ['no valid card left', (day) => day.cards.forEach((card) => (card.type = 'video'))],
     ['cards is not a list', (day) => ((day as unknown as { cards: unknown }).cards = {})],
   ])('%s', (_name, mutate) => {
@@ -187,4 +188,74 @@ describe('paper_scientific_fields_limits', () => {
 
     expect(cardIds(day)).not.toContain('c_000000000003');
   });
+});
+
+describe('catalog_and_settings', () => {
+  test('parses_groups_weights_and_settings', () => {
+    const content = parseDailyContent(sampleDay);
+
+    expect(content.groups?.map((group) => group.id)).toEqual(['sci-tech', 'markets-health']);
+    expect(content.areas.find((area) => area.id === 'tech')).toMatchObject({
+      groupId: 'sci-tech',
+      weight: 3,
+    });
+    expect(content.settings).toMatchObject({ feedSize: 15 });
+  });
+
+  test('payload_without_new_fields_still_parses', () => {
+    const old = mutatedSample((day) => {
+      const raw = day as unknown as Record<string, unknown> & { areas: Record<string, unknown>[] };
+      delete raw.groups;
+      delete raw.settings;
+      raw.areas.forEach((area) => {
+        delete area.groupId;
+        delete area.weight;
+      });
+    });
+
+    const content = parseDailyContent(old);
+
+    expect(content.groups).toBeUndefined();
+    expect(content.areas[0].weight).toBeUndefined();
+  });
+
+  test('invalid_weight_or_groups_are_ignored_not_fatal', () => {
+    const day = mutatedSample((d) => {
+      const raw = d as unknown as Record<string, unknown> & { areas: Record<string, unknown>[] };
+      raw.areas[0].weight = -1;
+      raw.groups = 'nope';
+    });
+
+    const content = parseDailyContent(day);
+
+    expect(content.areas[0].weight).toBeUndefined();
+    expect(content.groups).toBeUndefined();
+    expect(content.cards.length).toBeGreaterThan(0);
+  });
+});
+
+describe('quiz_options', () => {
+  test('accepts_two_options', () => {
+    const day = mutatedSample((d) => {
+      d.cards[0].quiz = { question: 'Pergunta?', options: ['Sim', 'Não'], answerIndex: 1 };
+    });
+
+    expect(parseDailyContent(day).cards[0].quiz.options).toHaveLength(2);
+  });
+
+  test('drops_card_whose_answer_is_not_an_option', () => {
+    const day = mutatedSample((d) => {
+      d.cards[0].quiz = { question: 'Pergunta?', options: ['Sim', 'Não'], answerIndex: 2 };
+    });
+
+    expect(parseDailyContent(day).diagnostics.droppedCards).toHaveLength(1);
+  });
+});
+
+test('reads_pipeline_output_fixture', () => {
+  const content = parseDailyContent(pipelineOutput);
+
+  expect(content.diagnostics.droppedCards).toEqual([]);
+  expect(content.cards).toHaveLength(pipelineOutput.cards.length);
+  expect(content.settings).toEqual(pipelineOutput.settings);
 });

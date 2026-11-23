@@ -54,9 +54,20 @@ def test_news_with_paper_fields_fails(sample_day: dict[str, Any]) -> None:
         validate_daily_content(day)
 
 
-def test_quiz_requires_four_options(sample_day: dict[str, Any]) -> None:
+@pytest.mark.parametrize("count", [2, 6])
+def test_quiz_accepts_two_to_six_options(sample_day: dict[str, Any], count: int) -> None:
     day = copy.deepcopy(sample_day)
-    day["cards"][0]["quiz"]["options"].pop()
+    day["cards"][0]["quiz"]["options"] = [f"Opção {n}" for n in range(count)]
+    day["cards"][0]["quiz"]["answerIndex"] = 0
+
+    validate_daily_content(day)
+
+
+@pytest.mark.parametrize("count", [1, 7])
+def test_quiz_rejects_too_few_or_too_many_options(sample_day: dict[str, Any], count: int) -> None:
+    day = copy.deepcopy(sample_day)
+    day["cards"][0]["quiz"]["options"] = [f"Opção {n}" for n in range(count)]
+    day["cards"][0]["quiz"]["answerIndex"] = 0
 
     with pytest.raises(ContractViolationError):
         validate_daily_content(day)
@@ -64,7 +75,7 @@ def test_quiz_requires_four_options(sample_day: dict[str, Any]) -> None:
 
 def test_quiz_answer_index_must_point_to_an_option(sample_day: dict[str, Any]) -> None:
     day = copy.deepcopy(sample_day)
-    day["cards"][0]["quiz"]["answerIndex"] = 4
+    day["cards"][0]["quiz"]["answerIndex"] = 6
 
     with pytest.raises(ContractViolationError):
         validate_daily_content(day)
@@ -98,9 +109,9 @@ def test_unexpected_field_fails(sample_day: dict[str, Any]) -> None:
         validate_daily_content(day)
 
 
-def test_story_needs_at_least_three_slides(sample_day: dict[str, Any]) -> None:
+def test_story_needs_at_least_one_slide(sample_day: dict[str, Any]) -> None:
     day = copy.deepcopy(sample_day)
-    day["stories"][0]["slides"] = day["stories"][0]["slides"][:2]
+    day["stories"][0]["slides"] = []
 
     with pytest.raises(ContractViolationError):
         validate_daily_content(day)
@@ -145,3 +156,35 @@ def test_reads_text_limits_from_schema() -> None:
     assert limits.medium == defs["mediumText"]["maxLength"]
     assert limits.long == defs["longText"]["maxLength"]
     assert limits.original_title == defs["card"]["properties"]["originalTitle"]["maxLength"]
+
+
+def test_sample_has_catalog_and_feed_settings(sample_day: dict[str, Any]) -> None:
+    group_ids = {group["id"] for group in sample_day["groups"]}
+
+    assert all(area["groupId"] in group_ids and area["weight"] > 0 for area in sample_day["areas"])
+    assert sample_day["settings"]["feedSize"] > 0
+
+
+def test_payload_without_new_optional_fields_is_still_valid(sample_day: dict[str, Any]) -> None:
+    day = copy.deepcopy(sample_day)
+    del day["groups"], day["settings"]
+    for area in day["areas"]:
+        del area["groupId"], area["weight"]
+
+    validate_daily_content(day)
+
+
+def test_area_weight_must_be_positive(sample_day: dict[str, Any]) -> None:
+    day = copy.deepcopy(sample_day)
+    day["areas"][0]["weight"] = 0
+
+    with pytest.raises(ContractViolationError):
+        validate_daily_content(day)
+
+
+def test_producer_rejects_unknown_setting(sample_day: dict[str, Any]) -> None:
+    day = copy.deepcopy(sample_day)
+    day["settings"]["typo"] = 1
+
+    with pytest.raises(ContractViolationError):
+        validate_daily_content(day)

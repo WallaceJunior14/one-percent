@@ -1,0 +1,1482 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-01",
+  "generatedAt": "2026-11-01T08:00:00Z",
+  "groups": [
+    {
+      "id": "sci-tech",
+      "name": "Ciência & Tecnologia"
+    },
+    {
+      "id": "markets-health",
+      "name": "Mercado & Saúde"
+    }
+  ],
+  "areas": [
+    {
+      "id": "tech",
+      "name": "Tecnologia",
+      "subareas": [
+        {
+          "id": "tech.ai",
+          "name": "IA"
+        },
+        {
+          "id": "tech.dev",
+          "name": "Desenvolvimento de software"
+        },
+        {
+          "id": "tech.security",
+          "name": "Segurança"
+        },
+        {
+          "id": "tech.hardware",
+          "name": "Hardware"
+        }
+      ],
+      "groupId": "sci-tech",
+      "weight": 3.0
+    },
+    {
+      "id": "science",
+      "name": "Ciência",
+      "subareas": [
+        {
+          "id": "science.ml",
+          "name": "IA/ML"
+        },
+        {
+          "id": "science.computing",
+          "name": "Computação"
+        },
+        {
+          "id": "science.physics",
+          "name": "Física"
+        },
+        {
+          "id": "science.biology",
+          "name": "Biologia"
+        }
+      ],
+      "groupId": "sci-tech",
+      "weight": 3.0
+    },
+    {
+      "id": "economy",
+      "name": "Economia",
+      "subareas": [
+        {
+          "id": "economy.brazil",
+          "name": "Brasil"
+        },
+        {
+          "id": "economy.world",
+          "name": "Mundo"
+        }
+      ],
+      "groupId": "markets-health",
+      "weight": 2.0
+    },
+    {
+      "id": "finance",
+      "name": "Finanças",
+      "subareas": [
+        {
+          "id": "finance.markets",
+          "name": "Mercado"
+        },
+        {
+          "id": "finance.investing",
+          "name": "Investimentos"
+        },
+        {
+          "id": "finance.personal",
+          "name": "Finanças pessoais"
+        }
+      ],
+      "groupId": "markets-health",
+      "weight": 2.0
+    },
+    {
+      "id": "health",
+      "name": "Saúde",
+      "subareas": [
+        {
+          "id": "health.medicine",
+          "name": "Medicina"
+        },
+        {
+          "id": "health.nutrition",
+          "name": "Nutrição"
+        },
+        {
+          "id": "health.mental",
+          "name": "Saúde mental"
+        }
+      ],
+      "groupId": "markets-health",
+      "weight": 2.0
+    }
+  ],
+  "settings": {
+    "feedSize": 15,
+    "minPaperShare": 0.3,
+    "quizQuestions": 3,
+    "publishIntervalHours": 24,
+    "freshnessToleranceHours": 6,
+    "secondsPerCard": 40
+  },
+  "cards": [
+    {
+      "id": "c_d43216744974",
+      "type": "news",
+      "areaId": "economy",
+      "subareaId": "economy.brazil",
+      "rank": 1,
+      "title": "Notícia baz sobre balgwl",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-25",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia baz sobre balgwl?",
+        "options": [
+          "Outro assunto B",
+          "Outro assunto C",
+          "Outro assunto A",
+          "Notícia baz sobre balgwl"
+        ],
+        "answerIndex": 3
+      }
+    },
+    {
+      "id": "c_a18fdd9703bb",
+      "type": "news",
+      "areaId": "economy",
+      "subareaId": "economy.world",
+      "rank": 1,
+      "title": "Notícia babc sobre bamqae",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-28",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babc sobre bamqae?",
+        "options": [
+          "Outro assunto B",
+          "Outro assunto A",
+          "Outro assunto C",
+          "Notícia babc sobre bamqae"
+        ],
+        "answerIndex": 3
+      }
+    },
+    {
+      "id": "c_c27fa2985e32",
+      "type": "news",
+      "areaId": "finance",
+      "subareaId": "finance.investing",
+      "rank": 1,
+      "title": "Notícia babi sobre bapihq",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-34",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babi sobre bapihq?",
+        "options": [
+          "Outro assunto C",
+          "Notícia babi sobre bapihq",
+          "Outro assunto A",
+          "Outro assunto B"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_e1735b193387",
+      "type": "news",
+      "areaId": "finance",
+      "subareaId": "finance.markets",
+      "rank": 1,
+      "title": "Notícia babf sobre banzdx",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-31",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babf sobre banzdx?",
+        "options": [
+          "Outro assunto A",
+          "Outro assunto B",
+          "Notícia babf sobre banzdx",
+          "Outro assunto C"
+        ],
+        "answerIndex": 2
+      }
+    },
+    {
+      "id": "c_1510d717eb49",
+      "type": "news",
+      "areaId": "finance",
+      "subareaId": "finance.personal",
+      "rank": 1,
+      "title": "Notícia babl sobre baqrlj",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-37",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babl sobre baqrlj?",
+        "options": [
+          "Notícia babl sobre baqrlj",
+          "Outro assunto A",
+          "Outro assunto C",
+          "Outro assunto B"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_15b8b8b4db1b",
+      "type": "news",
+      "areaId": "health",
+      "subareaId": "health.medicine",
+      "rank": 1,
+      "title": "Notícia babo sobre basapc",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-40",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babo sobre basapc?",
+        "options": [
+          "Notícia babo sobre basapc",
+          "Outro assunto C",
+          "Outro assunto B",
+          "Outro assunto A"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_424738de1a41",
+      "type": "news",
+      "areaId": "health",
+      "subareaId": "health.mental",
+      "rank": 1,
+      "title": "Notícia babu sobre bauswo",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-46",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babu sobre bauswo?",
+        "options": [
+          "Outro assunto A",
+          "Outro assunto C",
+          "Notícia babu sobre bauswo",
+          "Outro assunto B"
+        ],
+        "answerIndex": 2
+      }
+    },
+    {
+      "id": "c_7a0a260405f6",
+      "type": "news",
+      "areaId": "health",
+      "subareaId": "health.nutrition",
+      "rank": 1,
+      "title": "Notícia babr sobre batjsv",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-43",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babr sobre batjsv?",
+        "options": [
+          "Outro assunto C",
+          "Outro assunto A",
+          "Notícia babr sobre batjsv",
+          "Outro assunto B"
+        ],
+        "answerIndex": 2
+      }
+    },
+    {
+      "id": "c_35b62b196156",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.biology",
+      "rank": 1,
+      "title": "Notícia baw sobre bajxss",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-22",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia baw sobre bajxss?",
+        "options": [
+          "Outro assunto A",
+          "Notícia baw sobre bajxss",
+          "Outro assunto B",
+          "Outro assunto C"
+        ],
+        "answerIndex": 1
+      },
+      "originalTitle": "Notícia baw sobre bajxss",
+      "method": "Método descrito no artigo original.",
+      "result": "Resultado descrito no artigo original.",
+      "limitations": "Limitações descritas no artigo original.",
+      "authors": [
+        "A"
+      ],
+      "authorsTruncated": false,
+      "venue": "arXiv",
+      "isPreprint": false
+    },
+    {
+      "id": "c_8ae03828c775",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.computing",
+      "rank": 1,
+      "title": "Notícia baq sobre bahflg",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-16",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia baq sobre bahflg?",
+        "options": [
+          "Outro assunto C",
+          "Outro assunto B",
+          "Outro assunto A",
+          "Notícia baq sobre bahflg"
+        ],
+        "answerIndex": 3
+      },
+      "originalTitle": "Notícia baq sobre bahflg",
+      "method": "Método descrito no artigo original.",
+      "result": "Resultado descrito no artigo original.",
+      "limitations": "Limitações descritas no artigo original.",
+      "authors": [
+        "A"
+      ],
+      "authorsTruncated": false,
+      "venue": "arXiv",
+      "isPreprint": false
+    },
+    {
+      "id": "c_c42961d5356a",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.ml",
+      "rank": 1,
+      "title": "Notícia ban sobre bafwhn",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-13",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia ban sobre bafwhn?",
+        "options": [
+          "Outro assunto B",
+          "Outro assunto A",
+          "Outro assunto C",
+          "Notícia ban sobre bafwhn"
+        ],
+        "answerIndex": 3
+      },
+      "originalTitle": "Notícia ban sobre bafwhn",
+      "method": "Método descrito no artigo original.",
+      "result": "Resultado descrito no artigo original.",
+      "limitations": "Limitações descritas no artigo original.",
+      "authors": [
+        "A"
+      ],
+      "authorsTruncated": false,
+      "venue": "arXiv",
+      "isPreprint": false
+    },
+    {
+      "id": "c_681697835c38",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.physics",
+      "rank": 1,
+      "title": "Notícia bat sobre baiooz",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-19",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bat sobre baiooz?",
+        "options": [
+          "Notícia bat sobre baiooz",
+          "Outro assunto C",
+          "Outro assunto A",
+          "Outro assunto B"
+        ],
+        "answerIndex": 0
+      },
+      "originalTitle": "Notícia bat sobre baiooz",
+      "method": "Método descrito no artigo original.",
+      "result": "Resultado descrito no artigo original.",
+      "limitations": "Limitações descritas no artigo original.",
+      "authors": [
+        "A"
+      ],
+      "authorsTruncated": false,
+      "venue": "arXiv",
+      "isPreprint": false
+    },
+    {
+      "id": "c_e747151cd7fb",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.ai",
+      "rank": 1,
+      "title": "Notícia bab sobre balsp",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-1",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bab sobre balsp?",
+        "options": [
+          "Outro assunto B",
+          "Notícia bab sobre balsp",
+          "Outro assunto A",
+          "Outro assunto C"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_4bb5ab27c223",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.dev",
+      "rank": 1,
+      "title": "Notícia bae sobre babuwi",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-4",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bae sobre babuwi?",
+        "options": [
+          "Notícia bae sobre babuwi",
+          "Outro assunto C",
+          "Outro assunto B",
+          "Outro assunto A"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_f740a0f2c046",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.hardware",
+      "rank": 1,
+      "title": "Notícia bak sobre baendu",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-10",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bak sobre baendu?",
+        "options": [
+          "Outro assunto B",
+          "Outro assunto C",
+          "Outro assunto A",
+          "Notícia bak sobre baendu"
+        ],
+        "answerIndex": 3
+      }
+    },
+    {
+      "id": "c_679cb860cfae",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.security",
+      "rank": 1,
+      "title": "Notícia bah sobre badeab",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-7",
+      "publishedAt": "2026-11-01T07:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bah sobre badeab?",
+        "options": [
+          "Notícia bah sobre badeab",
+          "Outro assunto C",
+          "Outro assunto A",
+          "Outro assunto B"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_a2dffe5c3764",
+      "type": "news",
+      "areaId": "economy",
+      "subareaId": "economy.brazil",
+      "rank": 2,
+      "title": "Notícia baba sobre balspa",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-26",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia baba sobre balspa?",
+        "options": [
+          "Outro assunto A",
+          "Outro assunto C",
+          "Notícia baba sobre balspa",
+          "Outro assunto B"
+        ],
+        "answerIndex": 2
+      }
+    },
+    {
+      "id": "c_d7a3ea7d86e6",
+      "type": "news",
+      "areaId": "economy",
+      "subareaId": "economy.world",
+      "rank": 2,
+      "title": "Notícia babd sobre banbst",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-29",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babd sobre banbst?",
+        "options": [
+          "Notícia babd sobre banbst",
+          "Outro assunto A",
+          "Outro assunto C",
+          "Outro assunto B"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_093c4745b49f",
+      "type": "news",
+      "areaId": "finance",
+      "subareaId": "finance.investing",
+      "rank": 2,
+      "title": "Notícia babj sobre bapuaf",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-35",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babj sobre bapuaf?",
+        "options": [
+          "Notícia babj sobre bapuaf",
+          "Outro assunto A",
+          "Outro assunto B",
+          "Outro assunto C"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_7bd858e445a2",
+      "type": "news",
+      "areaId": "finance",
+      "subareaId": "finance.markets",
+      "rank": 2,
+      "title": "Notícia babg sobre baokwm",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-32",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babg sobre baokwm?",
+        "options": [
+          "Outro assunto C",
+          "Outro assunto B",
+          "Notícia babg sobre baokwm",
+          "Outro assunto A"
+        ],
+        "answerIndex": 2
+      }
+    },
+    {
+      "id": "c_2dd3c956dcd9",
+      "type": "news",
+      "areaId": "finance",
+      "subareaId": "finance.personal",
+      "rank": 2,
+      "title": "Notícia babm sobre barddy",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-38",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babm sobre barddy?",
+        "options": [
+          "Outro assunto B",
+          "Outro assunto A",
+          "Notícia babm sobre barddy",
+          "Outro assunto C"
+        ],
+        "answerIndex": 2
+      }
+    },
+    {
+      "id": "c_9887f4a14019",
+      "type": "news",
+      "areaId": "health",
+      "subareaId": "health.medicine",
+      "rank": 2,
+      "title": "Notícia babp sobre basmhr",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-41",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babp sobre basmhr?",
+        "options": [
+          "Outro assunto C",
+          "Outro assunto A",
+          "Notícia babp sobre basmhr",
+          "Outro assunto B"
+        ],
+        "answerIndex": 2
+      }
+    },
+    {
+      "id": "c_d953e0d620b1",
+      "type": "news",
+      "areaId": "health",
+      "subareaId": "health.mental",
+      "rank": 2,
+      "title": "Notícia babv sobre bavepd",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-47",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babv sobre bavepd?",
+        "options": [
+          "Outro assunto C",
+          "Outro assunto A",
+          "Outro assunto B",
+          "Notícia babv sobre bavepd"
+        ],
+        "answerIndex": 3
+      }
+    },
+    {
+      "id": "c_4d9a356aadeb",
+      "type": "news",
+      "areaId": "health",
+      "subareaId": "health.nutrition",
+      "rank": 2,
+      "title": "Notícia babs sobre batvlk",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-44",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babs sobre batvlk?",
+        "options": [
+          "Outro assunto A",
+          "Outro assunto C",
+          "Outro assunto B",
+          "Notícia babs sobre batvlk"
+        ],
+        "answerIndex": 3
+      }
+    },
+    {
+      "id": "c_1906b9337326",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.biology",
+      "rank": 2,
+      "title": "Notícia bax sobre bakjlh",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-23",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bax sobre bakjlh?",
+        "options": [
+          "Outro assunto C",
+          "Outro assunto B",
+          "Notícia bax sobre bakjlh",
+          "Outro assunto A"
+        ],
+        "answerIndex": 2
+      },
+      "originalTitle": "Notícia bax sobre bakjlh",
+      "method": "Método descrito no artigo original.",
+      "result": "Resultado descrito no artigo original.",
+      "limitations": "Limitações descritas no artigo original.",
+      "authors": [
+        "A"
+      ],
+      "authorsTruncated": false,
+      "venue": "arXiv",
+      "isPreprint": false
+    },
+    {
+      "id": "c_274a3b001597",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.computing",
+      "rank": 2,
+      "title": "Notícia bar sobre bahrdv",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-17",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bar sobre bahrdv?",
+        "options": [
+          "Notícia bar sobre bahrdv",
+          "Outro assunto C",
+          "Outro assunto A",
+          "Outro assunto B"
+        ],
+        "answerIndex": 0
+      },
+      "originalTitle": "Notícia bar sobre bahrdv",
+      "method": "Método descrito no artigo original.",
+      "result": "Resultado descrito no artigo original.",
+      "limitations": "Limitações descritas no artigo original.",
+      "authors": [
+        "A"
+      ],
+      "authorsTruncated": false,
+      "venue": "arXiv",
+      "isPreprint": false
+    },
+    {
+      "id": "c_bf8abadc8352",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.ml",
+      "rank": 2,
+      "title": "Notícia bao sobre bagiac",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-14",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bao sobre bagiac?",
+        "options": [
+          "Outro assunto B",
+          "Outro assunto C",
+          "Outro assunto A",
+          "Notícia bao sobre bagiac"
+        ],
+        "answerIndex": 3
+      },
+      "originalTitle": "Notícia bao sobre bagiac",
+      "method": "Método descrito no artigo original.",
+      "result": "Resultado descrito no artigo original.",
+      "limitations": "Limitações descritas no artigo original.",
+      "authors": [
+        "A"
+      ],
+      "authorsTruncated": false,
+      "venue": "arXiv",
+      "isPreprint": false
+    },
+    {
+      "id": "c_54bcc210f9f5",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.physics",
+      "rank": 2,
+      "title": "Notícia bau sobre bajaho",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-20",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bau sobre bajaho?",
+        "options": [
+          "Outro assunto C",
+          "Outro assunto A",
+          "Notícia bau sobre bajaho",
+          "Outro assunto B"
+        ],
+        "answerIndex": 2
+      },
+      "originalTitle": "Notícia bau sobre bajaho",
+      "method": "Método descrito no artigo original.",
+      "result": "Resultado descrito no artigo original.",
+      "limitations": "Limitações descritas no artigo original.",
+      "authors": [
+        "A"
+      ],
+      "authorsTruncated": false,
+      "venue": "arXiv",
+      "isPreprint": false
+    },
+    {
+      "id": "c_f0306d24d1fa",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.ai",
+      "rank": 2,
+      "title": "Notícia bac sobre baxle",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-2",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bac sobre baxle?",
+        "options": [
+          "Outro assunto A",
+          "Outro assunto C",
+          "Outro assunto B",
+          "Notícia bac sobre baxle"
+        ],
+        "answerIndex": 3
+      }
+    },
+    {
+      "id": "c_f18f3c9e08ba",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.dev",
+      "rank": 2,
+      "title": "Notícia baf sobre bacgox",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-5",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia baf sobre bacgox?",
+        "options": [
+          "Outro assunto A",
+          "Notícia baf sobre bacgox",
+          "Outro assunto C",
+          "Outro assunto B"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_033267877603",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.hardware",
+      "rank": 2,
+      "title": "Notícia bal sobre baeywj",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-11",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bal sobre baeywj?",
+        "options": [
+          "Notícia bal sobre baeywj",
+          "Outro assunto A",
+          "Outro assunto B",
+          "Outro assunto C"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_05b6c185a0de",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.security",
+      "rank": 2,
+      "title": "Notícia bai sobre badpsq",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-8",
+      "publishedAt": "2026-11-01T06:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bai sobre badpsq?",
+        "options": [
+          "Notícia bai sobre badpsq",
+          "Outro assunto C",
+          "Outro assunto B",
+          "Outro assunto A"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_f5cba4460ede",
+      "type": "news",
+      "areaId": "economy",
+      "subareaId": "economy.brazil",
+      "rank": 3,
+      "title": "Notícia babb sobre bamehp",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-27",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babb sobre bamehp?",
+        "options": [
+          "Outro assunto C",
+          "Notícia babb sobre bamehp",
+          "Outro assunto B",
+          "Outro assunto A"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_1e24d982683b",
+      "type": "news",
+      "areaId": "economy",
+      "subareaId": "economy.world",
+      "rank": 3,
+      "title": "Notícia babe sobre bannli",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-30",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babe sobre bannli?",
+        "options": [
+          "Outro assunto B",
+          "Outro assunto C",
+          "Notícia babe sobre bannli",
+          "Outro assunto A"
+        ],
+        "answerIndex": 2
+      }
+    },
+    {
+      "id": "c_1a28fa96fbb3",
+      "type": "news",
+      "areaId": "finance",
+      "subareaId": "finance.investing",
+      "rank": 3,
+      "title": "Notícia babk sobre baqfsu",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-36",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babk sobre baqfsu?",
+        "options": [
+          "Notícia babk sobre baqfsu",
+          "Outro assunto C",
+          "Outro assunto B",
+          "Outro assunto A"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_532bea71b272",
+      "type": "news",
+      "areaId": "finance",
+      "subareaId": "finance.markets",
+      "rank": 3,
+      "title": "Notícia babh sobre baowpb",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-33",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babh sobre baowpb?",
+        "options": [
+          "Outro assunto B",
+          "Outro assunto C",
+          "Notícia babh sobre baowpb",
+          "Outro assunto A"
+        ],
+        "answerIndex": 2
+      }
+    },
+    {
+      "id": "c_bbfa4499af10",
+      "type": "news",
+      "areaId": "finance",
+      "subareaId": "finance.personal",
+      "rank": 3,
+      "title": "Notícia babn sobre barown",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-39",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babn sobre barown?",
+        "options": [
+          "Outro assunto B",
+          "Notícia babn sobre barown",
+          "Outro assunto C",
+          "Outro assunto A"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_dccb0badffd3",
+      "type": "news",
+      "areaId": "health",
+      "subareaId": "health.medicine",
+      "rank": 3,
+      "title": "Notícia babq sobre basyag",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-42",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babq sobre basyag?",
+        "options": [
+          "Notícia babq sobre basyag",
+          "Outro assunto B",
+          "Outro assunto A",
+          "Outro assunto C"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_10ec842df63a",
+      "type": "news",
+      "areaId": "health",
+      "subareaId": "health.mental",
+      "rank": 3,
+      "title": "Notícia babw sobre bavqhs",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-48",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babw sobre bavqhs?",
+        "options": [
+          "Outro assunto A",
+          "Notícia babw sobre bavqhs",
+          "Outro assunto C",
+          "Outro assunto B"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_00a0987ab63a",
+      "type": "news",
+      "areaId": "health",
+      "subareaId": "health.nutrition",
+      "rank": 3,
+      "title": "Notícia babt sobre bauhdz",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-45",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia babt sobre bauhdz?",
+        "options": [
+          "Outro assunto B",
+          "Notícia babt sobre bauhdz",
+          "Outro assunto C",
+          "Outro assunto A"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_8f640f6406e3",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.biology",
+      "rank": 3,
+      "title": "Notícia bay sobre bakvdw",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-24",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bay sobre bakvdw?",
+        "options": [
+          "Outro assunto A",
+          "Outro assunto B",
+          "Notícia bay sobre bakvdw",
+          "Outro assunto C"
+        ],
+        "answerIndex": 2
+      },
+      "originalTitle": "Notícia bay sobre bakvdw",
+      "method": "Método descrito no artigo original.",
+      "result": "Resultado descrito no artigo original.",
+      "limitations": "Limitações descritas no artigo original.",
+      "authors": [
+        "A"
+      ],
+      "authorsTruncated": false,
+      "venue": "arXiv",
+      "isPreprint": false
+    },
+    {
+      "id": "c_936abf16a5c3",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.computing",
+      "rank": 3,
+      "title": "Notícia bas sobre baicwk",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-18",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bas sobre baicwk?",
+        "options": [
+          "Outro assunto C",
+          "Outro assunto B",
+          "Outro assunto A",
+          "Notícia bas sobre baicwk"
+        ],
+        "answerIndex": 3
+      },
+      "originalTitle": "Notícia bas sobre baicwk",
+      "method": "Método descrito no artigo original.",
+      "result": "Resultado descrito no artigo original.",
+      "limitations": "Limitações descritas no artigo original.",
+      "authors": [
+        "A"
+      ],
+      "authorsTruncated": false,
+      "venue": "arXiv",
+      "isPreprint": false
+    },
+    {
+      "id": "c_02ff4343fdda",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.ml",
+      "rank": 3,
+      "title": "Notícia bap sobre bagtsr",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-15",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bap sobre bagtsr?",
+        "options": [
+          "Outro assunto A",
+          "Outro assunto B",
+          "Outro assunto C",
+          "Notícia bap sobre bagtsr"
+        ],
+        "answerIndex": 3
+      },
+      "originalTitle": "Notícia bap sobre bagtsr",
+      "method": "Método descrito no artigo original.",
+      "result": "Resultado descrito no artigo original.",
+      "limitations": "Limitações descritas no artigo original.",
+      "authors": [
+        "A"
+      ],
+      "authorsTruncated": false,
+      "venue": "arXiv",
+      "isPreprint": false
+    },
+    {
+      "id": "c_3a2b395f4bc4",
+      "type": "paper",
+      "areaId": "science",
+      "subareaId": "science.physics",
+      "rank": 3,
+      "title": "Notícia bav sobre bajmad",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-21",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bav sobre bajmad?",
+        "options": [
+          "Notícia bav sobre bajmad",
+          "Outro assunto C",
+          "Outro assunto A",
+          "Outro assunto B"
+        ],
+        "answerIndex": 0
+      },
+      "originalTitle": "Notícia bav sobre bajmad",
+      "method": "Método descrito no artigo original.",
+      "result": "Resultado descrito no artigo original.",
+      "limitations": "Limitações descritas no artigo original.",
+      "authors": [
+        "A"
+      ],
+      "authorsTruncated": false,
+      "venue": "arXiv",
+      "isPreprint": false
+    },
+    {
+      "id": "c_67844b561d19",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.ai",
+      "rank": 3,
+      "title": "Notícia bad sobre babjdt",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-3",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bad sobre babjdt?",
+        "options": [
+          "Outro assunto B",
+          "Notícia bad sobre babjdt",
+          "Outro assunto A",
+          "Outro assunto C"
+        ],
+        "answerIndex": 1
+      }
+    },
+    {
+      "id": "c_c966b8c8ad24",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.dev",
+      "rank": 3,
+      "title": "Notícia bag sobre bacshm",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-6",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bag sobre bacshm?",
+        "options": [
+          "Notícia bag sobre bacshm",
+          "Outro assunto A",
+          "Outro assunto C",
+          "Outro assunto B"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_0205926f692a",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.hardware",
+      "rank": 3,
+      "title": "Notícia bam sobre bafkoy",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-12",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia bam sobre bafkoy?",
+        "options": [
+          "Notícia bam sobre bafkoy",
+          "Outro assunto B",
+          "Outro assunto C",
+          "Outro assunto A"
+        ],
+        "answerIndex": 0
+      }
+    },
+    {
+      "id": "c_c8dec6aa8422",
+      "type": "news",
+      "areaId": "tech",
+      "subareaId": "tech.security",
+      "rank": 3,
+      "title": "Notícia baj sobre baeblf",
+      "summary": "Resumo do item.",
+      "whyItMatters": "Resumo de exemplo gerado sem LLM.",
+      "sourceName": "Exemplo",
+      "url": "https://example.com/item-9",
+      "publishedAt": "2026-11-01T05:00:00Z",
+      "quiz": {
+        "question": "Qual é o assunto de: Notícia baj sobre baeblf?",
+        "options": [
+          "Outro assunto A",
+          "Outro assunto B",
+          "Notícia baj sobre baeblf",
+          "Outro assunto C"
+        ],
+        "answerIndex": 2
+      }
+    }
+  ],
+  "stories": [
+    {
+      "areaId": "tech",
+      "slides": [
+        {
+          "headline": "Notícia bab sobre balsp",
+          "cardId": "c_e747151cd7fb"
+        },
+        {
+          "headline": "Notícia bae sobre babuwi",
+          "cardId": "c_4bb5ab27c223"
+        },
+        {
+          "headline": "Notícia bah sobre badeab",
+          "cardId": "c_679cb860cfae"
+        },
+        {
+          "headline": "Notícia bak sobre baendu",
+          "cardId": "c_f740a0f2c046"
+        },
+        {
+          "headline": "Notícia bac sobre baxle",
+          "cardId": "c_f0306d24d1fa"
+        }
+      ]
+    },
+    {
+      "areaId": "science",
+      "slides": [
+        {
+          "headline": "Notícia ban sobre bafwhn",
+          "cardId": "c_c42961d5356a"
+        },
+        {
+          "headline": "Notícia baq sobre bahflg",
+          "cardId": "c_8ae03828c775"
+        },
+        {
+          "headline": "Notícia bat sobre baiooz",
+          "cardId": "c_681697835c38"
+        },
+        {
+          "headline": "Notícia baw sobre bajxss",
+          "cardId": "c_35b62b196156"
+        },
+        {
+          "headline": "Notícia bao sobre bagiac",
+          "cardId": "c_bf8abadc8352"
+        }
+      ]
+    },
+    {
+      "areaId": "economy",
+      "slides": [
+        {
+          "headline": "Notícia baz sobre balgwl",
+          "cardId": "c_d43216744974"
+        },
+        {
+          "headline": "Notícia babc sobre bamqae",
+          "cardId": "c_a18fdd9703bb"
+        },
+        {
+          "headline": "Notícia baba sobre balspa",
+          "cardId": "c_a2dffe5c3764"
+        },
+        {
+          "headline": "Notícia babd sobre banbst",
+          "cardId": "c_d7a3ea7d86e6"
+        },
+        {
+          "headline": "Notícia babb sobre bamehp",
+          "cardId": "c_f5cba4460ede"
+        }
+      ]
+    },
+    {
+      "areaId": "finance",
+      "slides": [
+        {
+          "headline": "Notícia babf sobre banzdx",
+          "cardId": "c_e1735b193387"
+        },
+        {
+          "headline": "Notícia babi sobre bapihq",
+          "cardId": "c_c27fa2985e32"
+        },
+        {
+          "headline": "Notícia babl sobre baqrlj",
+          "cardId": "c_1510d717eb49"
+        },
+        {
+          "headline": "Notícia babg sobre baokwm",
+          "cardId": "c_7bd858e445a2"
+        },
+        {
+          "headline": "Notícia babj sobre bapuaf",
+          "cardId": "c_093c4745b49f"
+        }
+      ]
+    },
+    {
+      "areaId": "health",
+      "slides": [
+        {
+          "headline": "Notícia babo sobre basapc",
+          "cardId": "c_15b8b8b4db1b"
+        },
+        {
+          "headline": "Notícia babr sobre batjsv",
+          "cardId": "c_7a0a260405f6"
+        },
+        {
+          "headline": "Notícia babu sobre bauswo",
+          "cardId": "c_424738de1a41"
+        },
+        {
+          "headline": "Notícia babp sobre basmhr",
+          "cardId": "c_9887f4a14019"
+        },
+        {
+          "headline": "Notícia babs sobre batvlk",
+          "cardId": "c_4d9a356aadeb"
+        }
+      ]
+    }
+  ]
+}

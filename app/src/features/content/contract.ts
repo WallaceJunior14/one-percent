@@ -17,11 +17,16 @@ const longText = z.string().min(1).max(600);
 /** Campos técnicos de artigos (método, resultado, limitações). */
 const mediumText = z.string().min(1).max(300);
 
-const quizSchema = z.object({
-  question: shortText,
-  options: z.array(shortText).length(4),
-  answerIndex: z.int().min(0).max(3),
-});
+const quizSchema = z
+  .object({
+    question: shortText,
+    options: z.array(shortText).min(2).max(6),
+    answerIndex: z.int().min(0),
+  })
+  .refine((quiz) => quiz.answerIndex < quiz.options.length, {
+    message: 'answerIndex fora das alternativas',
+    path: ['answerIndex'],
+  });
 
 const cardBase = {
   id: cardId,
@@ -58,25 +63,32 @@ const paperCardSchema = z.object({
 
 export const cardSchema = z.discriminatedUnion('type', [newsCardSchema, paperCardSchema]);
 
+const groupId = z.string().regex(/^[a-z]+(-[a-z]+)*$/);
+
+const groupSchema = z.object({ id: groupId, name: shortText });
+
+// Campos opcionais do catálogo: valor inválido vira ausente, sem derrubar o dia.
 const areaSchema = z.object({
   id: areaId,
   name: shortText,
   subareas: z.array(z.object({ id: subareaId, name: shortText })).min(1),
+  groupId: groupId.optional().catch(undefined),
+  weight: z.number().positive().optional().catch(undefined),
 });
 
 const storySchema = z.object({
   areaId,
-  slides: z
-    .array(z.object({ headline: shortText, cardId }))
-    .min(3)
-    .max(5),
+  slides: z.array(z.object({ headline: shortText, cardId })).min(1),
 });
 
 const envelopeSchema = z.object({
   schemaVersion: z.int().min(1),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   generatedAt: utcTimestamp,
+  groups: z.array(groupSchema).min(1).optional().catch(undefined),
   areas: z.array(areaSchema).min(1),
+  /** Validado campo a campo por quem usa, com padrão para o que faltar. */
+  settings: z.record(z.string(), z.unknown()).optional().catch(undefined),
   cards: z.array(z.unknown()),
   stories: z.array(storySchema),
 });
@@ -88,6 +100,7 @@ export type NewsCard = z.infer<typeof newsCardSchema>;
 export type PaperCard = z.infer<typeof paperCardSchema>;
 export type Card = z.infer<typeof cardSchema>;
 export type Area = z.infer<typeof areaSchema>;
+export type Group = z.infer<typeof groupSchema>;
 export type Story = z.infer<typeof storySchema>;
 export type DailyContent = Omit<z.infer<typeof envelopeSchema>, 'cards'> & { cards: Card[] };
 
