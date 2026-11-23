@@ -10,7 +10,7 @@ import pytest
 from one_percent import cli
 from one_percent.contract import ContractViolationError
 from one_percent.domain.models import ContentItem
-from one_percent.summarizer import SummarizerError, Summary
+from one_percent.summarizer import SummarizerError, SummaryBatch
 from tests.helpers import fixture_bytes
 
 NOW = datetime(2026, 11, 1, 10, 0, tzinfo=UTC).isoformat()
@@ -38,7 +38,7 @@ class FailingSummarizer:
     def __init__(self, error: Exception) -> None:
         self._error = error
 
-    def summarize(self, items: Sequence[ContentItem]) -> dict[str, Summary]:
+    def summarize(self, items: Sequence[ContentItem]) -> SummaryBatch:
         raise self._error
 
 

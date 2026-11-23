@@ -1,6 +1,7 @@
 """Summarizer pela Batch API da Anthropic, com saída estruturada."""
 
 import html
+import json
 import logging
 import time
 from collections import Counter
@@ -17,7 +18,15 @@ from one_percent.config.settings import LlmSettings, PipelineSettings, PromptFie
 from one_percent.contract import TextLimits, text_limits
 from one_percent.domain.identity import card_id
 from one_percent.domain.models import ContentItem, ContentKind
-from one_percent.summarizer import SummarizerError, Summary, field_limits, summary_model
+from one_percent.summarizer import (
+    FIELD_LIMITS,
+    SummarizerError,
+    Summary,
+    SummaryBatch,
+    field_limits,
+    summary_model,
+)
+from one_percent.summarizer.shorten import shorten_fields
 
 logger = logging.getLogger(__name__)
 
@@ -140,7 +149,7 @@ class AnthropicSummarizer:
         self._sleep = sleep
         self._clock = clock
 
-    def summarize(self, items: Sequence[ContentItem]) -> dict[str, Summary]:
+    def summarize(self, items: Sequence[ContentItem]) -> SummaryBatch:
         # Um custom_id repetido faz a API rejeitar o batch inteiro.
         unique: dict[str, ContentItem] = {}
         for item in items:
@@ -150,7 +159,7 @@ class AnthropicSummarizer:
             logger.warning("limite de %d itens por execução; %d ignorados",
                            self._max_items, len(unique) - self._max_items)  # fmt: skip
         if not selected:
-            return {}
+            return SummaryBatch({})
 
         batch = self._client.messages.batches.create(
             requests=[self._request(cid, item) for cid, item in selected]
@@ -182,9 +191,10 @@ class AnthropicSummarizer:
                 raise SummarizerError(f"batch {batch_id}: tempo esgotado; batch cancelado")
             self._sleep(self._poll_interval)
 
-    def _collect_results(self, batch_id: str) -> dict[str, Summary]:
+    def _collect_results(self, batch_id: str) -> SummaryBatch:
         summaries: dict[str, Summary] = {}
         invalid_fields: Counter[str] = Counter()
+        shortened: Counter[str] = Counter()
         input_tokens = output_tokens = 0
         for entry in self._client.messages.batches.results(batch_id):
             if entry.result.type != "succeeded":
@@ -197,13 +207,34 @@ class AnthropicSummarizer:
                 logger.warning("item %s: stop_reason %s", entry.custom_id, message.stop_reason)
                 continue
             text = next((block.text for block in message.content if block.type == "text"), "")
-            try:
-                summaries[entry.custom_id] = self._summary_model.model_validate_json(text)
-            except ValidationError as error:
-                problems = [_describe(issue) for issue in error.errors()]
-                invalid_fields.update(problem.split(" ")[0] for problem in problems)
-                logger.warning("item %s: resumo inválido: %s", entry.custom_id, "; ".join(problems))
+            summary = self._parse(entry.custom_id, text, invalid_fields, shortened)
+            if summary is not None:
+                summaries[entry.custom_id] = summary
         if invalid_fields:
             logger.warning("resumos inválidos por campo: %s", dict(invalid_fields.most_common()))
+        if shortened:
+            logger.info("textos encurtados por campo: %s", dict(shortened.most_common()))
         logger.info("tokens: %d de entrada, %d de saída", input_tokens, output_tokens)
-        return summaries
+        return SummaryBatch(summaries, shortened_fields=sum(shortened.values()))
+
+    def _parse(
+        self, custom_id: str, text: str, invalid_fields: Counter[str], shortened: Counter[str]
+    ) -> Summary | None:
+        try:
+            raw = json.loads(text)
+        except ValueError as error:
+            logger.warning("item %s: resposta não é JSON: %s", custom_id, error)
+            return None
+        if not isinstance(raw, dict):
+            logger.warning("item %s: resposta não é um objeto JSON", custom_id)
+            return None
+        data, shortened_paths = shorten_fields(raw, FIELD_LIMITS)
+        try:
+            summary = self._summary_model.model_validate(data)
+        except ValidationError as error:
+            problems = [_describe(issue) for issue in error.errors()]
+            invalid_fields.update(problem.split(" ")[0] for problem in problems)
+            logger.warning("item %s: resumo inválido: %s", custom_id, "; ".join(problems))
+            return None
+        shortened.update(shortened_paths)
+        return summary

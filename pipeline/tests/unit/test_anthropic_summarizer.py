@@ -153,7 +153,7 @@ def test_parses_results_by_custom_id() -> None:
     news, paper = make_item(), make_item(kind="paper")
     results = [_succeeded(card_id(paper), VALID_PAPER), _succeeded(card_id(news), VALID_NEWS)]
 
-    summaries = _summarizer(FakeBatches(results)).summarize([news, paper])
+    summaries = _summarizer(FakeBatches(results)).summarize([news, paper]).summaries
 
     assert summaries[card_id(paper)].method == "Método."
     assert summaries[card_id(news)].method is None
@@ -170,7 +170,7 @@ def test_skips_errored_refused_and_invalid_results() -> None:
         _succeeded(ids[4], {**VALID_NEWS, "title": ""}),
     ]
 
-    summaries = _summarizer(FakeBatches(results)).summarize(items)
+    summaries = _summarizer(FakeBatches(results)).summarize(items).summaries
 
     assert list(summaries) == [ids[0]]
 
@@ -178,18 +178,18 @@ def test_skips_errored_refused_and_invalid_results() -> None:
 def test_logs_which_fields_made_a_summary_invalid(caplog: pytest.LogCaptureFixture) -> None:
     items = [make_item(), make_item()]
     results = [
-        _succeeded(card_id(items[0]), {**VALID_NEWS, "why_it_matters": "x" * 300}),
+        _succeeded(card_id(items[0]), {**VALID_NEWS, "why_it_matters": " "}),
         _succeeded(
             card_id(items[1]),
-            {**VALID_NEWS, "quiz": {**VALID_NEWS["quiz"], "distractors": ["A", "B", "x" * 250]}},
+            {**VALID_NEWS, "quiz": {**VALID_NEWS["quiz"], "distractors": ["A", "B", ""]}},
         ),
     ]
 
     with caplog.at_level(logging.WARNING):
         _summarizer(FakeBatches(results)).summarize(items)
 
-    assert "why_it_matters (string_too_long)" in caplog.text
-    assert "quiz.distractors.2 (string_too_long)" in caplog.text
+    assert "why_it_matters (string_too_short)" in caplog.text
+    assert "quiz.distractors.2 (string_too_short)" in caplog.text
     assert "resumos inválidos por campo" in caplog.text
 
 
@@ -215,7 +215,7 @@ def test_same_article_in_two_subareas_is_requested_once() -> None:
 def test_empty_input_creates_no_batch() -> None:
     batches = FakeBatches([])
 
-    assert _summarizer(batches).summarize([]) == {}
+    assert _summarizer(batches).summarize([]).summaries == {}
     assert batches.created == 0
 
 
@@ -262,6 +262,20 @@ def test_distractor_count_follows_settings() -> None:
     results = [_succeeded(card_id(items[0]), two), _succeeded(card_id(items[1]), VALID_NEWS)]
     settings = PipelineSettings(content=ContentSettings(quiz=QuizSettings(distractors=2)))
 
-    summaries = _summarizer(FakeBatches(results), settings).summarize(items)
+    summaries = _summarizer(FakeBatches(results), settings).summarize(items).summaries
 
     assert list(summaries) == [card_id(items[0])]
+
+
+def test_long_summary_is_shortened_not_dropped(caplog: pytest.LogCaptureFixture) -> None:
+    item = make_item()
+    limit = text_limits().long
+    long_summary = "Frase curta. " + "palavra " * limit
+    results = [_succeeded(card_id(item), {**VALID_NEWS, "summary": long_summary})]
+
+    with caplog.at_level(logging.INFO):
+        batch = _summarizer(FakeBatches(results)).summarize([item])
+
+    assert batch.summaries[card_id(item)].summary == "Frase curta."
+    assert batch.shortened_fields == 1
+    assert "textos encurtados por campo: {'summary': 1}" in caplog.text

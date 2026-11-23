@@ -6,15 +6,15 @@ from string import ascii_uppercase
 from one_percent.config.settings import QuizSettings
 from one_percent.domain.identity import card_id
 from one_percent.domain.models import ContentItem
-from one_percent.summarizer import LIMITS, Quiz, Summary
+from one_percent.summarizer import LIMITS, Quiz, Summary, SummaryBatch
 
 
 class FakeSummarizer:
     def __init__(self, distractors: int = QuizSettings().distractors) -> None:
         self._distractors = tuple(f"Outro assunto {ascii_uppercase[n]}" for n in range(distractors))
 
-    def summarize(self, items: Sequence[ContentItem]) -> dict[str, Summary]:
-        return {card_id(item): self._summary(item) for item in items}
+    def summarize(self, items: Sequence[ContentItem]) -> SummaryBatch:
+        return SummaryBatch({card_id(item): self._summary(item) for item in items})
 
     def _summary(self, item: ContentItem) -> Summary:
         is_paper = item.kind == "paper"

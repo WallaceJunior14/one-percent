@@ -4,6 +4,7 @@ Os limites de texto vêm do contrato (`contract.text_limits`), lidos uma vez na 
 """
 
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from functools import cache
 from typing import Annotated, Protocol
 
@@ -78,7 +79,13 @@ def summary_model(distractors: int) -> type[Summary]:
     return create_model("Summary", __base__=Summary, quiz=(quiz, ...))
 
 
+@dataclass(frozen=True)
+class SummaryBatch:
+    summaries: dict[str, Summary]
+    """Resumos indexados por `card_id`; itens que falharam ficam de fora."""
+    shortened_fields: int = 0
+    """Textos acima do limite que foram encurtados em vez de descartados."""
+
+
 class Summarizer(Protocol):
-    def summarize(self, items: Sequence[ContentItem]) -> dict[str, Summary]:
-        """Resumos indexados por `card_id`; itens que falharem ficam de fora."""
-        ...
+    def summarize(self, items: Sequence[ContentItem]) -> SummaryBatch: ...

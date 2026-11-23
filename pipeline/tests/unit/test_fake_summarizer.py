@@ -6,7 +6,7 @@ from tests.factories import make_item
 def test_summarizes_every_item_keyed_by_card_id() -> None:
     items = [make_item(), make_item(kind="paper")]
 
-    summaries = FakeSummarizer().summarize(items)
+    summaries = FakeSummarizer().summarize(items).summaries
 
     assert set(summaries) == {card_id(item) for item in items}
 
@@ -14,7 +14,7 @@ def test_summarizes_every_item_keyed_by_card_id() -> None:
 def test_paper_summaries_include_scientific_fields() -> None:
     paper = make_item(kind="paper")
 
-    summary = FakeSummarizer().summarize([paper])[card_id(paper)]
+    summary = FakeSummarizer().summarize([paper]).summaries[card_id(paper)]
 
     assert summary.method and summary.result and summary.limitations
 
@@ -22,7 +22,9 @@ def test_paper_summaries_include_scientific_fields() -> None:
 def test_is_deterministic() -> None:
     items = [make_item(), make_item()]
 
-    assert FakeSummarizer().summarize(items) == FakeSummarizer().summarize(items)
+    assert (
+        FakeSummarizer().summarize(items).summaries == FakeSummarizer().summarize(items).summaries
+    )
 
 
 def test_card_id_is_stable_for_the_same_canonical_url() -> None:

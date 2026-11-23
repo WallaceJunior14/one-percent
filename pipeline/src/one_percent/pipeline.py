@@ -30,6 +30,7 @@ class RunReport:
     selected: int
     summarized: int
     cards: int
+    shortened_fields: int
     failed_sources: tuple[str, ...]
     published: bool
 
@@ -51,10 +52,10 @@ def run_pipeline(
     # Se o summarizer cortar itens por custo, perde os piores de cada subárea, não uma subárea.
     ranked = sorted(select_top(unique, now), key=lambda r: (r.rank, r.item.subarea_id))
 
-    summaries = summarizer.summarize([r.item for r in ranked])
+    batch = summarizer.summarize([r.item for r in ranked])
     cards: list[dict[str, Any]] = []
     for r in ranked:
-        summary = summaries.get(card_id(r.item))
+        summary = batch.summaries.get(card_id(r.item))
         if summary and (card := build_card(r, summary)):
             cards.append(card)
 
@@ -68,8 +69,9 @@ def run_pipeline(
         in_window=len(recent),
         unique=len(unique),
         selected=len(ranked),
-        summarized=len(summaries),
+        summarized=len(batch.summaries),
         cards=len(day["cards"]),
+        shortened_fields=batch.shortened_fields,
         failed_sources=collected.failed_sources,
         published=published,
     )
