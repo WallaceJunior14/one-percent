@@ -1,0 +1,35 @@
+# Parâmetros da operação diária do pipeline. Campos ausentes usam o padrão do código;
+# campos desconhecidos ou inválidos fazem a execução parar antes de coletar.
+#
+# Ranking, deduplicação e classificação não ficam aqui: são algoritmo e mudam com teste novo.
+
+content:
+  timezone: America/Sao_Paulo        # fuso que define a data do conteúdo
+  publish_deadline: "07:00"          # informativo: o agendador usa este horário
+  retention_days: 7                  # dias em daily/ antes de apagar
+  windows: { news_hours: 36, paper_days: 7 }
+  min_cards: { total: 15, per_group: 7 }
+  stories: { min_slides: 3, max_slides: 5 }
+  quiz: { distractors: 3 }           # alternativas erradas por pergunta
+
+feed:                                # parâmetros do feed no app
+  size: 15
+  min_paper_share: 0.3
+  quiz_questions: 3
+  publish_interval_hours: 24
+  freshness_tolerance_hours: 6
+  seconds_per_card: 40
+
+llm:
+  model: claude-haiku-5-5
+  max_items_per_run: 150             # teto de custo por execução
+  max_tokens: 2048                   # inclui o raciocínio interno do modelo
+  batch_timeout_minutes: 25
+  prompt_target_ratio: 0.8           # fração do limite do contrato pedida ao LLM
+  prompt_target_overrides: { title: 0.6, quiz: 0.5 }
+  # Batch API (50% do preço padrão, prompts até 100 mil tokens). Conferir ao trocar de modelo.
+  price_per_mtok: { input: 0.05, output: 0.25 }
+
+budget:
+  monthly_usd: 5
+  alert_ratio: 0.8                   # alerta se o custo estimado do mês passar desta fração
