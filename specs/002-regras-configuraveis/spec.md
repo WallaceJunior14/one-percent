@@ -1,6 +1,6 @@
 # Spec 002 — Regras configuráveis e contrato evolutivo
 
-- **Status**: Rascunho
+- **Status**: Aprovada (2026-11-22), com as respostas às dúvidas
 - **Criada em**: 2026-11-22
 - **Corrige**: [Spec 001](../001-mvp-feed-diario/spec.md)
 
@@ -52,7 +52,9 @@ Como usuário, quero ver áreas e grupos novos assim que forem publicados, para 
 1. **Dado** que o conteúdo publicado traz o catálogo de áreas, subáreas e grupos, **quando** abro o onboarding ou a edição de áreas, **então** vejo o catálogo publicado mais recente.
 2. **Dado** o primeiro acesso sem internet, **quando** abro o onboarding, **então** vejo o catálogo que vem junto com o app.
 3. **Dado** que escolhi uma área que deixou de ser publicada, **quando** o feed é montado, **então** essa área é ignorada sem erro e, se nenhuma área escolhida sobrar, o app me leva a escolher de novo.
-4. **Dado** que um grupo novo é publicado, **quando** o feed é montado, **então** a divisão entre grupos usa os pesos publicados para cada grupo.
+4. **Dado** o peso publicado de cada área (tema principal), **quando** o feed é montado, **então** os cards se dividem entre as áreas escolhidas na proporção desses pesos. Subáreas não têm peso próprio: dentro de uma área, os cards seguem o ranking.
+5. **Dado** os pesos padrão, **quando** escolho todas as áreas, **então** a divisão continua a da spec 001: metade para Ciência & Tecnologia e metade para Mercado & Saúde.
+6. **Dado** um grupo de áreas, **quando** o onboarding é exibido, **então** ele organiza as áreas na tela; a divisão do feed vem só dos pesos das áreas.
 
 ### H4 — Feed com regras explícitas e números reais (P1)
 
@@ -80,7 +82,7 @@ Como mantenedor, quero definir o tamanho máximo de cada texto num único lugar,
 **Critérios de aceite**
 1. **Dado** que um limite muda no contrato, **quando** o pipeline roda, **então** a validação dos resumos e as instruções ao LLM usam o novo limite sem outra alteração.
 2. **Dado** os limites pedidos ao LLM, **quando** o prompt é montado, **então** eles são derivados dos limites do contrato com uma margem configurável, e não escritos à mão.
-3. **Dado** um resumo acima do limite, **quando** é validado, **então** a decisão (descartar ou encurtar) segue uma regra configurável, registrada no relatório da execução.
+3. **Dado** um texto do resumo acima do limite, **quando** é validado, **então** é encurtado no último fim de frase que caiba; se nenhuma frase couber, no último espaço, com reticências. O card só é descartado se o campo ficar vazio. Cada encurtamento entra no relatório da execução.
 
 ### H7 — Operação ajustável sem mexer no código (P2)
 
@@ -106,12 +108,12 @@ Como mantenedor, quero os textos da interface num só lugar, para poder traduzir
 - **RF-101** (substitui a parte rígida do contrato): o app lê o conteúdo de forma tolerante. Ignora campos desconhecidos, descarta só os cards inválidos ou de tipo desconhecido e aceita qualquer versão secundária da versão principal que suporta.
 - **RF-102**: o contrato tem política de versão: acréscimos opcionais mantêm a versão principal; mudanças incompatíveis criam uma versão principal nova, publicada em paralelo durante uma transição.
 - **RF-103**: todo dado local tem versão de formato e migração para o formato atual; dado ilegível é preservado à parte, nunca apagado.
-- **RF-104** (substitui a tabela de áreas da H3 e o RF-011 da spec 001): o catálogo de áreas, subáreas e grupos, e o peso de cada grupo, fazem parte do conteúdo publicado. O app embute uma cópia só para o primeiro acesso sem internet.
-- **RF-105** (substitui os números fixos do RF-007, H1-1, H3-4, H5-2, H7-1, H7-3 e H8-1): tamanho do feed, fatia mínima de artigos, pesos dos grupos, quantidade de perguntas e de alternativas do quiz e faixa de telas dos stories são parâmetros com valor padrão. Os valores atuais (15 cards, 30%, 50/50, 3 perguntas, 4 alternativas, 3 a 5 telas) passam a ser só os padrões.
-- **RF-106** (substitui a comparação de datas da spec 001): a atualidade do conteúdo é decidida pelo momento de publicação e pelo intervalo esperado entre publicações, com tolerância configurável.
+- **RF-104** (substitui a tabela de áreas da H3 e o RF-011 da spec 001): o catálogo de áreas, subáreas e grupos, com o peso de cada área, faz parte do conteúdo publicado. Pesos existem só no nível da área (tema principal), nunca na subárea. O app embute uma cópia só para o primeiro acesso sem internet.
+- **RF-105** (substitui os números fixos do RF-007, H1-1, H3-4, H5-2, H7-1, H7-3 e H8-1): tamanho do feed, fatia mínima de artigos, pesos das áreas, quantidade de perguntas e de alternativas do quiz e faixa de telas dos stories são parâmetros com valor padrão. Os valores atuais (15 cards, 30%, metade para cada grupo, 3 perguntas, 4 alternativas, 3 a 5 telas) passam a ser só os padrões.
+- **RF-106** (substitui a comparação de datas da spec 001): a atualidade do conteúdo é decidida pelo momento de publicação e pelo intervalo esperado entre publicações, com tolerância configurável. Padrão: o app busca conteúdo novo 24 h depois da publicação e só mostra o aviso de conteúdo anterior depois de 30 h (24 h + 6 h de tolerância).
 - **RF-107** (substitui o RF-001 da spec 001): o horário-limite de publicação e o fuso de referência do conteúdo são configuração da operação. Hoje: 07:00, America/Sao_Paulo.
 - **RF-108** (substitui os números fixos do RF-003 da spec 001): a janela de tempo de cada tipo de conteúdo é configurável, com padrão de 36 h para notícias e 7 dias para artigos.
-- **RF-109**: os limites de texto ficam definidos só no contrato; o pipeline deriva deles a validação e as instruções ao LLM.
+- **RF-109**: os limites de texto ficam definidos só no contrato; o pipeline deriva deles a validação e as instruções ao LLM. Texto acima do limite é encurtado, não descartado (H6-3).
 - **RF-110**: o pipeline lê de configuração validada o modelo do LLM, o teto de itens, a retenção, o mínimo para publicar (total e por grupo) e o orçamento mensal.
 - **RF-111**: o endereço do conteúdo é configuração do build do app.
 - **RF-112**: os textos e a formatação de números da interface ficam num catálogo único.
@@ -130,7 +132,7 @@ Como mantenedor, quero os textos da interface num só lugar, para poder traduzir
 | RF-001 "até as 7h (horário de Brasília)" | Horário e fuso tratados como regra | RF-107 |
 | RF-003 "24–36 horas" e "7 dias" | Valores fixos e faixa ambígua | RF-108 |
 | RF-007 "15 cards", "30%" | Números fixos espalhados | RF-105, H4 |
-| RF-011 grupos e 50% | Grupos e pesos fixos no app | RF-104, H3-4 |
+| RF-011 grupos e 50% | Grupos e pesos fixos no app | RF-104, H3-4 a H3-6: peso por área, grupos só na tela |
 | H1-1 "n de 15 vistos" | Assume feed sempre cheio | H4-1 |
 | H3 tabela de áreas | Catálogo fixo em três lugares | RF-104 |
 | H5-2 "de 3 a 5 telas" | Faixa fixa no contrato e no app | RF-105 |
@@ -141,21 +143,25 @@ Como mantenedor, quero os textos da interface num só lugar, para poder traduzir
 
 ## Fora de escopo
 
-- Tela para o usuário configurar os percentuais por grupo (os pesos passam a ser parâmetro publicado; a tela fica para uma spec futura).
+- Tela para o usuário configurar os pesos por área (os pesos passam a ser parâmetro publicado; a tela fica para uma spec futura).
 - Tradução do app para outros idiomas (a H8 só prepara o código para isso).
+- Banco de dados com o histórico das publicações capturadas (próxima spec).
 - Painel ou serviço remoto de configuração: os parâmetros do app vêm no próprio conteúdo publicado.
 - Sincronização de dados entre dispositivos e backup na nuvem.
 - Trocar a forma de publicação (GitHub Pages) ou o agendador.
 
-## Dúvidas em aberto
+## Decisões tomadas
 
-- [PRECISA ESCLARECER: os pesos dos grupos (hoje 50/50) devem vir no conteúdo publicado, valendo igual para todos, ou continuar no app como padrão local até existir a tela de configuração?]
-- [PRECISA ESCLARECER: tolerância para considerar o conteúdo atual (RF-106). Proposta: até 30 h depois da publicação, ou seja, 24 h de intervalo mais 6 h de folga.]
-- [PRECISA ESCLARECER: resumo acima do limite (H6-3) deve ser descartado, como hoje, ou encurtado no último ponto final que caiba?]
-- [PRECISA ESCLARECER: a H8 (textos para tradução) entra nesta spec ou fica para quando houver plano de outro idioma?]
+Respostas do autor em 2026-11-22:
+
+1. **Pesos**: configurados por área (tema principal), não por subárea (H3-4 a H3-6, RF-104).
+2. **Atualidade**: busca nova após 24 h; aviso de conteúdo anterior após 30 h (RF-106).
+3. **Texto acima do limite**: encurtar, para não perder conteúdo importante (H6-3).
+4. **Textos para tradução**: entram nesta spec (H8).
 
 ## Histórico
 
 | Data | Mudança | Motivo |
 |---|---|---|
 | 2026-11-22 | Criação | Revisão do código e das specs: regras fixas que travam a evolução do conteúdo e do app |
+| 2026-11-22 | Aprovada; dúvidas resolvidas: peso por área, 24 h + 6 h, encurtar textos longos, H8 entra agora | Respostas do autor |
