@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -13,6 +14,7 @@ from one_percent.domain.models import ContentItem
 from one_percent.pipeline import run_pipeline
 from one_percent.summarizer import SummaryBatch
 from one_percent.summarizer.fake import FakeSummarizer
+from tests import factories
 from tests.factories import NOW, make_item
 from tests.helpers import fixture_bytes
 
@@ -124,3 +126,25 @@ def test_cli_fake_run_with_mocked_network_keeps_previous_day_when_too_few_cards(
     assert exit_code == 1
     assert not (tmp_path / "latest.json").exists()
     assert "não publicado" in caplog.text
+
+
+PIPELINE_OUTPUT_FIXTURE = (
+    Path(__file__).resolve().parents[3] / "contracts" / "examples" / "pipeline-output.json"
+)
+
+
+def test_pipeline_output_fixture_is_current(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A saída real do pipeline que o app usa nos testes de compatibilidade.
+
+    Para regenerar depois de mudar o formato: `ONE_PERCENT_REGENERATE_FIXTURES=1 pytest`.
+    """
+    monkeypatch.setattr(factories, "_counter", 0)  # mesma saída em qualquer ordem de testes
+    run_pipeline(CONFIG, SETTINGS, _sources_covering_all_areas(), FakeSummarizer(), NOW, tmp_path)
+    produced = json.loads((tmp_path / "latest.json").read_text(encoding="utf-8"))
+    text = json.dumps(produced, ensure_ascii=False, indent=2) + "\n"
+
+    if os.environ.get("ONE_PERCENT_REGENERATE_FIXTURES") == "1":
+        PIPELINE_OUTPUT_FIXTURE.write_text(text, encoding="utf-8", newline="\n")
+    assert PIPELINE_OUTPUT_FIXTURE.read_text(encoding="utf-8") == text

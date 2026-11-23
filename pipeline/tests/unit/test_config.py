@@ -74,3 +74,26 @@ def test_area_without_source_is_rejected() -> None:
 
     with pytest.raises(ConfigError, match="health"):
         parse_config(config)
+
+
+def _grouped_config(**area_overrides: Any) -> dict[str, Any]:
+    config = _minimal_config()
+    config["groups"] = [{"id": "sci-tech", "name": "Ciência & Tecnologia"}]
+    config["areas"][0].update({"group": "sci-tech", "weight": 3, **area_overrides})
+    return config
+
+
+def test_area_weight_and_group_parse() -> None:
+    area = parse_config(_grouped_config()).areas[0]
+
+    assert (area.group, area.weight) == ("sci-tech", 3)
+
+
+def test_weights_must_be_positive() -> None:
+    with pytest.raises(ConfigError, match="weight"):
+        parse_config(_grouped_config(weight=0))
+
+
+def test_every_area_belongs_to_a_known_group() -> None:
+    with pytest.raises(ConfigError, match="mercado"):
+        parse_config(_grouped_config(group="mercado"))

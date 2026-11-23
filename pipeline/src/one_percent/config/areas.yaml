@@ -5,9 +5,17 @@
 # - default_subarea: subárea usada quando nenhuma palavra-chave da área casa.
 # - weight: peso editorial da fonte no ranking (1.0 = neutro).
 
+# Grupos organizam as áreas na tela de escolha. A divisão do feed vem só dos pesos das áreas
+# (relativos entre as áreas escolhidas); subáreas não têm peso.
+groups:
+  - {id: sci-tech, name: Ciência & Tecnologia}
+  - {id: markets-health, name: Mercado & Saúde}
+
 areas:
   - id: tech
     name: Tecnologia
+    group: sci-tech
+    weight: 3
     subareas:
       - id: tech.ai
         name: IA
@@ -24,6 +32,8 @@ areas:
 
   - id: science
     name: Ciência
+    group: sci-tech
+    weight: 3
     subareas:
       - id: science.ml
         name: IA/ML
@@ -40,6 +50,8 @@ areas:
 
   - id: economy
     name: Economia
+    group: markets-health
+    weight: 2
     subareas:
       - id: economy.brazil
         name: Brasil
@@ -50,6 +62,8 @@ areas:
 
   - id: finance
     name: Finanças
+    group: markets-health
+    weight: 2
     subareas:
       - id: finance.markets
         name: Mercado
@@ -63,6 +77,8 @@ areas:
 
   - id: health
     name: Saúde
+    group: markets-health
+    weight: 2
     subareas:
       - id: health.medicine
         name: Medicina

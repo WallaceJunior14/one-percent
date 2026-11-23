@@ -60,8 +60,8 @@ def run_pipeline(
         if summary and (card := build_card(r, summary)):
             cards.append(card)
 
-    day = build_day(now, config, content, cards)
-    published = publish(day, out_dir, content.min_cards.total)
+    day = build_day(now, config, content, cards, settings.feed)
+    published = publish(day, out_dir, content.min_cards.total, content.min_cards.per_group)
     if published:
         prune_old_days(out_dir, local_date(now, content.zone), content.retention_days)
 

@@ -27,10 +27,18 @@ class SubareaConfig(_Strict):
     keywords: tuple[str, ...] = ()
 
 
+class GroupConfig(_Strict):
+    id: str = Field(pattern=r"^[a-z]+(-[a-z]+)*$")
+    name: str
+
+
 class AreaConfig(_Strict):
     id: str = Field(pattern=r"^[a-z]+$")
     name: str
     subareas: tuple[SubareaConfig, ...] = Field(min_length=1)
+    group: str | None = None
+    weight: float = Field(default=1.0, gt=0)
+    """Peso relativo da área na divisão do feed; subáreas não têm peso próprio."""
 
     @property
     def keywords_by_subarea(self) -> dict[str, list[str]]:
@@ -59,6 +67,7 @@ class SourceConfig(_Strict):
 
 
 class PipelineConfig(_Strict):
+    groups: tuple[GroupConfig, ...] = ()
     areas: tuple[AreaConfig, ...] = Field(min_length=1)
     sources: tuple[SourceConfig, ...] = Field(min_length=1)
 
@@ -71,6 +80,10 @@ class PipelineConfig(_Strict):
                     f"fonte '{source.id}': subárea '{source.default_subarea}' "
                     f"não pertence à área '{source.area}'"
                 )
+        group_ids = {group.id for group in self.groups}
+        for area in self.areas:
+            if area.group is not None and area.group not in group_ids:
+                raise ValueError(f"área '{area.id}': grupo '{area.group}' não existe em groups")
         areas_without_source = set(subareas_by_area) - {source.area for source in self.sources}
         if areas_without_source:
             raise ValueError(f"áreas sem nenhuma fonte: {sorted(areas_without_source)}")

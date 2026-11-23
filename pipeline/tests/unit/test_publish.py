@@ -6,7 +6,7 @@ from typing import Any
 import pytest
 
 from one_percent.config import load_config
-from one_percent.config.settings import ContentSettings, StorySettings
+from one_percent.config.settings import ContentSettings, FeedSettings, StorySettings
 from one_percent.contract import validate_daily_content
 from one_percent.publishing.day import build_day, local_date, prune_old_days, publish
 
@@ -158,3 +158,39 @@ def test_prunes_days_older_than_7(tmp_path: Path) -> None:
         "2026-11-01.json",
         "notes.txt",
     ]
+
+
+def test_publishes_catalog_with_groups_and_weights() -> None:
+    day = build_day(NOW, CONFIG, SETTINGS, _cards(3))
+
+    assert [group["id"] for group in day["groups"]] == [group.id for group in CONFIG.groups]
+    tech = next(area for area in day["areas"] if area["id"] == "tech")
+    assert (tech["groupId"], tech["weight"]) == ("sci-tech", 3)
+
+
+def test_publishes_feed_settings() -> None:
+    day = build_day(NOW, CONFIG, SETTINGS, _cards(3), FeedSettings(size=12))
+
+    assert day["settings"] == {
+        "feedSize": 12,
+        "minPaperShare": 0.3,
+        "quizQuestions": 3,
+        "publishIntervalHours": 24,
+        "freshnessToleranceHours": 6,
+        "secondsPerCard": 40,
+    }
+
+
+def test_skips_publishing_when_a_group_is_below_minimum(tmp_path: Path) -> None:
+    cards = _cards(20) + [_card(100 + n, "health", "health.mental") for n in range(3)]
+    day = build_day(NOW, CONFIG, SETTINGS, cards)
+
+    assert publish(day, tmp_path, MIN_CARDS, min_per_group=4) is False
+    assert not (tmp_path / "latest.json").exists()
+
+
+def test_publishes_when_every_group_reaches_the_minimum(tmp_path: Path) -> None:
+    cards = _cards(20) + [_card(100 + n, "health", "health.mental") for n in range(4)]
+    day = build_day(NOW, CONFIG, SETTINGS, cards)
+
+    assert publish(day, tmp_path, MIN_CARDS, min_per_group=4) is True
