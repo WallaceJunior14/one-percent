@@ -58,7 +58,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [ ] T226 Mínimo para publicar por grupo além do total
   - Teste: `test_day.py` — `skips_publishing_when_a_group_is_below_minimum`
   - Cobre: H7-3
-- [ ] T227 Custo estimado no `RunReport` e alerta quando a projeção mensal passa do limite do orçamento
+- [x] T227 Custo estimado no `RunReport` e alerta quando a projeção mensal passa do limite do orçamento
   - Teste: `test_pipeline_e2e.py` — `reports_estimated_cost`; `test_anthropic_summarizer.py` — `warns_when_projected_cost_exceeds_budget`
   - Cobre: H7-4
 - [ ] T228 **Marco**: execução real publicada com catálogo e `settings`, lida pelo app da Fase 1 sem regressão
