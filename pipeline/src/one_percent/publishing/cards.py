@@ -1,19 +1,20 @@
-"""Monta o card do contrato a partir do item da fonte + resumo do LLM (T041).
+"""Monta o card do contrato a partir do item da fonte e do resumo do LLM.
 
-Regra de segurança (OWASP LLM02): URL, autores, datas, fonte e venue vêm sempre do item
-original; do LLM só entram campos de texto, que o app exibe como texto puro.
+URL, autores, datas, fonte e venue vêm sempre do item original; do LLM só entram textos.
 """
 
 import logging
 import random
 from typing import Any
 
+from one_percent.domain.identity import card_id
 from one_percent.domain.models import RankedItem
-from one_percent.summarizer import Summary, card_id
+from one_percent.summarizer import Summary
 
 logger = logging.getLogger(__name__)
 
 MAX_AUTHORS = 3
+ORIGINAL_TITLE_MAX = 400
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 
@@ -21,8 +22,7 @@ def _quiz(cid: str, summary: Summary) -> dict[str, Any] | None:
     options = [summary.quiz.correct_answer, *summary.quiz.distractors]
     if len(set(options)) != len(options):
         return None
-    # Embaralhamento reprodutível (semente = id do card); não é uso criptográfico.
-    random.Random(cid).shuffle(options)  # noqa: S311
+    random.Random(cid).shuffle(options)  # noqa: S311 - reprodutível, não criptográfico
     return {
         "question": summary.quiz.question,
         "options": options,
@@ -64,7 +64,7 @@ def build_card(ranked: RankedItem, summary: Summary) -> dict[str, Any] | None:
         return None
     card.update(
         {
-            "originalTitle": item.title[:400],
+            "originalTitle": item.title[:ORIGINAL_TITLE_MAX],
             "method": summary.method,
             "result": summary.result,
             "limitations": summary.limitations,

@@ -1,4 +1,4 @@
-"""Ranking por relevância dentro de cada subárea (RF-005)."""
+"""Ranking por relevância dentro de cada subárea."""
 
 import math
 from collections import defaultdict

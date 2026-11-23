@@ -1,4 +1,4 @@
-"""Linha de comando: `python -m one_percent run [--fake] [--limit N] [--out DIR]`."""
+"""Linha de comando: `python -m one_percent run --help`."""
 
 import argparse
 import json
@@ -24,9 +24,9 @@ logger = logging.getLogger(__name__)
 
 EXIT_PUBLISHED = 0
 EXIT_NOT_PUBLISHED = 1
-"""Falha que pode se resolver sozinha (rede, 429, 5xx, poucos cards): vale tentar de novo."""
+"""Falha que pode se resolver sozinha: vale tentar de novo."""
 EXIT_PERMANENT_ERROR = 2
-"""Falha de configuração ou conta (chave, créditos, permissão): repetir não adianta."""
+"""Falha de configuração, conta ou contrato: repetir não adianta."""
 
 PERMANENT_STATUS_CODES = frozenset({400, 401, 403, 404})
 
@@ -110,7 +110,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         logger.error("resumos não gerados: %s", error)
         return EXIT_NOT_PUBLISHED
     except ContractViolationError as error:
-        # Bug do pipeline: repetir gastaria outro batch para falhar igual.
         logger.error("dia não publicado, conteúdo fora do contrato: %s", error)
         return EXIT_PERMANENT_ERROR
     return EXIT_PUBLISHED if report.published else EXIT_NOT_PUBLISHED

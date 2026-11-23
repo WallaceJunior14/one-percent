@@ -1,4 +1,4 @@
-"""Montagem, validação e escrita do JSON do dia (T050, T051)."""
+"""Montagem, validação e escrita do JSON do dia."""
 
 import json
 import logging
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 SAO_PAULO = ZoneInfo("America/Sao_Paulo")
 MIN_CARDS = 15
-"""Abaixo disso o dia não é publicado e o app continua com o último conteúdo (RNF-006)."""
+"""Abaixo disso o dia não é publicado e o app continua com o último conteúdo."""
 STORY_MIN_SLIDES, STORY_MAX_SLIDES = 3, 5
 KEEP_DAYS = 7
 

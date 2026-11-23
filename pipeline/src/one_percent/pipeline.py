@@ -9,13 +9,14 @@ from typing import Any
 
 from one_percent.config import PipelineConfig
 from one_percent.domain.dedupe import dedupe
+from one_percent.domain.identity import card_id
 from one_percent.domain.ranking import select_top
 from one_percent.domain.window import is_within_window
 from one_percent.publishing.cards import build_card
 from one_percent.publishing.day import build_day, local_date, prune_old_days, publish
 from one_percent.sources import ContentSource
 from one_percent.sources.collect import collect, keywords_by_area
-from one_percent.summarizer import Summarizer, card_id
+from one_percent.summarizer import Summarizer
 
 logger = logging.getLogger(__name__)
 
@@ -42,16 +43,14 @@ def run_pipeline(
     collected = collect(sources, now, keywords_by_area(config))
     recent = [item for item in collected.items if is_within_window(item, now)]
     unique = dedupe(recent)
-    # Ordem (rank, subárea): se o summarizer cortar itens por custo, perde os piores de
-    # cada subárea, nunca uma subárea inteira.
+    # Se o summarizer cortar itens por custo, perde os piores de cada subárea, não uma subárea.
     ranked = sorted(select_top(unique, now), key=lambda r: (r.rank, r.item.subarea_id))
 
     summaries = summarizer.summarize([r.item for r in ranked])
     cards: list[dict[str, Any]] = []
     for r in ranked:
         summary = summaries.get(card_id(r.item))
-        card = build_card(r, summary) if summary else None
-        if card is not None:
+        if summary and (card := build_card(r, summary)):
             cards.append(card)
 
     day = build_day(now, config, cards)

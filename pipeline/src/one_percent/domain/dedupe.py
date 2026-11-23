@@ -1,4 +1,4 @@
-"""Deduplicação de itens que tratam do mesmo assunto (RF-004)."""
+"""Deduplicação de itens que tratam do mesmo assunto."""
 
 import re
 import unicodedata
@@ -10,7 +10,8 @@ from one_percent.domain.normalize import canonical_url
 TITLE_SIMILARITY_THRESHOLD = 0.6
 
 _WORD = re.compile(r"\w+")
-# Palavras de até 2 letras já são descartadas pelo tamanho; aqui ficam só as mais longas.
+MIN_TOKEN_LENGTH = 3
+# Palavras menores que MIN_TOKEN_LENGTH já são descartadas; aqui ficam as demais.
 _STOPWORDS = frozenset(
     {
         "das", "dos", "nos", "nas", "uma", "uns", "umas", "para", "por", "com", "sem",
@@ -27,7 +28,7 @@ def _title_tokens(title: str) -> frozenset[str]:
     return frozenset(
         word
         for word in _WORD.findall(ascii_title)
-        if len(word) > 2 and word not in _STOPWORDS and not word.isdigit()
+        if len(word) >= MIN_TOKEN_LENGTH and word not in _STOPWORDS and not word.isdigit()
     )
 
 

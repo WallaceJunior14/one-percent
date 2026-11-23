@@ -1,4 +1,4 @@
-"""Encaixa notícias de feeds gerais na subárea certa por palavras-chave (T024)."""
+"""Encaixa notícias de feeds gerais na subárea certa por palavras-chave."""
 
 import re
 import unicodedata

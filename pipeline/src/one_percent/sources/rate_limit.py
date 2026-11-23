@@ -1,4 +1,4 @@
-"""Intervalo mínimo entre requisições a uma mesma API (ex.: arXiv pede 3 s)."""
+"""Intervalo mínimo entre requisições a uma mesma API."""
 
 import time
 from collections.abc import Callable

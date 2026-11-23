@@ -1,8 +1,8 @@
-"""Adapter da API do bioRxiv/medRxiv (JSON), filtrado por categoria e janela de 7 dias."""
+"""Adapter da API do bioRxiv/medRxiv (JSON), filtrado por categoria e pela janela de artigos."""
 
 import json
 import logging
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime
 from typing import Any
 
 import httpx
@@ -10,16 +10,18 @@ import httpx
 from one_percent.config import SourceConfig
 from one_percent.domain.models import ContentItem
 from one_percent.domain.normalize import clean_text
+from one_percent.domain.window import MAX_AGE
 from one_percent.sources import NO_RETRY, RetryPolicy, SourceFetchError, fetch_bytes, new_item
 
-API_URL = "https://api.biorxiv.org/details"
-LOOKBACK = timedelta(days=7)
 logger = logging.getLogger(__name__)
 
+API_URL = "https://api.biorxiv.org/details"
 VENUE_BY_SERVER = {"biorxiv": "bioRxiv", "medrxiv": "medRxiv"}
 MAX_PER_CATEGORY = 60
-"""Teto por categoria. A API pagina (30 por página) do mais antigo para o mais novo, então
-lemos as últimas páginas: as mais recentes da janela (CR-001)."""
+"""Teto por categoria. A API pagina do mais antigo para o mais novo, então lemos as últimas
+páginas: as mais recentes da janela."""
+
+Page = tuple[list[dict[str, Any]], int]
 
 
 class BiorxivSource:
@@ -38,7 +40,7 @@ class BiorxivSource:
         return self._config.id
 
     def fetch(self, now: datetime) -> list[ContentItem]:
-        interval = f"{(now - LOOKBACK).date().isoformat()}/{now.date().isoformat()}"
+        interval = f"{(now - MAX_AGE['paper']).date().isoformat()}/{now.date().isoformat()}"
         items: list[ContentItem] = []
         failures: list[SourceFetchError] = []
         categories = self._config.categories or ("",)
@@ -47,20 +49,19 @@ class BiorxivSource:
             try:
                 items.extend(self._fetch_newest(interval, params))
             except SourceFetchError as error:
-                # Uma categoria lenta não pode levar as outras junto.
                 logger.warning("%s (categoria %s); seguindo com as demais", error, category)
                 failures.append(error)
         if len(failures) == len(categories):
             raise failures[0]
         return items
 
-    def _fetch_page(self, interval: str, cursor: int, params: dict[str, str] | None) -> Any:
+    def _fetch_page(self, interval: str, cursor: int, params: dict[str, str] | None) -> Page:
         url = f"{API_URL}/{self._server}/{interval}/{cursor}"
         try:
             body = fetch_bytes(self._client, self.id, url, params=params, retry=self._retry)
             page = json.loads(body)
             collection: list[dict[str, Any]] = page["collection"]
-            # Sem resultados, a API responde "no posts found" e não traz `total`.
+            # Sem resultados, a resposta não traz `total`.
             total = int(page["messages"][0].get("total", len(collection)))
         except (ValueError, KeyError, TypeError, IndexError) as error:
             raise SourceFetchError(f"{self.id}: resposta JSON inesperada") from error

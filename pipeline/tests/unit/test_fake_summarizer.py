@@ -1,4 +1,4 @@
-from one_percent.summarizer import card_id
+from one_percent.domain.identity import card_id
 from one_percent.summarizer.fake import FakeSummarizer
 from tests.factories import make_item
 

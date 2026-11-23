@@ -27,7 +27,7 @@ class ContentItem:
     popularity: int = 0
     """Sinal de popularidade da fonte (ex.: upvotes do HF Daily Papers)."""
     source_weight: float = 1.0
-    """Peso editorial da fonte, definido em config/areas.yaml."""
+    """Peso editorial da fonte, definido na configuração."""
     coverage: int = 1
     """Quantas fontes cobriram o mesmo assunto (preenchido pela deduplicação)."""
 

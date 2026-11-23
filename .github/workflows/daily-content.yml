@@ -1,10 +1,9 @@
 name: Daily content
 
 on:
-  # Disparo principal: agendador externo às 05:00 (ADR 0006, docs/ops/agendador-externo.md),
-  # via workflow_dispatch com skip_if_published=true. O cron do GitHub atrasa horas (até 10 h
-  # observadas) e fica como reserva: três horários em minutos "quebrados"; o primeiro disparo
-  # que rodar publica o dia e os demais terminam sem trabalho (--skip-if-published).
+  # Disparo principal: agendador externo via workflow_dispatch (docs/ops/agendador-externo.md).
+  # O cron do GitHub não garante horário e fica como reserva; com --skip-if-published, o
+  # primeiro disparo que rodar publica o dia e os demais terminam sem trabalho.
   schedule:
     - cron: "17 3 * * *"
     - cron: "17 6 * * *"
@@ -20,7 +19,7 @@ on:
         type: boolean
         default: false
 
-# Sem permissões por padrão; cada job declara só o que precisa (docs/security/2026-11-16-mvp.md).
+# Sem permissões por padrão; cada job declara só o que precisa.
 permissions: {}
 
 concurrency:
@@ -32,8 +31,7 @@ env:
   SKIP_IF_PUBLISHED: ${{ github.event_name == 'workflow_dispatch' && inputs.skip_if_published }}
 
 jobs:
-  # Roda o código do pipeline e de terceiros com conteúdo externo e a chave da API,
-  # mas sem poder escrever no repositório (SEC-002).
+  # Processa conteúdo externo com a chave da API, sem poder escrever no repositório.
   generate:
     runs-on: ubuntu-latest
     timeout-minutes: 75
@@ -50,7 +48,7 @@ jobs:
           cache: pip
           cache-dependency-path: pipeline/requirements.lock
 
-      # Versões e hashes fixos: nenhuma dependência muda sem um commit (SEC-001).
+      # Versões e hashes fixos: nenhuma dependência muda sem um commit.
       - name: Install locked dependencies
         run: pip install --require-hashes -r pipeline/requirements.lock
 
@@ -86,8 +84,7 @@ jobs:
             args="$args --skip-if-published"
           fi
 
-          # Códigos de saída do pipeline: 0 publicado; 1 falha temporária (repete);
-          # 2 erro permanente, como chave inválida ou falta de créditos (não repete).
+          # Códigos de saída: 0 publicado; 1 falha temporária (repete); 2 permanente (não repete).
           for attempt in 1 2; do
             if python -m one_percent $args; then exit 0; else code=$?; fi
             if [ "$code" = 2 ]; then

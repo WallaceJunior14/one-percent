@@ -1,22 +1,28 @@
-"""Porta `Summarizer`: transforma itens coletados em textos de card em português."""
+"""Porta `Summarizer`: transforma itens coletados em textos de card."""
 
-import hashlib
 from collections.abc import Sequence
 from typing import Annotated, Protocol
 
 from pydantic import BaseModel, ConfigDict, StringConstraints
 
 from one_percent.domain.models import ContentItem
-from one_percent.domain.normalize import canonical_url
 
-ShortText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
-LongText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=600)]
-MediumText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=300)]
-"""Campos técnicos de artigos (método, resultado, limitações): mesmo limite do contrato."""
+SHORT_TEXT_MAX = 200
+MEDIUM_TEXT_MAX = 300
+LONG_TEXT_MAX = 600
+
+
+def _text(max_length: int) -> object:
+    return StringConstraints(strip_whitespace=True, min_length=1, max_length=max_length)
+
+
+ShortText = Annotated[str, _text(SHORT_TEXT_MAX)]
+MediumText = Annotated[str, _text(MEDIUM_TEXT_MAX)]
+LongText = Annotated[str, _text(LONG_TEXT_MAX)]
 
 
 class SummarizerError(RuntimeError):
-    """Falha que impede gerar os resumos do dia (ex.: batch não terminou a tempo)."""
+    """Falha que impede gerar os resumos do dia."""
 
 
 class Quiz(BaseModel):
@@ -45,9 +51,3 @@ class Summarizer(Protocol):
     def summarize(self, items: Sequence[ContentItem]) -> dict[str, Summary]:
         """Resumos indexados por `card_id`; itens que falharem ficam de fora."""
         ...
-
-
-def card_id(item: ContentItem) -> str:
-    """Id estável do card, derivado da URL canônica (formato do contrato: c_ + 12 hex)."""
-    digest = hashlib.sha256(canonical_url(item.url).encode()).hexdigest()
-    return f"c_{digest[:12]}"

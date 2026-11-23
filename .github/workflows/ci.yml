@@ -28,7 +28,7 @@ jobs:
           cache-dependency-path: |
             pipeline/pyproject.toml
             pipeline/requirements.lock
-      # O mesmo lock com hashes que o workflow diário usa (SEC-001); falha se estiver incompleto.
+      # O mesmo lock com hashes do workflow diário; falha se estiver incompleto.
       - run: pip install --require-hashes -r requirements.lock
       - run: pip install -e ".[dev]"
       - run: ruff check .

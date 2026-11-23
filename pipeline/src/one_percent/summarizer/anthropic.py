@@ -1,4 +1,4 @@
-"""Summarizer com Claude Haiku 5.5 pela Batch API e saída estruturada (ADR 0003)."""
+"""Summarizer pela Batch API da Anthropic, com saída estruturada."""
 
 import html
 import logging
@@ -13,19 +13,19 @@ from anthropic.types.messages.batch_create_params import Request
 from pydantic import ValidationError
 from pydantic_core import ErrorDetails
 
+from one_percent.domain.identity import card_id
 from one_percent.domain.models import ContentItem, ContentKind
-from one_percent.summarizer import SummarizerError, Summary, card_id
+from one_percent.summarizer import SummarizerError, Summary
 
 logger = logging.getLogger(__name__)
 
 MODEL = "claude-haiku-5-5"
 MAX_TOKENS = 2048
-"""Inclui o raciocínio interno do modelo, que o Haiku 5.5 faz por padrão."""
+"""Inclui o raciocínio interno do modelo."""
 MAX_ITEMS_PER_RUN = 150
-"""Teto de custo: com ~1,5 mil tokens por item, ~US$ 0,05 por execução (RNF-005)."""
+"""Teto de custo por execução."""
 POLL_INTERVAL_SECONDS = 30.0
 TIMEOUT_SECONDS = 25 * 60.0
-"""Duas tentativas (com a pausa entre elas) cabem no timeout do job do workflow (CR-002)."""
 
 SYSTEM_PROMPT = """\
 Você escreve cards curtos, em português do Brasil, para um app de aprendizado diário.
@@ -117,8 +117,7 @@ class AnthropicSummarizer:
         self._clock = clock
 
     def summarize(self, items: Sequence[ContentItem]) -> dict[str, Summary]:
-        # O mesmo artigo pode vir de duas consultas (ex.: cs.AI e cs.LG); custom_id repetido
-        # faria a API rejeitar o batch inteiro.
+        # Um custom_id repetido faz a API rejeitar o batch inteiro.
         unique: dict[str, ContentItem] = {}
         for item in items:
             unique.setdefault(card_id(item), item)

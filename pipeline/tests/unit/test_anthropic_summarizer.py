@@ -5,7 +5,8 @@ from typing import Any
 
 import pytest
 
-from one_percent.summarizer import SummarizerError, card_id
+from one_percent.domain.identity import card_id
+from one_percent.summarizer import SummarizerError
 from one_percent.summarizer.anthropic import AnthropicSummarizer
 from tests.factories import make_item
 

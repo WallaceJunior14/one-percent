@@ -1,4 +1,4 @@
-"""Janela de tempo de cada tipo de conteúdo (RF-003)."""
+"""Janela de tempo de cada tipo de conteúdo."""
 
 from datetime import datetime, timedelta
 

@@ -1,4 +1,4 @@
-"""Adapter da API do arXiv (Atom). Termos: 1 requisição a cada 3 s; metadados em CC0."""
+"""Adapter da API do arXiv (Atom). Os termos de uso pedem intervalo entre requisições."""
 
 from datetime import datetime
 from typing import Any
@@ -16,7 +16,7 @@ API_URL = "https://export.arxiv.org/api/query"
 MIN_INTERVAL_SECONDS = 3.0
 MAX_RESULTS = 50
 TIMEOUT_SECONDS = 30.0
-"""A API do arXiv costuma demorar mais que as outras fontes (timeouts em 20 s observados)."""
+"""Maior que o padrão: a API do arXiv costuma responder mais devagar que as outras fontes."""
 
 
 def _link(entry: Any, *, rel: str | None = None, title: str | None = None) -> str | None:
@@ -62,7 +62,7 @@ class ArxivSource:
             },
             timeout=TIMEOUT_SECONDS,
             retry=self._retry,
-            before_request=self._limiter.wait,  # o intervalo vale também para as repetições
+            before_request=self._limiter.wait,
         )
         items: list[ContentItem] = []
         for entry in parse_feed_entries(self.id, body):

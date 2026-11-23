@@ -30,7 +30,7 @@ class SourceFetchError(RuntimeError):
 
 
 class TransientFetchError(SourceFetchError):
-    """Falha que pode passar sozinha (timeout, conexão cortada, 429, 5xx): vale tentar de novo."""
+    """Falha que pode passar sozinha (timeout, conexão cortada, limite de requisições, 5xx)."""
 
     def __init__(self, message: str, retry_after: str | None = None) -> None:
         super().__init__(message)
@@ -38,10 +38,10 @@ class TransientFetchError(SourceFetchError):
 
 
 class RetryPolicy:
-    """Novas tentativas com espera crescente (5 s, 15 s...), respeitando `Retry-After`.
+    """Novas tentativas com espera crescente, respeitando `Retry-After`.
 
-    O orçamento é da execução inteira, compartilhado por todas as fontes: conta as esperas e o
-    tempo das requisições repetidas, para que uma API instável não estoure o tempo do job.
+    O orçamento vale para a execução inteira, compartilhado por todas as fontes: conta as esperas
+    e o tempo das requisições repetidas, para que uma API instável não estoure o tempo do job.
     """
 
     def __init__(
@@ -157,7 +157,7 @@ def _fetch_once(
             if response.status_code >= 400:
                 raise SourceFetchError(f"{source_id}: HTTP {response.status_code}")
             if response.url.scheme != "https":
-                # Um redirecionamento para http tiraria o TLS do caminho (SEC-004).
+                # Um redirecionamento para http tiraria o TLS do caminho.
                 raise SourceFetchError(f"{source_id}: redirecionado para fora de https")
             body = bytearray()
             for chunk in response.iter_bytes():
@@ -168,7 +168,6 @@ def _fetch_once(
                     )
             return bytes(body)
     except httpx.TransportError as error:
-        # Timeouts, conexão recusada ou cortada no meio da resposta.
         raise TransientFetchError(f"{source_id}: {type(error).__name__}") from error
     except httpx.HTTPError as error:
         raise SourceFetchError(f"{source_id}: {type(error).__name__}") from error

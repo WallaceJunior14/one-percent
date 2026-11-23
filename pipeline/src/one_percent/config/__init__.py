@@ -76,9 +76,6 @@ class PipelineConfig(_Strict):
             raise ValueError(f"áreas sem nenhuma fonte: {sorted(areas_without_source)}")
         return self
 
-    def area(self, area_id: str) -> AreaConfig:
-        return next(area for area in self.areas if area.id == area_id)
-
 
 def parse_config(raw: Any) -> PipelineConfig:
     try:

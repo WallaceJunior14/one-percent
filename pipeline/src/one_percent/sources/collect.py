@@ -1,4 +1,4 @@
-"""Coleta de todas as fontes, isolando falhas individuais (T035)."""
+"""Coleta de todas as fontes, isolando falhas individuais."""
 
 import logging
 from collections.abc import Iterable, Mapping, Sequence
@@ -54,11 +54,7 @@ def build_sources(
     arxiv_interval: float = MIN_INTERVAL_SECONDS,
     retry: RetryPolicy | None = None,
 ) -> list[ContentSource]:
-    """Instancia o adapter de cada fonte da configuração.
-
-    Todas as fontes compartilham a mesma política de novas tentativas, com um único orçamento
-    de tempo para a execução.
-    """
+    """Instancia o adapter de cada fonte; todas compartilham a mesma política de tentativas."""
     retry = retry or RetryPolicy()
     arxiv_limiter = RateLimiter(arxiv_interval)
     sources: list[ContentSource] = []
