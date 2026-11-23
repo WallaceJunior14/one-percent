@@ -1,4 +1,4 @@
-import { createMemoryStore } from '@/test/fakes';
+import { createMemoryStore, readJson } from '@/test/fakes';
 import {
   createPreferencesRepository,
   InvalidPreferencesError,
@@ -54,4 +54,21 @@ test('save_rejects_invalid_preferences', async () => {
   await expect(repository.save({ areaIds: [], subareaIds: [] })).rejects.toThrow(
     InvalidPreferencesError,
   );
+});
+
+test('reads_preferences_saved_by_the_previous_version', async () => {
+  const legacy = '{"areaIds":["tech","health"],"subareaIds":["tech.ai"]}';
+  const store = createMemoryStore({ 'preferences.v1': legacy });
+  const expected = { areaIds: ['tech', 'health'], subareaIds: ['tech.ai'] };
+
+  expect(await createPreferencesRepository(store).load()).toEqual(expected);
+  expect(await readJson(store, PREFERENCES_KEY)).toEqual({ version: 2, data: expected });
+  expect(await store.getItem('preferences.backup.v1')).toBe(legacy);
+});
+
+test('unreadable_preferences_are_preserved', async () => {
+  const store = createMemoryStore({ [PREFERENCES_KEY]: '{"areaIds": [' });
+
+  expect(await createPreferencesRepository(store).load()).toBeNull();
+  expect(store.keys()).toEqual([expect.stringMatching(/^preferences\.unreadable\.\d+$/)]);
 });

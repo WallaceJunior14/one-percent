@@ -4,6 +4,7 @@ import {
   contentApiReturning,
   createMemoryStore,
   fixedClock,
+  readJson,
 } from '@/test/fakes';
 import { ContentUnavailableError } from './contentApi';
 import { type DailyContent, parseDailyContent, UnsupportedContentVersionError } from './contract';
@@ -15,6 +16,11 @@ const offline = () => contentApiFailing(new ContentUnavailableError('sem rede'))
 
 function dayOf(date: string): DailyContent {
   return { ...parseDailyContent(sampleDay), date };
+}
+
+async function cachedDate(cache: ReturnType<typeof createMemoryStore>) {
+  const stored = (await readJson(cache, CONTENT_CACHE_KEY)) as { data?: { date?: string } } | null;
+  return stored?.data?.date;
 }
 
 function cacheWith(content: DailyContent | string) {
@@ -32,7 +38,7 @@ test('uses_today_from_network', async () => {
   });
 
   expect(state).toMatchObject({ status: 'today', content: { date: '2026-11-14' } });
-  expect(JSON.parse((await cache.getItem(CONTENT_CACHE_KEY)) ?? '{}').date).toBe('2026-11-14');
+  expect(await cachedDate(cache)).toBe('2026-11-14');
 });
 
 test('uses_cached_today_without_network', async () => {
@@ -92,7 +98,7 @@ test('keeps_newest_when_network_returns_older_day', async () => {
   });
 
   expect(state).toMatchObject({ status: 'stale', content: { date: '2026-11-13' } });
-  expect(JSON.parse((await cache.getItem(CONTENT_CACHE_KEY)) ?? '{}').date).toBe('2026-11-13');
+  expect(await cachedDate(cache)).toBe('2026-11-13');
 });
 
 test('invalid_payload_from_network_falls_back_to_cache', async () => {
@@ -116,7 +122,7 @@ describe('newer_major_version', () => {
       content: { date: '2026-11-13' },
       updateSuggested: true,
     });
-    expect(JSON.parse((await cache.getItem(CONTENT_CACHE_KEY)) ?? '{}').date).toBe('2026-11-13');
+    expect(await cachedDate(cache)).toBe('2026-11-13');
   });
 
   test('suggests_update_even_without_cache', async () => {
@@ -133,5 +139,20 @@ describe('newer_major_version', () => {
     });
 
     expect(state).not.toHaveProperty('updateSuggested');
+  });
+});
+
+test('reads_cache_written_by_the_previous_version', async () => {
+  const legacy = dayOf('2026-11-14');
+  const cache = cacheWith(legacy);
+  const api = contentApiReturning(dayOf('2026-11-14'));
+
+  const state = await resolveContent({ api, cache, clock });
+
+  expect(state.status).toBe('today');
+  expect(api.calls).toBe(0);
+  expect(await readJson(cache, CONTENT_CACHE_KEY)).toMatchObject({
+    version: 2,
+    data: { date: '2026-11-14' },
   });
 });

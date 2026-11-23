@@ -4,8 +4,9 @@ import { FEED_SIZE } from '@/features/feed/composeFeed';
 import type { ProgressRepository } from '@/features/streak/progress';
 import { type Clock, toLocalDateString } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
+import { createVersionedStore, sameFormat } from '@/shared/lib/versionedStore';
 
-export const REMINDER_KEY = 'reminder.v1';
+export const REMINDER_KEY = 'reminder';
 /** Dias agendados à frente; cada abertura do app e cada dia concluído renovam a janela. */
 export const DAYS_AHEAD = 7;
 
@@ -72,15 +73,16 @@ export function createReminderService({
   progress,
   clock,
 }: Dependencies): ReminderService {
-  const settings = async (): Promise<ReminderSettings> => {
-    const raw = await store.getItem(REMINDER_KEY);
-    if (raw === null) return DEFAULT_REMINDER;
-    try {
-      return settingsSchema.parse(JSON.parse(raw));
-    } catch {
-      return DEFAULT_REMINDER;
-    }
-  };
+  const stored = createVersionedStore({
+    store,
+    clock,
+    key: REMINDER_KEY,
+    version: 2,
+    schema: settingsSchema,
+    migrations: { 1: sameFormat },
+    legacyKeys: ['reminder.v1'],
+  });
+  const settings = async (): Promise<ReminderSettings> => (await stored.read()) ?? DEFAULT_REMINDER;
 
   const reschedule = async (current: ReminderSettings) => {
     await scheduler.cancelAll();
@@ -97,7 +99,7 @@ export function createReminderService({
     settings,
     async update(requested) {
       const save = async (settings: ReminderSettings, status: ReminderSaveStatus) => {
-        await store.setItem(REMINDER_KEY, JSON.stringify(settings));
+        await stored.write(settings);
         return { settings, status };
       };
       const off = { ...requested, enabled: false };

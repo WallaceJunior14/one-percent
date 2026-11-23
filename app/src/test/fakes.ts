@@ -3,9 +3,12 @@ import type { ContentApi } from '@/features/content/contentApi';
 import type { Clock } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
 
-export function createMemoryStore(initial: Record<string, string> = {}): KeyValueStore {
+export function createMemoryStore(
+  initial: Record<string, string> = {},
+): KeyValueStore & { keys(): string[] } {
   const data = new Map(Object.entries(initial));
   return {
+    keys: () => [...data.keys()],
     getItem: async (key) => data.get(key) ?? null,
     setItem: async (key, value) => {
       data.set(key, value);
@@ -40,4 +43,10 @@ export function contentApiFailing(error: Error): ContentApi & { calls: number } 
     },
   };
   return api;
+}
+
+/** Valor gravado numa chave, já decodificado do JSON. */
+export async function readJson(store: KeyValueStore, key: string): Promise<unknown> {
+  const raw = await store.getItem(key);
+  return raw === null ? null : JSON.parse(raw);
 }

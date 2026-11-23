@@ -1,7 +1,7 @@
 import sampleDay from '../../../../contracts/examples/sample-day.json';
 import { parseDailyContent } from '@/features/content/contract';
 import type { Clock } from '@/shared/lib/dates';
-import { createMemoryStore } from '@/test/fakes';
+import { createMemoryStore, readJson } from '@/test/fakes';
 import { createProgressRepository, PROGRESS_KEY } from './progress';
 
 const cards = parseDailyContent(sampleDay).cards;
@@ -98,4 +98,27 @@ test('corrupted_data_starts_empty', async () => {
   const progress = await createProgressRepository(store, movableClock(new Date())).load();
 
   expect(progress.completedDays).toEqual([]);
+});
+
+test('reads_progress_saved_by_the_previous_version', async () => {
+  const legacy = {
+    completedDays: ['2026-11-13', '2026-11-14'],
+    totals: { cards: 30, papers: 9, byArea: { tech: 12, health: 18 } },
+    lastDay: { date: '2026-11-14', cardsRead: 15, papersRead: 5, areaIds: ['tech', 'health'] },
+  };
+  const store = createMemoryStore({ 'progress.v1': JSON.stringify(legacy) });
+
+  const progress = await createProgressRepository(store, movableClock(new Date())).load();
+
+  expect(progress).toEqual(legacy);
+  expect(await readJson(store, PROGRESS_KEY)).toEqual({ version: 2, data: legacy });
+  expect(await readJson(store, 'progress.backup.v1')).toEqual(legacy);
+});
+
+test('corrupted_progress_is_preserved', async () => {
+  const store = createMemoryStore({ [PROGRESS_KEY]: '{"completedDays": "nope"' });
+
+  await createProgressRepository(store, movableClock(new Date(2026, 10, 14))).load();
+
+  expect(store.keys()).toEqual([`progress.unreadable.${new Date(2026, 10, 14).getTime()}`]);
 });

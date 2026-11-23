@@ -1,5 +1,6 @@
 import { type Clock, toLocalDateString } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
+import { createVersionedStore, sameFormat } from '@/shared/lib/versionedStore';
 import type { ContentApi } from './contentApi';
 import { type DailyContent, parseDailyContent, UnsupportedContentVersionError } from './contract';
 
@@ -20,14 +21,15 @@ export type ContentState = (
 
 type Dependencies = { api: ContentApi; cache: KeyValueStore; clock: Clock };
 
-async function readCache(cache: KeyValueStore): Promise<DailyContent | null> {
-  const raw = await cache.getItem(CONTENT_CACHE_KEY);
-  if (raw === null) return null;
-  try {
-    return parseDailyContent(JSON.parse(raw));
-  } catch {
-    return null; // cache corrompido ou de um contrato antigo: tratado como ausente
-  }
+function contentCache(cache: KeyValueStore, clock: Clock) {
+  return createVersionedStore<DailyContent>({
+    store: cache,
+    clock,
+    key: CONTENT_CACHE_KEY,
+    version: 2,
+    schema: { parse: parseDailyContent },
+    migrations: { 1: sameFormat },
+  });
 }
 
 type FetchResult = { content: DailyContent | null; updateSuggested?: true };
@@ -52,7 +54,8 @@ function newest(a: DailyContent | null, b: DailyContent | null): DailyContent | 
 /** Decide o que mostrar: hoje → cache de hoje → mais recente com aviso → vazio. */
 export async function resolveContent({ api, cache, clock }: Dependencies): Promise<ContentState> {
   const today = toLocalDateString(clock.now());
-  const cached = await readCache(cache);
+  const stored = contentCache(cache, clock);
+  const cached = await stored.read();
   if (cached?.date === today) return { status: 'today', content: cached };
 
   const { content: fetched, updateSuggested } = await fetchLatest(api);
@@ -60,6 +63,6 @@ export async function resolveContent({ api, cache, clock }: Dependencies): Promi
   const best = newest(cached, fetched);
   if (best === null) return { status: 'empty', ...suggestion };
 
-  if (best !== cached) await cache.setItem(CONTENT_CACHE_KEY, JSON.stringify(best));
+  if (best !== cached) await stored.write(best);
   return { status: best.date === today ? 'today' : 'stale', content: best, ...suggestion };
 }

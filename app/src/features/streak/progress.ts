@@ -3,8 +3,9 @@ import { z } from 'zod';
 import type { Card } from '@/features/content/contract';
 import { type Clock, toLocalDateString } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
+import { createVersionedStore, sameFormat } from '@/shared/lib/versionedStore';
 
-export const PROGRESS_KEY = 'progress.v1';
+export const PROGRESS_KEY = 'progress';
 
 const daySummarySchema = z.object({
   date: z.string(),
@@ -40,15 +41,16 @@ export type ProgressRepository = {
 };
 
 export function createProgressRepository(store: KeyValueStore, clock: Clock): ProgressRepository {
-  const load = async (): Promise<Progress> => {
-    const raw = await store.getItem(PROGRESS_KEY);
-    if (raw === null) return EMPTY;
-    try {
-      return progressSchema.parse(JSON.parse(raw));
-    } catch {
-      return EMPTY;
-    }
-  };
+  const stored = createVersionedStore({
+    store,
+    clock,
+    key: PROGRESS_KEY,
+    version: 2,
+    schema: progressSchema,
+    migrations: { 1: sameFormat },
+    legacyKeys: ['progress.v1'],
+  });
+  const load = async (): Promise<Progress> => (await stored.read()) ?? EMPTY;
 
   return {
     load,
@@ -75,7 +77,7 @@ export function createProgressRepository(store: KeyValueStore, clock: Clock): Pr
         },
         lastDay: summary,
       };
-      await store.setItem(PROGRESS_KEY, JSON.stringify(updated));
+      await stored.write(updated);
       return summary;
     },
   };

@@ -3,8 +3,9 @@ import { z } from 'zod';
 import { type Card, cardSchema } from '@/features/content/contract';
 import type { Clock } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
+import { createVersionedStore, sameFormat } from '@/shared/lib/versionedStore';
 
-export const SAVED_KEY = 'saved.v1';
+export const SAVED_KEY = 'saved';
 
 const savedCardSchema = z.object({ card: cardSchema, savedAt: z.string() });
 const savedListSchema = z.array(savedCardSchema);
@@ -24,15 +25,16 @@ export function createSavedCardsRepository(
   store: KeyValueStore,
   clock: Clock,
 ): SavedCardsRepository {
-  const list = async (): Promise<SavedCard[]> => {
-    const raw = await store.getItem(SAVED_KEY);
-    if (raw === null) return [];
-    try {
-      return savedListSchema.parse(JSON.parse(raw));
-    } catch {
-      return [];
-    }
-  };
+  const stored = createVersionedStore({
+    store,
+    clock,
+    key: SAVED_KEY,
+    version: 2,
+    schema: savedListSchema,
+    migrations: { 1: sameFormat },
+    legacyKeys: ['saved.v1'],
+  });
+  const list = async (): Promise<SavedCard[]> => (await stored.read()) ?? [];
 
   return {
     list,
@@ -45,7 +47,7 @@ export function createSavedCardsRepository(
       const next = isSaved
         ? current.filter((saved) => saved.card.id !== card.id)
         : [{ card, savedAt: clock.now().toISOString() }, ...current];
-      await store.setItem(SAVED_KEY, JSON.stringify(next));
+      await stored.write(next);
       return !isSaved;
     },
   };

@@ -1,7 +1,11 @@
-import { AREA_CATALOG } from '@/shared/config/areas';
-import type { KeyValueStore } from '@/shared/lib/keyValueStore';
+import { z } from 'zod';
 
-export const PREFERENCES_KEY = 'preferences.v1';
+import { AREA_CATALOG } from '@/shared/config/areas';
+import { type Clock, systemClock } from '@/shared/lib/dates';
+import type { KeyValueStore } from '@/shared/lib/keyValueStore';
+import { createVersionedStore, sameFormat } from '@/shared/lib/versionedStore';
+
+export const PREFERENCES_KEY = 'preferences';
 
 export type Preferences = {
   areaIds: string[];
@@ -40,23 +44,36 @@ export type PreferencesRepository = {
   save(preferences: Preferences): Promise<void>;
 };
 
-export function createPreferencesRepository(store: KeyValueStore): PreferencesRepository {
+const storedSchema = z.object({
+  areaIds: z.array(z.string()).catch([]),
+  subareaIds: z.array(z.string()).catch([]),
+});
+
+export function createPreferencesRepository(
+  store: KeyValueStore,
+  clock: Clock = systemClock,
+): PreferencesRepository {
+  const stored = createVersionedStore({
+    store,
+    clock,
+    key: PREFERENCES_KEY,
+    version: 2,
+    schema: storedSchema,
+    migrations: { 1: sameFormat },
+    legacyKeys: ['preferences.v1'],
+  });
   return {
     async load() {
-      const raw = await store.getItem(PREFERENCES_KEY);
-      if (raw === null) return null;
+      const preferences = await stored.read();
+      if (preferences === null) return null;
       try {
-        const parsed = JSON.parse(raw) as Preferences;
-        return validatePreferences({
-          areaIds: Array.isArray(parsed.areaIds) ? parsed.areaIds : [],
-          subareaIds: Array.isArray(parsed.subareaIds) ? parsed.subareaIds : [],
-        });
+        return validatePreferences(preferences);
       } catch {
-        return null;
+        return null; // lido, mas sem escolha válida: o usuário refaz o onboarding
       }
     },
     async save(preferences) {
-      await store.setItem(PREFERENCES_KEY, JSON.stringify(validatePreferences(preferences)));
+      await stored.write(validatePreferences(preferences));
     },
   };
 }

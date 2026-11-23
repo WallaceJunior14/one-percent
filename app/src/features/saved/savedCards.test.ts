@@ -1,7 +1,7 @@
 import sampleDay from '../../../../contracts/examples/sample-day.json';
 import { parseDailyContent } from '@/features/content/contract';
 import type { Clock } from '@/shared/lib/dates';
-import { createMemoryStore } from '@/test/fakes';
+import { createMemoryStore, readJson } from '@/test/fakes';
 import { createSavedCardsRepository, SAVED_KEY } from './savedCards';
 
 const cards = parseDailyContent(sampleDay).cards;
@@ -64,4 +64,13 @@ test('corrupted_data_starts_empty', async () => {
   const repository = newRepository(createMemoryStore({ [SAVED_KEY]: '[{"card": 42}]' }));
 
   expect(await repository.list()).toEqual([]);
+});
+
+test('reads_cards_saved_by_the_previous_version', async () => {
+  const legacy = [{ card: sampleDay.cards[0], savedAt: '2026-11-14T10:00:00.000Z' }];
+  const store = createMemoryStore({ 'saved.v1': JSON.stringify(legacy) });
+
+  expect(await newRepository(store).list()).toEqual(legacy);
+  expect(await readJson(store, SAVED_KEY)).toEqual({ version: 2, data: legacy });
+  expect(await readJson(store, 'saved.backup.v1')).toEqual(legacy);
 });

@@ -1,6 +1,10 @@
 import { createProgressRepository } from '@/features/streak/progress';
-import { createMemoryStore, fixedClock } from '@/test/fakes';
-import { createReminderService, type NotificationScheduler } from './reminderScheduler';
+import { createMemoryStore, fixedClock, readJson } from '@/test/fakes';
+import {
+  createReminderService,
+  type NotificationScheduler,
+  REMINDER_KEY,
+} from './reminderScheduler';
 
 type Scheduled = { at: Date; title: string; body: string };
 
@@ -168,4 +172,19 @@ test('turning_off_is_saved_even_if_cancelling_fails', async () => {
   const result = await service.update({ enabled: false, hour: 8, minute: 0 });
 
   expect(result).toEqual({ settings: { enabled: false, hour: 8, minute: 0 }, status: 'saved' });
+});
+
+test('reads_settings_saved_by_the_previous_version', async () => {
+  const legacy = { enabled: true, hour: 7, minute: 30 };
+  const store = createMemoryStore({ 'reminder.v1': JSON.stringify(legacy) });
+  const clock = fixedClock(new Date(2026, 10, 16, 6, 0));
+  const service = createReminderService({
+    store,
+    scheduler: fakeScheduler(),
+    progress: createProgressRepository(createMemoryStore(), clock),
+    clock,
+  });
+
+  expect(await service.settings()).toEqual(legacy);
+  expect(await readJson(store, REMINDER_KEY)).toEqual({ version: 2, data: legacy });
 });

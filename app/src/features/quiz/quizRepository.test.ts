@@ -1,7 +1,7 @@
 import sampleDay from '../../../../contracts/examples/sample-day.json';
 import { parseDailyContent } from '@/features/content/contract';
 import type { Clock } from '@/shared/lib/dates';
-import { createMemoryStore } from '@/test/fakes';
+import { createMemoryStore, readJson } from '@/test/fakes';
 import { createQuizRepository, QUIZ_KEY } from './quizRepository';
 
 const cards = parseDailyContent(sampleDay).cards;
@@ -78,4 +78,18 @@ test('corrupted_data_starts_empty', async () => {
 
   expect(await repository.today()).toBeNull();
   expect(await repository.history()).toEqual([]);
+});
+
+test('reads_quiz_saved_by_the_previous_version', async () => {
+  const legacy = {
+    current: { date: '2026-11-14', questions: sampleDay.cards.slice(0, 3), score: null },
+    history: [{ date: '2026-11-13', score: 2, total: 3 }],
+  };
+  const store = createMemoryStore({ 'quiz.v1': JSON.stringify(legacy) });
+  const repository = createQuizRepository(store, movableClock(NOV_14));
+
+  expect(await repository.today()).toEqual({ date: '2026-11-14', questions, score: null });
+  expect(await repository.history()).toEqual(legacy.history);
+  expect(await readJson(store, QUIZ_KEY)).toEqual({ version: 2, data: legacy });
+  expect(await readJson(store, 'quiz.backup.v1')).toEqual(legacy);
 });

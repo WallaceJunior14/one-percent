@@ -4,6 +4,9 @@ import type { KeyValueStore } from './keyValueStore';
 /** Converte os dados da versão `n` para a `n + 1`. */
 export type Migration = (data: unknown) => unknown;
 
+/** Para o passo em que os dados só ganharam o envelope, sem mudar de formato. */
+export const sameFormat: Migration = (data) => data;
+
 export type UnreadableData = { key: string; copiedTo: string; reason: string };
 
 export type VersionedStoreOptions<T> = {

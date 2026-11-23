@@ -3,8 +3,9 @@ import { z } from 'zod';
 import { type Card, cardSchema } from '@/features/content/contract';
 import { type Clock, toLocalDateString } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
+import { createVersionedStore, sameFormat } from '@/shared/lib/versionedStore';
 
-export const QUIZ_KEY = 'quiz.v1';
+export const QUIZ_KEY = 'quiz';
 
 const scoreEntrySchema = z.object({
   date: z.string(),
@@ -40,16 +41,17 @@ export type QuizRepository = {
 };
 
 export function createQuizRepository(store: KeyValueStore, clock: Clock): QuizRepository {
-  const read = async (): Promise<Stored> => {
-    const raw = await store.getItem(QUIZ_KEY);
-    if (raw === null) return EMPTY;
-    try {
-      return storedSchema.parse(JSON.parse(raw));
-    } catch {
-      return EMPTY;
-    }
-  };
-  const write = (stored: Stored) => store.setItem(QUIZ_KEY, JSON.stringify(stored));
+  const stored = createVersionedStore({
+    store,
+    clock,
+    key: QUIZ_KEY,
+    version: 2,
+    schema: storedSchema,
+    migrations: { 1: sameFormat },
+    legacyKeys: ['quiz.v1'],
+  });
+  const read = async (): Promise<Stored> => (await stored.read()) ?? EMPTY;
+  const write = (value: Stored) => stored.write(value);
   const todayString = () => toLocalDateString(clock.now());
 
   const today = async (): Promise<TodaysQuiz | null> => {

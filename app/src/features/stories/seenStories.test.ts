@@ -1,6 +1,6 @@
 import type { Clock } from '@/shared/lib/dates';
-import { createMemoryStore } from '@/test/fakes';
-import { createSeenStoriesRepository } from './seenStories';
+import { createMemoryStore, readJson } from '@/test/fakes';
+import { createSeenStoriesRepository, SEEN_STORIES_KEY } from './seenStories';
 
 function movableClock(start: Date): Clock & { set(date: Date): void } {
   let now = start;
@@ -34,4 +34,13 @@ test('resets_on_the_next_day', async () => {
   clock.set(new Date(2026, 10, 15, 7, 0));
 
   expect(await repository.seenToday()).toEqual(new Set());
+});
+
+test('reads_stories_seen_with_the_previous_version', async () => {
+  const legacy = { date: '2026-11-14', areaIds: ['tech', 'health'] };
+  const store = createMemoryStore({ 'stories.seen.v1': JSON.stringify(legacy) });
+  const repository = createSeenStoriesRepository(store, movableClock(new Date(2026, 10, 14, 9)));
+
+  expect(await repository.seenToday()).toEqual(new Set(['tech', 'health']));
+  expect(await readJson(store, SEEN_STORIES_KEY)).toEqual({ version: 2, data: legacy });
 });
