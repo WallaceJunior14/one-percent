@@ -11,13 +11,19 @@ import anthropic
 import httpx
 
 from one_percent.config import load_config
+from one_percent.config.settings import (
+    DEFAULT_SETTINGS_PATH,
+    PipelineSettings,
+    SettingsError,
+    load_settings,
+)
 from one_percent.contract import ContractViolationError
 from one_percent.pipeline import run_pipeline
 from one_percent.publishing.day import local_date
 from one_percent.sources.arxiv import MIN_INTERVAL_SECONDS
 from one_percent.sources.collect import build_sources
 from one_percent.summarizer import Summarizer, SummarizerError
-from one_percent.summarizer.anthropic import MAX_ITEMS_PER_RUN, AnthropicSummarizer
+from one_percent.summarizer.anthropic import AnthropicSummarizer
 from one_percent.summarizer.fake import FakeSummarizer
 
 logger = logging.getLogger(__name__)
@@ -39,10 +45,10 @@ def make_arxiv_interval() -> float:
     return MIN_INTERVAL_SECONDS
 
 
-def make_summarizer(args: argparse.Namespace) -> Summarizer:
+def make_summarizer(args: argparse.Namespace, settings: PipelineSettings) -> Summarizer:
     if args.fake:
         return FakeSummarizer()
-    return AnthropicSummarizer(anthropic.Anthropic(), max_items=args.limit)
+    return AnthropicSummarizer(anthropic.Anthropic(), settings, max_items=args.limit)
 
 
 def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
@@ -50,12 +56,17 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     commands = parser.add_subparsers(dest="command", required=True)
     run = commands.add_parser("run", help="coleta, resume e publica o conteúdo do dia")
     run.add_argument("--out", type=Path, default=Path("out"), help="pasta de saída (padrão: out)")
+    run.add_argument(
+        "--settings",
+        type=Path,
+        default=DEFAULT_SETTINGS_PATH,
+        help="parâmetros da operação (padrão: config/pipeline.yaml do pacote)",
+    )
     run.add_argument("--fake", action="store_true", help="resumos falsos, sem chamar o LLM")
     run.add_argument(
         "--limit",
         type=int,
-        default=MAX_ITEMS_PER_RUN,
-        help=f"máximo de itens enviados ao LLM (padrão: {MAX_ITEMS_PER_RUN})",
+        help="máximo de itens enviados ao LLM (padrão: llm.max_items_per_run da configuração)",
     )
     run.add_argument(
         "--skip-if-published",
@@ -66,12 +77,12 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def _already_published(out_dir: Path, now: datetime) -> bool:
+def _already_published(out_dir: Path, today: str) -> bool:
     try:
         latest = json.loads((out_dir / "latest.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return False
-    return isinstance(latest, dict) and latest.get("date") == local_date(now).isoformat()
+    return isinstance(latest, dict) and latest.get("date") == today
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -81,16 +92,29 @@ def main(argv: Sequence[str] | None = None) -> int:
         level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
     )
 
+    try:
+        settings = load_settings(args.settings)
+    except SettingsError as error:
+        logger.error("%s. Nada foi coletado; o conteúdo anterior continua valendo.", error)
+        return EXIT_PERMANENT_ERROR
+
     now: datetime = args.now or datetime.now(UTC)
-    if args.skip_if_published and _already_published(args.out, now):
-        logger.info("dia %s já publicado; nada a fazer", local_date(now).isoformat())
+    today = local_date(now, settings.content.zone).isoformat()
+    if args.skip_if_published and _already_published(args.out, today):
+        logger.info("dia %s já publicado; nada a fazer", today)
         return EXIT_PUBLISHED
 
     config = load_config()
     try:
         with make_http_client() as client:
-            sources = build_sources(config, client, arxiv_interval=make_arxiv_interval())
-            report = run_pipeline(config, sources, make_summarizer(args), now, args.out)
+            sources = build_sources(
+                config,
+                client,
+                paper_window=settings.content.windows.max_age["paper"],
+                arxiv_interval=make_arxiv_interval(),
+            )
+            summarizer = make_summarizer(args, settings)
+            report = run_pipeline(config, settings, sources, summarizer, now, args.out)
     except anthropic.APIStatusError as error:
         if error.status_code in PERMANENT_STATUS_CODES:
             logger.error(

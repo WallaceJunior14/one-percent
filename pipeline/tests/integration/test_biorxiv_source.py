@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 import httpx
 import pytest
 
+from one_percent.config.settings import WindowSettings
 from one_percent.sources import SourceFetchError
 from one_percent.sources.biorxiv import BiorxivSource
 from tests.factories import NOW
@@ -23,7 +24,8 @@ MEDRXIV = {
 
 def _source(client: httpx.Client | None = None, **overrides: object) -> BiorxivSource:
     config = source_config(**{**MEDRXIV, **overrides})
-    return BiorxivSource(config, client or mock_client(serve(fixture_bytes("biorxiv.json"))))
+    client = client or mock_client(serve(fixture_bytes("biorxiv.json")))
+    return BiorxivSource(config, client, window=WindowSettings().max_age["paper"])
 
 
 def test_parses_papers() -> None:

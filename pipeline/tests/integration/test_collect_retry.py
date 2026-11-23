@@ -3,6 +3,7 @@
 import httpx
 
 from one_percent.config import load_config
+from one_percent.config.settings import WindowSettings
 from one_percent.sources import RetryPolicy
 from one_percent.sources.collect import build_sources, collect, keywords_by_area
 from tests.factories import NOW
@@ -32,6 +33,7 @@ def test_every_source_recovers_from_one_transient_failure() -> None:
         sources = build_sources(
             config,
             client,
+            paper_window=WindowSettings().max_age["paper"],
             arxiv_interval=0,
             retry=RetryPolicy(sleep=sleeps.append, budget_seconds=1e9),
         )

@@ -66,7 +66,7 @@ def test_permanent_api_error_exits_2_with_clear_message(
     status: int,
 ) -> None:
     error = _api_error(error_class, status)
-    monkeypatch.setattr(cli, "make_summarizer", lambda args: FailingSummarizer(error))
+    monkeypatch.setattr(cli, "make_summarizer", lambda args, settings: FailingSummarizer(error))
 
     exit_code = cli.main(["run", "--out", str(tmp_path), "--now", NOW])
 
@@ -80,7 +80,7 @@ def test_transient_api_error_exits_1(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
     error = _api_error(anthropic.InternalServerError, 500)
-    monkeypatch.setattr(cli, "make_summarizer", lambda args: FailingSummarizer(error))
+    monkeypatch.setattr(cli, "make_summarizer", lambda args, settings: FailingSummarizer(error))
 
     exit_code = cli.main(["run", "--out", str(tmp_path), "--now", NOW])
 
@@ -123,12 +123,30 @@ def test_batch_timeout_exits_1_to_be_retried(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
     error = SummarizerError("batch msgbatch_x: tempo esgotado; batch cancelado")
-    monkeypatch.setattr(cli, "make_summarizer", lambda args: FailingSummarizer(error))
+    monkeypatch.setattr(cli, "make_summarizer", lambda args, settings: FailingSummarizer(error))
 
     exit_code = cli.main(["run", "--out", str(tmp_path), "--now", NOW])
 
     assert exit_code == cli.EXIT_NOT_PUBLISHED
     assert "tempo esgotado" in caplog.text
+
+
+def test_invalid_settings_exit_2_before_collecting(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    settings = tmp_path / "pipeline.yaml"
+    settings.write_text("llm:\n  max_items_per_run: 0\n", encoding="utf-8")
+    opened: list[bool] = []
+    monkeypatch.setattr(cli, "make_http_client", lambda: opened.append(True))
+
+    exit_code = cli.main(
+        ["run", "--fake", "--settings", str(settings), "--out", str(tmp_path), "--now", NOW]
+    )
+
+    assert exit_code == cli.EXIT_PERMANENT_ERROR
+    assert "llm.max_items_per_run" in caplog.text
+    assert opened == []
+    assert not (tmp_path / "latest.json").exists()
 
 
 @pytest.mark.usefixtures("network")

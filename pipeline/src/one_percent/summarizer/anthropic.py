@@ -13,19 +13,14 @@ from anthropic.types.messages.batch_create_params import Request
 from pydantic import ValidationError
 from pydantic_core import ErrorDetails
 
+from one_percent.config.settings import PipelineSettings
 from one_percent.domain.identity import card_id
 from one_percent.domain.models import ContentItem, ContentKind
 from one_percent.summarizer import SummarizerError, Summary
 
 logger = logging.getLogger(__name__)
 
-MODEL = "claude-haiku-5-5"
-MAX_TOKENS = 2048
-"""Inclui o raciocínio interno do modelo."""
-MAX_ITEMS_PER_RUN = 150
-"""Teto de custo por execução."""
 POLL_INTERVAL_SECONDS = 30.0
-TIMEOUT_SECONDS = 25 * 60.0
 
 SYSTEM_PROMPT = """\
 Você escreve cards curtos, em português do Brasil, para um app de aprendizado diário.
@@ -100,19 +95,18 @@ class AnthropicSummarizer:
     def __init__(
         self,
         client: anthropic.Anthropic,
+        settings: PipelineSettings,
         *,
-        model: str = MODEL,
-        max_items: int = MAX_ITEMS_PER_RUN,
+        max_items: int | None = None,
         poll_interval_seconds: float = POLL_INTERVAL_SECONDS,
-        timeout_seconds: float = TIMEOUT_SECONDS,
         sleep: Callable[[float], None] = time.sleep,
         clock: Callable[[], float] = time.monotonic,
     ) -> None:
         self._client = client
-        self._model = model
-        self._max_items = max_items
+        self._llm = settings.llm
+        self._max_items = settings.llm.max_items_per_run if max_items is None else max_items
         self._poll_interval = poll_interval_seconds
-        self._timeout = timeout_seconds
+        self._timeout = settings.llm.batch_timeout_minutes * 60
         self._sleep = sleep
         self._clock = clock
 
@@ -139,8 +133,8 @@ class AnthropicSummarizer:
         return Request(
             custom_id=custom_id,
             params=MessageCreateParamsNonStreaming(
-                model=self._model,
-                max_tokens=MAX_TOKENS,
+                model=self._llm.model,
+                max_tokens=self._llm.max_tokens,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": user_message(item)}],
                 output_config={

@@ -2,7 +2,7 @@
 
 import json
 import logging
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
 import httpx
@@ -10,7 +10,6 @@ import httpx
 from one_percent.config import SourceConfig
 from one_percent.domain.models import ContentItem
 from one_percent.domain.normalize import clean_text
-from one_percent.domain.window import MAX_AGE
 from one_percent.sources import NO_RETRY, RetryPolicy, SourceFetchError, fetch_bytes, new_item
 
 logger = logging.getLogger(__name__)
@@ -26,7 +25,12 @@ Page = tuple[list[dict[str, Any]], int]
 
 class BiorxivSource:
     def __init__(
-        self, config: SourceConfig, client: httpx.Client, retry: RetryPolicy = NO_RETRY
+        self,
+        config: SourceConfig,
+        client: httpx.Client,
+        retry: RetryPolicy = NO_RETRY,
+        *,
+        window: timedelta,
     ) -> None:
         if config.server is None:
             raise ValueError(f"fonte bioRxiv '{config.id}' sem server")
@@ -34,13 +38,14 @@ class BiorxivSource:
         self._server = config.server
         self._client = client
         self._retry = retry
+        self._window = window
 
     @property
     def id(self) -> str:
         return self._config.id
 
     def fetch(self, now: datetime) -> list[ContentItem]:
-        interval = f"{(now - MAX_AGE['paper']).date().isoformat()}/{now.date().isoformat()}"
+        interval = f"{(now - self._window).date().isoformat()}/{now.date().isoformat()}"
         items: list[ContentItem] = []
         failures: list[SourceFetchError] = []
         categories = self._config.categories or ("",)

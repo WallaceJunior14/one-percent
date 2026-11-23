@@ -8,8 +8,8 @@ from typing import Any
 import pytest
 import yaml
 
+from one_percent.config.settings import load_settings
 from one_percent.sources import RETRY_BUDGET_SECONDS
-from one_percent.summarizer.anthropic import TIMEOUT_SECONDS
 
 ROOT = Path(__file__).resolve().parents[3]
 WORKFLOWS = ROOT / ".github" / "workflows"
@@ -37,7 +37,8 @@ def test_two_attempts_fit_in_the_job_timeout() -> None:
     pause = re.search(r"sleep (\d+)", _run_scripts(job))
     assert pause is not None
 
-    attempt_minutes = TIMEOUT_SECONDS / 60 + COLLECTION_MARGIN_MINUTES
+    batch_minutes = load_settings().llm.batch_timeout_minutes
+    attempt_minutes = batch_minutes + COLLECTION_MARGIN_MINUTES
     assert 2 * attempt_minutes + int(pause.group(1)) / 60 < job["timeout-minutes"]
 
 

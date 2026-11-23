@@ -7,6 +7,7 @@ import pytest
 
 from one_percent import cli
 from one_percent.config import load_config
+from one_percent.config.settings import ContentSettings, PipelineSettings
 from one_percent.contract import validate_daily_content
 from one_percent.domain.models import ContentItem
 from one_percent.pipeline import run_pipeline
@@ -15,6 +16,7 @@ from tests.factories import NOW, make_item
 from tests.helpers import fixture_bytes
 
 CONFIG = load_config()
+SETTINGS = PipelineSettings()
 
 
 class FakeSource:
@@ -42,7 +44,9 @@ def _sources_covering_all_areas() -> list[FakeSource]:
 
 
 def test_pipeline_publishes_a_valid_day(tmp_path: Path) -> None:
-    report = run_pipeline(CONFIG, _sources_covering_all_areas(), FakeSummarizer(), NOW, tmp_path)
+    report = run_pipeline(
+        CONFIG, SETTINGS, _sources_covering_all_areas(), FakeSummarizer(), NOW, tmp_path
+    )
 
     assert report.published
     day = json.loads((tmp_path / "latest.json").read_text(encoding="utf-8"))
@@ -61,10 +65,22 @@ def test_pipeline_summarizes_best_ranked_items_first(tmp_path: Path) -> None:
             return super().summarize(items)
 
     summarizer = RecordingSummarizer()
-    run_pipeline(CONFIG, _sources_covering_all_areas(), summarizer, NOW, tmp_path)
+    run_pipeline(CONFIG, SETTINGS, _sources_covering_all_areas(), summarizer, NOW, tmp_path)
 
     subareas_in_first_round = {item.subarea_id for item in summarizer.seen[:16]}
     assert len(subareas_in_first_round) == 16
+
+
+def test_uses_configured_retention(tmp_path: Path) -> None:
+    daily = tmp_path / "daily"
+    daily.mkdir()
+    for name in ["2026-10-29.json", "2026-10-31.json"]:
+        (daily / name).write_text("{}", encoding="utf-8")
+    settings = PipelineSettings(content=ContentSettings(retention_days=1))
+
+    run_pipeline(CONFIG, settings, _sources_covering_all_areas(), FakeSummarizer(), NOW, tmp_path)
+
+    assert sorted(p.name for p in daily.iterdir()) == ["2026-10-31.json", "2026-11-01.json"]
 
 
 def _mocked_network(request: httpx.Request) -> httpx.Response:

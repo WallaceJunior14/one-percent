@@ -3,7 +3,7 @@
 import logging
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import httpx
 
@@ -51,6 +51,8 @@ def collect(
 def build_sources(
     config: PipelineConfig,
     client: httpx.Client,
+    *,
+    paper_window: timedelta,
     arxiv_interval: float = MIN_INTERVAL_SECONDS,
     retry: RetryPolicy | None = None,
 ) -> list[ContentSource]:
@@ -65,7 +67,7 @@ def build_sources(
             case "arxiv":
                 sources.append(ArxivSource(source, client, arxiv_limiter, retry))
             case "biorxiv":
-                sources.append(BiorxivSource(source, client, retry))
+                sources.append(BiorxivSource(source, client, retry, window=paper_window))
             case "hf_daily_papers":
                 sources.append(HfDailyPapersSource(source, client, retry))
     return sources

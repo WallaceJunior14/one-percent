@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from one_percent.config import PipelineConfig
+from one_percent.config.settings import PipelineSettings
 from one_percent.domain.dedupe import dedupe
 from one_percent.domain.identity import card_id
 from one_percent.domain.ranking import select_top
@@ -35,13 +36,17 @@ class RunReport:
 
 def run_pipeline(
     config: PipelineConfig,
+    settings: PipelineSettings,
     sources: Iterable[ContentSource],
     summarizer: Summarizer,
     now: datetime,
     out_dir: Path,
 ) -> RunReport:
+    content = settings.content
     collected = collect(sources, now, keywords_by_area(config))
-    recent = [item for item in collected.items if is_within_window(item, now)]
+    recent = [
+        item for item in collected.items if is_within_window(item, now, content.windows.max_age)
+    ]
     unique = dedupe(recent)
     # Se o summarizer cortar itens por custo, perde os piores de cada subárea, não uma subárea.
     ranked = sorted(select_top(unique, now), key=lambda r: (r.rank, r.item.subarea_id))
@@ -53,10 +58,10 @@ def run_pipeline(
         if summary and (card := build_card(r, summary)):
             cards.append(card)
 
-    day = build_day(now, config, cards)
-    published = publish(day, out_dir)
+    day = build_day(now, config, content, cards)
+    published = publish(day, out_dir, content.min_cards.total)
     if published:
-        prune_old_days(out_dir, local_date(now))
+        prune_old_days(out_dir, local_date(now, content.zone), content.retention_days)
 
     report = RunReport(
         collected=len(collected.items),

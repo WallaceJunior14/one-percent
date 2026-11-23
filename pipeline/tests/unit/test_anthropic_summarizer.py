@@ -5,6 +5,7 @@ from typing import Any
 
 import pytest
 
+from one_percent.config.settings import LlmSettings, PipelineSettings
 from one_percent.domain.identity import card_id
 from one_percent.summarizer import SummarizerError
 from one_percent.summarizer.anthropic import AnthropicSummarizer
@@ -60,7 +61,9 @@ class FakeBatches:
         return SimpleNamespace(id=batch_id, processing_status="canceling")
 
 
-def _summarizer(batches: FakeBatches, **kwargs: Any) -> AnthropicSummarizer:
+def _summarizer(
+    batches: FakeBatches, settings: PipelineSettings | None = None, **kwargs: Any
+) -> AnthropicSummarizer:
     clock = [0.0]
 
     def sleep(seconds: float) -> None:
@@ -72,7 +75,30 @@ def _summarizer(batches: FakeBatches, **kwargs: Any) -> AnthropicSummarizer:
         "clock": lambda: clock[0],
         "poll_interval_seconds": 30,
     }
-    return AnthropicSummarizer(client, **{**defaults, **kwargs})  # type: ignore[arg-type]
+    return AnthropicSummarizer(client, settings or PipelineSettings(), **{**defaults, **kwargs})  # type: ignore[arg-type]
+
+
+def _llm(**overrides: Any) -> PipelineSettings:
+    return PipelineSettings(llm=LlmSettings(**overrides))
+
+
+def test_uses_configured_model_and_max_tokens() -> None:
+    item = make_item()
+    batches = FakeBatches([_succeeded(card_id(item), VALID_NEWS)])
+
+    _summarizer(batches, _llm(model="outro-modelo", max_tokens=512)).summarize([item])
+
+    params = batches.requests[0]["params"]
+    assert (params["model"], params["max_tokens"]) == ("outro-modelo", 512)
+
+
+def test_explicit_limit_overrides_configured_cap() -> None:
+    items = [make_item() for _ in range(3)]
+    batches = FakeBatches([])
+
+    _summarizer(batches, max_items=1).summarize(items)
+
+    assert len(batches.requests) == 1
 
 
 def test_builds_batch_request_with_schema() -> None:
@@ -160,7 +186,7 @@ def test_caps_items_per_run() -> None:
     items = [make_item() for _ in range(3)]
     batches = FakeBatches([])
 
-    _summarizer(batches, max_items=2).summarize(items)
+    _summarizer(batches, _llm(max_items_per_run=2)).summarize(items)
 
     assert [r["custom_id"] for r in batches.requests] == [card_id(items[0]), card_id(items[1])]
 
@@ -186,6 +212,6 @@ def test_times_out_and_cancels_the_batch() -> None:
     batches = FakeBatches([], statuses=["in_progress"])
 
     with pytest.raises(SummarizerError, match="tempo"):
-        _summarizer(batches, timeout_seconds=120).summarize([make_item()])
+        _summarizer(batches, _llm(batch_timeout_minutes=2)).summarize([make_item()])
 
     assert batches.canceled

@@ -6,16 +6,13 @@ from typing import Any
 import pytest
 
 from one_percent.config import load_config
+from one_percent.config.settings import ContentSettings, StorySettings
 from one_percent.contract import validate_daily_content
-from one_percent.publishing.day import (
-    MIN_CARDS,
-    build_day,
-    local_date,
-    prune_old_days,
-    publish,
-)
+from one_percent.publishing.day import build_day, local_date, prune_old_days, publish
 
 CONFIG = load_config()
+SETTINGS = ContentSettings()
+MIN_CARDS = SETTINGS.min_cards.total
 
 
 def _card(n: int, area: str = "tech", subarea: str = "tech.ai", rank: int = 1) -> dict[str, Any]:
@@ -43,7 +40,7 @@ NOW = datetime(2026, 11, 1, 8, 0, tzinfo=UTC)
 
 
 def test_output_passes_schema() -> None:
-    day = build_day(NOW, CONFIG, _cards(20))
+    day = build_day(NOW, CONFIG, SETTINGS, _cards(20))
 
     validate_daily_content(day)
     assert day["date"] == "2026-11-01"
@@ -51,21 +48,21 @@ def test_output_passes_schema() -> None:
 
 
 def test_areas_come_from_config_without_keywords() -> None:
-    day = build_day(NOW, CONFIG, _cards(3))
+    day = build_day(NOW, CONFIG, SETTINGS, _cards(3))
 
     assert [area["id"] for area in day["areas"]] == [area.id for area in CONFIG.areas]
     assert "keywords" not in day["areas"][0]["subareas"][0]
 
 
 def test_stories_reference_existing_cards() -> None:
-    day = build_day(NOW, CONFIG, _cards(6) + _cards(4, "health", "health.mental")[:0])
+    day = build_day(NOW, CONFIG, SETTINGS, _cards(6) + _cards(4, "health", "health.mental")[:0])
 
     card_ids = {card["id"] for card in day["cards"]}
     assert all(slide["cardId"] in card_ids for story in day["stories"] for slide in story["slides"])
 
 
 def test_story_uses_best_ranked_cards_up_to_5() -> None:
-    day = build_day(NOW, CONFIG, list(reversed(_cards(8))))
+    day = build_day(NOW, CONFIG, SETTINGS, list(reversed(_cards(8))))
 
     [story] = day["stories"]
     assert story["areaId"] == "tech"
@@ -78,7 +75,7 @@ def test_stories_only_for_areas_with_at_least_3_cards() -> None:
         _card(101, "health", "health.mental"),
     ]
 
-    day = build_day(NOW, CONFIG, cards)
+    day = build_day(NOW, CONFIG, SETTINGS, cards)
 
     assert [story["areaId"] for story in day["stories"]] == ["tech"]
 
@@ -86,19 +83,42 @@ def test_stories_only_for_areas_with_at_least_3_cards() -> None:
 def test_duplicate_card_ids_are_kept_once() -> None:
     cards = _cards(3) + [{**_card(0), "subareaId": "tech.dev"}]
 
-    day = build_day(NOW, CONFIG, cards)
+    day = build_day(NOW, CONFIG, SETTINGS, cards)
 
     assert len(day["cards"]) == 3
 
 
 def test_day_date_uses_sao_paulo_timezone() -> None:
-    assert local_date(datetime(2026, 11, 1, 2, 0, tzinfo=UTC)) == date(2026, 10, 31)
+    assert local_date(datetime(2026, 11, 1, 2, 0, tzinfo=UTC), SETTINGS.zone) == date(2026, 10, 31)
+
+
+def test_uses_configured_story_range() -> None:
+    settings = ContentSettings(stories=StorySettings(min_slides=1, max_slides=2))
+    cards = _cards(4) + [_card(100, "health", "health.mental")]
+
+    day = build_day(NOW, CONFIG, settings, cards)
+
+    assert [(s["areaId"], len(s["slides"])) for s in day["stories"]] == [("tech", 2), ("health", 1)]
+
+
+def test_uses_configured_timezone() -> None:
+    settings = ContentSettings(timezone="Asia/Tokyo")
+
+    day = build_day(datetime(2026, 11, 1, 20, 0, tzinfo=UTC), CONFIG, settings, _cards(1))
+
+    assert day["date"] == "2026-11-02"
+
+
+def test_uses_configured_minimum(tmp_path: Path) -> None:
+    day = build_day(NOW, CONFIG, SETTINGS, _cards(3))
+
+    assert publish(day, tmp_path, min_cards=3) is True
 
 
 def test_writes_daily_file_and_latest(tmp_path: Path) -> None:
-    day = build_day(NOW, CONFIG, _cards(MIN_CARDS))
+    day = build_day(NOW, CONFIG, SETTINGS, _cards(MIN_CARDS))
 
-    assert publish(day, tmp_path) is True
+    assert publish(day, tmp_path, MIN_CARDS) is True
 
     latest = json.loads((tmp_path / "latest.json").read_text(encoding="utf-8"))
     daily = json.loads((tmp_path / "daily" / "2026-11-01.json").read_text(encoding="utf-8"))
@@ -107,20 +127,20 @@ def test_writes_daily_file_and_latest(tmp_path: Path) -> None:
 
 def test_does_not_publish_below_15_cards(tmp_path: Path) -> None:
     (tmp_path / "latest.json").write_text('{"previous": true}', encoding="utf-8")
-    day = build_day(NOW, CONFIG, _cards(MIN_CARDS - 1))
+    day = build_day(NOW, CONFIG, SETTINGS, _cards(MIN_CARDS - 1))
 
-    assert publish(day, tmp_path) is False
+    assert publish(day, tmp_path, MIN_CARDS) is False
 
     assert json.loads((tmp_path / "latest.json").read_text(encoding="utf-8")) == {"previous": True}
     assert not (tmp_path / "daily").exists()
 
 
 def test_does_not_publish_invalid_day(tmp_path: Path) -> None:
-    day = build_day(NOW, CONFIG, _cards(MIN_CARDS))
+    day = build_day(NOW, CONFIG, SETTINGS, _cards(MIN_CARDS))
     day["cards"][0]["url"] = "http://inseguro.example"
 
     with pytest.raises(ValueError):
-        publish(day, tmp_path)
+        publish(day, tmp_path, MIN_CARDS)
 
     assert not (tmp_path / "latest.json").exists()
 
