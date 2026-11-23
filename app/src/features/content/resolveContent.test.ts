@@ -6,7 +6,7 @@ import {
   fixedClock,
 } from '@/test/fakes';
 import { ContentUnavailableError } from './contentApi';
-import { type DailyContent, parseDailyContent } from './contract';
+import { type DailyContent, parseDailyContent, UnsupportedContentVersionError } from './contract';
 import { CONTENT_CACHE_KEY, resolveContent } from './resolveContent';
 
 const TODAY = new Date(2026, 10, 14, 9, 0);
@@ -101,4 +101,37 @@ test('invalid_payload_from_network_falls_back_to_cache', async () => {
   const state = await resolveContent({ api, cache: cacheWith(dayOf('2026-11-13')), clock });
 
   expect(state).toMatchObject({ status: 'stale', content: { date: '2026-11-13' } });
+});
+
+describe('newer_major_version', () => {
+  const newerVersion = () => contentApiFailing(new UnsupportedContentVersionError(2));
+
+  test('keeps_cache_when_major_version_is_newer', async () => {
+    const cache = cacheWith(dayOf('2026-11-13'));
+
+    const state = await resolveContent({ api: newerVersion(), cache, clock });
+
+    expect(state).toMatchObject({
+      status: 'stale',
+      content: { date: '2026-11-13' },
+      updateSuggested: true,
+    });
+    expect(JSON.parse((await cache.getItem(CONTENT_CACHE_KEY)) ?? '{}').date).toBe('2026-11-13');
+  });
+
+  test('suggests_update_even_without_cache', async () => {
+    const state = await resolveContent({ api: newerVersion(), cache: createMemoryStore(), clock });
+
+    expect(state).toEqual({ status: 'empty', updateSuggested: true });
+  });
+
+  test('other_failures_do_not_suggest_update', async () => {
+    const state = await resolveContent({
+      api: offline(),
+      cache: cacheWith(dayOf('2026-11-13')),
+      clock,
+    });
+
+    expect(state).not.toHaveProperty('updateSuggested');
+  });
 });

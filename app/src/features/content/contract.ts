@@ -73,7 +73,7 @@ const storySchema = z.object({
 });
 
 const envelopeSchema = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.int().min(1),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   generatedAt: utcTimestamp,
   areas: z.array(areaSchema).min(1),
@@ -95,6 +95,17 @@ export type DroppedCard = { index: number; id?: string; reason: string };
 /** O que foi descartado na leitura, para diagnóstico. */
 export type ContentDiagnostics = { droppedCards: DroppedCard[] };
 export type ParsedDailyContent = DailyContent & { diagnostics: ContentDiagnostics };
+
+/** Maior versão principal do contrato que este app sabe ler. */
+export const SUPPORTED_SCHEMA_VERSION = 1;
+
+/** Conteúdo publicado numa versão principal mais nova: só uma versão nova do app consegue ler. */
+export class UnsupportedContentVersionError extends Error {
+  constructor(readonly schemaVersion: number) {
+    super(`versão de contrato ${schemaVersion} não suportada (máximo ${SUPPORTED_SCHEMA_VERSION})`);
+    this.name = 'UnsupportedContentVersionError';
+  }
+}
 
 export class ContractViolationError extends Error {
   constructor(readonly issues: readonly string[]) {
@@ -131,9 +142,14 @@ function keepStoriesOf(stories: Story[], cards: Card[]): Story[] {
 /**
  * Valida um payload desconhecido (ex.: resposta HTTP) e devolve o conteúdo tipado. Campos
  * desconhecidos são ignorados e cada card inválido sai sozinho; só um envelope inválido, ou um
- * dia sem nenhum card válido, recusa o conteúdo inteiro.
+ * dia sem nenhum card válido, recusa o conteúdo inteiro. A versão é conferida antes do resto
+ * porque uma versão principal nova pode mudar o formato de tudo.
  */
 export function parseDailyContent(input: unknown): ParsedDailyContent {
+  const version = (input as { schemaVersion?: unknown } | null)?.schemaVersion;
+  if (Number.isInteger(version) && (version as number) > SUPPORTED_SCHEMA_VERSION) {
+    throw new UnsupportedContentVersionError(version as number);
+  }
   const envelope = envelopeSchema.safeParse(input);
   if (!envelope.success) throw new ContractViolationError(describeIssues(envelope.error));
 

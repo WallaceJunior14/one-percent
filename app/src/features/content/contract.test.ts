@@ -1,5 +1,10 @@
 import sampleDay from '../../../../contracts/examples/sample-day.json';
-import { ContractViolationError, parseDailyContent } from './contract';
+import {
+  ContractViolationError,
+  parseDailyContent,
+  SUPPORTED_SCHEMA_VERSION,
+  UnsupportedContentVersionError,
+} from './contract';
 
 type MutableDay = {
   date: string;
@@ -131,6 +136,22 @@ describe('drops_story_slides_of_dropped_cards', () => {
 
     expect(content.stories).toHaveLength(4);
     expect(content.stories.map((story) => story.areaId)).not.toContain('tech');
+  });
+});
+
+describe('schema_version', () => {
+  test('rejects_newer_major_version', () => {
+    const newer = { schemaVersion: SUPPORTED_SCHEMA_VERSION + 1, cards: 'formato novo' };
+
+    expect(() => parseDailyContent(newer)).toThrow(UnsupportedContentVersionError);
+  });
+
+  test.each([0, 1.5, '1'])('rejects invalid version %p', (schemaVersion) => {
+    const day = mutatedSample(
+      (d) => ((d as unknown as { schemaVersion: unknown }).schemaVersion = schemaVersion),
+    );
+
+    expect(() => parseDailyContent(day)).toThrow(ContractViolationError);
   });
 });
 

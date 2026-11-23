@@ -15,7 +15,7 @@ import type { Clock } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import { composeFeed } from './composeFeed';
-import { FeedScreen } from './FeedScreen';
+import { FeedScreen, UPDATE_SUGGESTION } from './FeedScreen';
 
 export type DailyFeedDependencies = {
   api: ContentApi;
@@ -41,12 +41,13 @@ type Props = {
 type ViewState =
   | { kind: 'loading' }
   | { kind: 'redirect' }
-  | { kind: 'empty' }
+  | { kind: 'empty'; updateSuggested: boolean }
   | {
       kind: 'ready';
       cards: Card[];
       areaNames: Record<string, string>;
       stale: boolean;
+      updateSuggested: boolean;
       savedIds: Set<string>;
       stories: Story[];
       seenStoryAreaIds: Set<string>;
@@ -59,13 +60,15 @@ async function loadView(deps: DailyFeedDependencies): Promise<ViewState> {
   if (preferences === null) return { kind: 'redirect' };
 
   const content = await resolveContent(deps);
-  if (content.status === 'empty') return { kind: 'empty' };
+  const updateSuggested = content.updateSuggested === true;
+  if (content.status === 'empty') return { kind: 'empty', updateSuggested };
 
   return {
     kind: 'ready',
     cards: composeFeed(content.content, preferences),
     areaNames: Object.fromEntries(content.content.areas.map((area) => [area.id, area.name])),
     stale: content.status === 'stale',
+    updateSuggested,
     savedIds: await deps.saved.savedIds(),
     stories: content.content.stories.filter((story) => preferences.areaIds.includes(story.areaId)),
     seenStoryAreaIds: await deps.seenStories.seenToday(),
@@ -158,6 +161,7 @@ export function DailyFeed({
         <View style={styles.center}>
           <Text style={styles.title}>Não foi possível carregar o conteúdo</Text>
           <Text style={styles.text}>Verifique a internet e tente de novo.</Text>
+          {state.updateSuggested && <Text style={styles.text}>{UPDATE_SUGGESTION}</Text>}
           <Pressable accessibilityRole="button" onPress={retry} style={styles.button}>
             <Text style={styles.buttonLabel}>Tentar de novo</Text>
           </Pressable>
@@ -169,6 +173,7 @@ export function DailyFeed({
           cards={state.cards}
           areaNames={state.areaNames}
           stale={state.stale}
+          updateSuggested={state.updateSuggested}
           onFinished={() => void completeDay(state.cards)}
           onEditAreas={onEditAreas}
           onOpenSaved={onOpenSaved}

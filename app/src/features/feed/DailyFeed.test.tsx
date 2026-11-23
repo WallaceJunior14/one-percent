@@ -2,7 +2,12 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react-nativ
 
 import sampleDay from '../../../../contracts/examples/sample-day.json';
 import { ContentUnavailableError, type ContentApi } from '@/features/content/contentApi';
-import { type DailyContent, parseDailyContent } from '@/features/content/contract';
+import {
+  type DailyContent,
+  parseDailyContent,
+  UnsupportedContentVersionError,
+} from '@/features/content/contract';
+import { CONTENT_CACHE_KEY } from '@/features/content/resolveContent';
 import { createPreferencesRepository, type Preferences } from '@/features/onboarding/preferences';
 import { createQuizRepository } from '@/features/quiz/quizRepository';
 import { createSavedCardsRepository } from '@/features/saved/savedCards';
@@ -28,7 +33,9 @@ async function setup({
   preferences = ALL as Preferences | null,
   clock = TODAY,
   reminderRefresh = async () => {},
+  cache = createMemoryStore(),
 }: {
+  cache?: ReturnType<typeof createMemoryStore>;
   reminderRefresh?: () => Promise<void>;
   api?: ContentApi;
   preferences?: Preferences | null;
@@ -43,7 +50,7 @@ async function setup({
   const reminders = { refresh: jest.fn(reminderRefresh) };
   const deps: DailyFeedDependencies = {
     api,
-    cache: createMemoryStore(),
+    cache,
     clock,
     preferences: repository,
     progress,
@@ -90,6 +97,31 @@ test('shows_warning_with_previous_day_content', async () => {
   await setup({ clock: fixedClock(new Date(2026, 10, 2, 8, 0)) });
 
   expect(await screen.findByText(/conteúdo de hoje ainda não chegou/i)).toBeOnTheScreen();
+});
+
+test('suggests_updating_the_app', async () => {
+  await setup({
+    api: contentApiFailing(new UnsupportedContentVersionError(2)),
+    cache: createMemoryStore({ [CONTENT_CACHE_KEY]: JSON.stringify(SAMPLE) }),
+    clock: fixedClock(new Date(2026, 10, 2, 8, 0)),
+  });
+
+  expect(await screen.findByText(/conteúdo de hoje ainda não chegou/i)).toBeOnTheScreen();
+  expect(screen.getByText(/atualize o app/i)).toBeOnTheScreen();
+});
+
+test('suggests_updating_the_app_when_nothing_is_cached', async () => {
+  await setup({ api: contentApiFailing(new UnsupportedContentVersionError(2)) });
+
+  expect(await screen.findByRole('button', { name: 'Tentar de novo' })).toBeOnTheScreen();
+  expect(screen.getByText(/atualize o app/i)).toBeOnTheScreen();
+});
+
+test('stale_content_without_new_version_does_not_suggest_updating', async () => {
+  await setup({ clock: fixedClock(new Date(2026, 10, 2, 8, 0)) });
+
+  await screen.findByText(/conteúdo de hoje ainda não chegou/i);
+  expect(screen.queryByText(/atualize o app/i)).toBeNull();
 });
 
 test('empty_state_offers_retry', async () => {

@@ -24,6 +24,8 @@ type Props = {
   areaNames: Record<string, string>;
   /** Conteúdo de um dia anterior: mostra um aviso abaixo da barra superior. */
   stale?: boolean;
+  /** O conteúdo novo saiu num formato que só uma versão nova do app lê. */
+  updateSuggested?: boolean;
   /** Chamado uma vez, ao tocar em "Concluir o dia" no fim da lista. */
   onFinished(): void;
   onEditAreas(): void;
@@ -39,6 +41,9 @@ type Props = {
   onOpenUrl?(url: string): void;
 };
 
+export const UPDATE_SUGGESTION =
+  'Há conteúdo novo num formato que esta versão não lê. Atualize o app para recebê-lo.';
+
 /** Quantos cards já apareceram na tela: só aumenta e nunca passa do total. */
 export function updateSeenCount(previous: number, visibleIndexes: number[], total: number) {
   const furthest = visibleIndexes.length > 0 ? Math.max(...visibleIndexes) + 1 : 0;
@@ -53,6 +58,7 @@ export function FeedScreen({
   cards,
   areaNames,
   stale,
+  updateSuggested,
   onFinished,
   onEditAreas,
   onOpenSaved,
@@ -109,6 +115,7 @@ export function FeedScreen({
           O conteúdo de hoje ainda não chegou. Você está vendo o mais recente disponível.
         </Text>
       )}
+      {updateSuggested && <Text style={styles.warning}>{UPDATE_SUGGESTION}</Text>}
       <FlatList
         testID="feed-list"
         data={cards}
