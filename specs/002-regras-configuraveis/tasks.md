@@ -12,16 +12,16 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 
 ## Fase 1 — App tolerante e dados preservados (H1, H2)
 
-- [ ] T201 Leitor tolerante: campos desconhecidos ignorados; card inválido ou de tipo desconhecido descartado com motivo; stories sem manchetes válidas removidas
+- [x] T201 Leitor tolerante: campos desconhecidos ignorados; card inválido ou de tipo desconhecido descartado com motivo; stories sem manchetes válidas removidas
   - Teste: `content/contract.test.ts` — `ignores_unknown_fields`, `drops_only_the_invalid_card`, `drops_unknown_card_types`, `drops_story_slides_of_dropped_cards`
   - Cobre: H1-1, H1-2, RF-101
-- [ ] T202 Versão principal não suportada: `resolveContent` mantém o último conteúdo compatível e sinaliza `updateSuggested`; a tela mostra a sugestão de atualizar
+- [x] T202 Versão principal não suportada: `resolveContent` mantém o último conteúdo compatível e sinaliza `updateSuggested`; a tela mostra a sugestão de atualizar
   - Teste: `content/resolveContent.test.ts` — `keeps_cache_when_major_version_is_newer`; `feed/DailyFeed.test.tsx` — `suggests_updating_the_app`
   - Cobre: H1-3
-- [ ] T203 `createVersionedStore`: envelope com versão, migrações, leitura das chaves antigas, cópia de dado ilegível
+- [x] T203 `createVersionedStore`: envelope com versão, migrações, leitura das chaves antigas, cópia de dado ilegível
   - Teste: `shared/lib/versionedStore.test.ts` — `migrates_legacy_unversioned_value`, `applies_migrations_in_order`, `preserves_unreadable_value`, `writes_current_version`
   - Cobre: H2-1, H2-2, RF-103
-- [ ] T204 Repositórios (preferências, progresso, salvos, quiz, stories vistos, lembrete, cache do conteúdo) usam o store versionado, um por chave
+- [x] T204 Repositórios (preferências, progresso, salvos, quiz, stories vistos, lembrete, cache do conteúdo) usam o store versionado, um por chave
   - Teste: testes existentes de cada repositório + `keeps_other_keys_when_one_is_unreadable`
   - Cobre: H2-3, RNF-102
 - [ ] T205 **Marco**: app da Fase 1 instalado no celular e lendo o `latest.json` atual sem regressão
@@ -37,10 +37,10 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 
 ## Fase 3 — Pipeline configurável (H6, H7)
 
-- [ ] T220 `config/pipeline.yaml` + modelo pydantic `PipelineSettings`; valor inválido falha antes de coletar, apontando o campo
+- [x] T220 `config/pipeline.yaml` + modelo pydantic `PipelineSettings`; valor inválido falha antes de coletar, apontando o campo
   - Teste: `test_pipeline_settings.py` — `loads_defaults`, `rejects_invalid_value_with_field_path`; `test_cli.py` — `invalid_settings_exit_2_before_collecting`
   - Cobre: H7-1, H7-2, RF-110
-- [ ] T221 Injetar `PipelineSettings` em janela, retenção, stories, fuso do conteúdo, mínimo total, modelo, teto de itens, `max_tokens` e timeout do batch; remover as constantes equivalentes do código
+- [x] T221 Injetar `PipelineSettings` em janela, retenção, stories, fuso do conteúdo, mínimo total, modelo, teto de itens, `max_tokens` e timeout do batch; remover as constantes equivalentes do código
   - Teste: testes existentes passando com os padrões + `uses_configured_window`, `uses_configured_retention`, `uses_configured_story_range`
   - Cobre: RF-107, RF-108, RF-110
 - [ ] T222 `areas.yaml` com `groups`, `group` e `weight` por área; publicação do catálogo no dia
@@ -49,10 +49,10 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [ ] T223 Publicar `settings` do feed a partir de `feed:` no `pipeline.yaml`
   - Teste: `test_day.py` — `publishes_feed_settings`
   - Cobre: RF-105, H4-4
-- [ ] T224 Limites de texto lidos do schema; `Summary`/`Quiz` montados a partir deles e da quantidade de alternativas; prompt como template preenchido pelos limites × margem
+- [x] T224 Limites de texto lidos do schema; `Summary`/`Quiz` montados a partir deles e da quantidade de alternativas; prompt como template preenchido pelos limites × margem
   - Teste: `test_contract.py` — `reads_text_limits_from_schema`; `test_anthropic_summarizer.py` — `prompt_limits_follow_the_contract`, `prompt_has_no_hand_written_numbers`
   - Cobre: H6-1, H6-2, RF-109
-- [ ] T225 `shorten`: corta no último fim de frase que caiba, senão no último espaço com reticências; aplicado antes da validação; contagem no relatório
+- [x] T225 `shorten`: corta no último fim de frase que caiba, senão no último espaço com reticências; aplicado antes da validação; contagem no relatório
   - Teste: `test_shorten.py` — `cuts_at_last_sentence_end`, `falls_back_to_word_boundary_with_ellipsis`, `keeps_text_within_limit`; `test_anthropic_summarizer.py` — `long_summary_is_shortened_not_dropped`
   - Cobre: H6-3
 - [ ] T226 Mínimo para publicar por grupo além do total
