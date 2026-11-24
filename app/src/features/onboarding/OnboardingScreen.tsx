@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BUNDLED_CATALOG, type Catalog } from '@/features/content/catalog';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import type { Preferences } from './preferences';
+import { t } from '@/shared/i18n/pt-BR';
 
 type Props = {
   /** Escolhas atuais, ao editar pelas configurações. */
@@ -49,11 +50,8 @@ export function OnboardingScreen({ initial, catalog = BUNDLED_CATALOG, onComplet
   return (
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>O que você quer aprender?</Text>
-        <Text style={styles.subtitle}>
-          Escolha as áreas do seu feed diário. Subáreas são opcionais: sem nenhuma, você recebe
-          todas.
-        </Text>
+        <Text style={styles.title}>{t.onboarding.title}</Text>
+        <Text style={styles.subtitle}>{t.onboarding.subtitle}</Text>
 
         {catalog.groups.map((group) => (
           <View key={group.id} style={styles.group}>
@@ -100,7 +98,7 @@ export function OnboardingScreen({ initial, catalog = BUNDLED_CATALOG, onComplet
         onPress={complete}
         style={[styles.button, areaIds.length === 0 && styles.buttonDisabled]}
       >
-        <Text style={styles.buttonLabel}>Continuar</Text>
+        <Text style={styles.buttonLabel}>{t.onboarding.continue}</Text>
       </Pressable>
     </View>
   );

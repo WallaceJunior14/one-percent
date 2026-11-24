@@ -4,6 +4,7 @@ import { type Theme, useTheme } from '@/shared/ui/theme';
 import type { Streak } from './calculateStreak';
 import type { DaySummary } from './progress';
 import { Stat, StreakSummary } from './StreakSummary';
+import { t } from '@/shared/i18n/pt-BR';
 
 type Props = {
   summary: DaySummary;
@@ -30,31 +31,29 @@ export function DayCompleteScreen({
   return (
     <View style={styles.screen}>
       <Text accessibilityRole="header" style={styles.title}>
-        Dia concluído
+        {t.dayComplete.title}
       </Text>
-      <Text style={styles.subtitle}>Você ficou 1% mais sábio hoje.</Text>
+      <Text style={styles.subtitle}>{t.dayComplete.subtitle}</Text>
 
       <StreakSummary streak={streak} />
 
       <View style={styles.stats}>
-        <Stat value={summary.cardsRead} label="cards lidos" />
-        <Stat value={summary.papersRead} label="artigos científicos" />
+        <Stat value={summary.cardsRead} label={t.common.cardsRead} />
+        <Stat value={summary.papersRead} label={t.common.papersRead} />
       </View>
       {areas.length > 0 && <Text style={styles.muted}>{areas}</Text>}
 
       {quiz && quiz.score !== null && (
-        <Text style={styles.quizScore}>
-          Quiz: {quiz.score} de {quiz.total} acertos
-        </Text>
+        <Text style={styles.quizScore}>{t.dayComplete.quizScore(quiz.score, quiz.total)}</Text>
       )}
       {quiz && quiz.score === null && onStartQuiz && (
         <Pressable accessibilityRole="button" onPress={onStartQuiz} style={styles.quizButton}>
-          <Text style={styles.quizButtonLabel}>Fazer o quiz ({quiz.total} perguntas)</Text>
+          <Text style={styles.quizButtonLabel}>{t.dayComplete.startQuiz(quiz.total)}</Text>
         </Pressable>
       )}
 
       <Pressable accessibilityRole="button" onPress={onReview} style={styles.button}>
-        <Text style={styles.buttonLabel}>Rever os cards</Text>
+        <Text style={styles.buttonLabel}>{t.dayComplete.review}</Text>
       </Pressable>
     </View>
   );

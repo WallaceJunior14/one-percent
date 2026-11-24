@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Pill } from '@/shared/ui/Pill';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import { formatTime, type ReminderSaveStatus, type ReminderSettings } from './reminderScheduler';
+import { t } from '@/shared/i18n/pt-BR';
 
 type Props = {
   initial: ReminderSettings;
@@ -36,23 +37,20 @@ export function ReminderScreen({ initial, saveLabel, onSave, onBack }: Props) {
   return (
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
-        {onBack && <Pill label="Voltar" onPress={onBack} style={styles.back} />}
+        {onBack && <Pill label={t.common.back} onPress={onBack} style={styles.back} />}
         <Text accessibilityRole="header" style={styles.title}>
-          Quer um lembrete?
+          {t.reminder.title}
         </Text>
-        <Text style={styles.subtitle}>
-          Um aviso por dia, no horário que você escolher, quando o conteúdo estiver pronto. Se você
-          já tiver concluído o dia, o aviso não aparece.
-        </Text>
+        <Text style={styles.subtitle}>{t.reminder.subtitle}</Text>
 
         <Pressable
           accessibilityRole="switch"
-          accessibilityLabel="Lembrete diário"
+          accessibilityLabel={t.reminder.toggle}
           accessibilityState={{ checked: settings.enabled }}
           onPress={() => setSettings({ ...settings, enabled: !settings.enabled })}
           style={styles.row}
         >
-          <Text style={styles.rowLabel}>Lembrete diário</Text>
+          <Text style={styles.rowLabel}>{t.reminder.toggle}</Text>
           <View style={[styles.track, settings.enabled && styles.trackOn]}>
             <View style={[styles.thumb, settings.enabled && styles.thumbOn]} />
           </View>
@@ -81,17 +79,9 @@ export function ReminderScreen({ initial, saveLabel, onSave, onBack }: Props) {
           </View>
         )}
 
-        {status === 'unavailable' && (
-          <Text style={styles.warning}>
-            Não foi possível ativar o lembrete neste aparelho. O restante do app funciona
-            normalmente.
-          </Text>
-        )}
+        {status === 'unavailable' && <Text style={styles.warning}>{t.reminder.unavailable}</Text>}
         {status === 'permission-denied' && (
-          <Text style={styles.warning}>
-            Sem permissão para notificações. Ative nas configurações do Android para usar o
-            lembrete.
-          </Text>
+          <Text style={styles.warning}>{t.reminder.permissionDenied}</Text>
         )}
       </ScrollView>
 

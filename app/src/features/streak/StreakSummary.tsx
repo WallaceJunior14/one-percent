@@ -2,17 +2,14 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import type { Streak } from './calculateStreak';
-
-export const formatDays = (n: number) => `${n} ${n === 1 ? 'dia' : 'dias'}`;
+import { t } from '@/shared/i18n/pt-BR';
 
 export function StreakSummary({ streak }: { streak: Streak }) {
   const styles = makeStyles(useTheme());
   return (
     <View style={styles.box}>
-      <Text style={styles.value}>
-        {streak.current} {streak.current === 1 ? 'dia seguido' : 'dias seguidos'}
-      </Text>
-      <Text style={styles.muted}>Maior sequência: {formatDays(streak.best)}</Text>
+      <Text style={styles.value}>{t.streak.current(streak.current)}</Text>
+      <Text style={styles.muted}>{t.streak.best(streak.best)}</Text>
     </View>
   );
 }

@@ -5,6 +5,7 @@ import type { ProgressRepository } from '@/features/streak/progress';
 import { type Clock, toLocalDateString } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
 import { createVersionedStore, sameFormat } from '@/shared/lib/versionedStore';
+import { t } from '@/shared/i18n/pt-BR';
 
 export const REMINDER_KEY = 'reminder';
 /** Dias agendados à frente; cada abertura do app e cada dia concluído renovam a janela. */
@@ -23,8 +24,8 @@ export const DEFAULT_REMINDER: ReminderSettings = { enabled: false, hour: 8, min
 
 export function reminderMessage(feed: FeedSettings) {
   return {
-    title: '1% ao Dia',
-    body: `Seu dia está pronto: ${feed.feedSize} cards, ~${estimatedMinutes(feed)} min`,
+    title: t.reminder.appName,
+    body: t.reminder.body(feed.feedSize, estimatedMinutes(feed)),
   };
 }
 

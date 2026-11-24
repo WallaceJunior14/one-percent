@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { Card } from '@/features/content/contract';
 import { CardDetailSheet } from '@/features/feed/CardDetailSheet';
 import { type Theme, useTheme } from '@/shared/ui/theme';
+import { t } from '@/shared/i18n/pt-BR';
 
 type Props = {
   questions: Card[];
@@ -27,11 +28,11 @@ export function QuizScreen({ questions, areaNames, onComplete, onExit }: Props) 
     return (
       <View style={[styles.screen, styles.center]}>
         <Text accessibilityRole="header" style={styles.title}>
-          Você acertou {score} de {questions.length}
+          {t.quiz.result(score, questions.length)}
         </Text>
-        <Text style={styles.muted}>Revisar o que leu é o que faz o conhecimento ficar.</Text>
+        <Text style={styles.muted}>{t.quiz.resultNote}</Text>
         <Pressable accessibilityRole="button" onPress={onExit} style={styles.primary}>
-          <Text style={styles.primaryLabel}>Voltar</Text>
+          <Text style={styles.primaryLabel}>{t.common.back}</Text>
         </Pressable>
       </View>
     );
@@ -61,9 +62,7 @@ export function QuizScreen({ questions, areaNames, onComplete, onExit }: Props) 
   return (
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.muted}>
-          Pergunta {index + 1} de {questions.length}
-        </Text>
+        <Text style={styles.muted}>{t.quiz.progress(index + 1, questions.length)}</Text>
         <Text style={styles.question}>{question}</Text>
 
         {options.map((text, i) => {
@@ -73,7 +72,7 @@ export function QuizScreen({ questions, areaNames, onComplete, onExit }: Props) 
             <Pressable
               key={text}
               accessibilityRole="button"
-              accessibilityLabel={`Alternativa: ${text}`}
+              accessibilityLabel={t.quiz.option(text)}
               accessibilityState={{ disabled: answered, selected: i === chosen }}
               disabled={answered}
               onPress={() => choose(i)}
@@ -91,21 +90,23 @@ export function QuizScreen({ questions, areaNames, onComplete, onExit }: Props) 
         {answered && (
           <View style={styles.feedback}>
             {chosen === answerIndex ? (
-              <Text style={[styles.feedbackTitle, { color: theme.colors.primary }]}>Acertou!</Text>
+              <Text style={[styles.feedbackTitle, { color: theme.colors.primary }]}>
+                {t.quiz.correct}
+              </Text>
             ) : (
               <>
                 <Text style={[styles.feedbackTitle, { color: theme.colors.warning }]}>
-                  Não foi dessa vez
+                  {t.quiz.wrong}
                 </Text>
-                <Text style={styles.optionText}>Resposta certa: {options[answerIndex]}</Text>
+                <Text style={styles.optionText}>{t.quiz.rightAnswer(options[answerIndex])}</Text>
               </>
             )}
             <Pressable accessibilityRole="button" onPress={() => setOpenCard(card)} hitSlop={8}>
-              <Text style={styles.link}>Ver o card de origem</Text>
+              <Text style={styles.link}>{t.quiz.sourceCard}</Text>
             </Pressable>
             <Pressable accessibilityRole="button" onPress={next} style={styles.primary}>
               <Text style={styles.primaryLabel}>
-                {isLast ? 'Ver resultado' : 'Próxima pergunta'}
+                {isLast ? t.quiz.seeResult : t.quiz.nextQuestion}
               </Text>
             </Pressable>
           </View>

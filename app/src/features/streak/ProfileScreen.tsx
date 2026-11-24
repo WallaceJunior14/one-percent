@@ -6,6 +6,7 @@ import { type Theme, useTheme } from '@/shared/ui/theme';
 import type { Streak } from './calculateStreak';
 import type { Progress } from './progress';
 import { Stat, StreakSummary } from './StreakSummary';
+import { t } from '@/shared/i18n/pt-BR';
 
 type Props = {
   streak: Streak;
@@ -30,7 +31,7 @@ export function ProfileScreen({
 }: Props) {
   const theme = useTheme();
   const styles = makeStyles(theme);
-  const reminderLabel = reminder.enabled ? formatTime(reminder) : 'desligado';
+  const reminderLabel = reminder.enabled ? formatTime(reminder) : t.profile.reminderOff;
   const areas = Object.entries(totals.byArea)
     .filter(([, count]) => count > 0)
     .sort(([, a], [, b]) => b - a);
@@ -38,32 +39,25 @@ export function ProfileScreen({
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Pill label="Voltar" onPress={onBack} />
+        <Pill label={t.common.back} onPress={onBack} />
         <Text accessibilityRole="header" style={styles.title}>
-          Meu progresso
+          {t.profile.title}
         </Text>
       </View>
 
       <StreakSummary streak={streak} />
 
       <View style={styles.stats}>
-        <Stat value={totals.cards} label="cards lidos" />
-        <Stat value={totals.papers} label="artigos científicos" />
+        <Stat value={totals.cards} label={t.common.cardsRead} />
+        <Stat value={totals.papers} label={t.common.papersRead} />
       </View>
 
-      <Text style={styles.quiz}>
-        Média no quiz:{' '}
-        {quizAveragePercent === null
-          ? 'nenhum quiz feito ainda'
-          : `${quizAveragePercent}% de acertos`}
-      </Text>
+      <Text style={styles.quiz}>{t.profile.quizAverage(quizAveragePercent)}</Text>
 
       <View style={styles.box}>
-        <Text style={styles.sectionTitle}>Por área</Text>
+        <Text style={styles.sectionTitle}>{t.profile.byArea}</Text>
         {areas.length === 0 ? (
-          <Text style={styles.muted}>
-            Conclua seu primeiro dia para ver a distribuição por área.
-          </Text>
+          <Text style={styles.muted}>{t.profile.noAreas}</Text>
         ) : (
           areas.map(([areaId, count]) => {
             const name = areaNames[areaId] ?? areaId;
@@ -73,7 +67,7 @@ export function ProfileScreen({
                 key={areaId}
                 testID="area-row"
                 accessible
-                accessibilityLabel={`${name}: ${count} cards, ${percent}%`}
+                accessibilityLabel={t.profile.areaRow(name, count, percent)}
                 style={styles.areaRow}
               >
                 <View style={styles.areaText}>
@@ -91,11 +85,11 @@ export function ProfileScreen({
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`Lembrete diário: ${reminderLabel}`}
+        accessibilityLabel={t.profile.reminderLabel(reminderLabel)}
         onPress={onEditReminder}
         style={[styles.box, styles.reminder]}
       >
-        <Text style={styles.sectionTitle}>Lembrete diário</Text>
+        <Text style={styles.sectionTitle}>{t.profile.reminder}</Text>
         <Text style={styles.muted}>{reminderLabel}</Text>
       </Pressable>
     </ScrollView>
