@@ -4,6 +4,7 @@ import type { Card } from '@/features/content/contract';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import { NewsDetail } from './NewsDetail';
 import { PaperDetail } from './PaperDetail';
+import { t } from '@/shared/i18n/pt-BR';
 
 type Props = {
   /** Card aberto; `null` mantém o painel fechado. */
@@ -48,19 +49,19 @@ export function CardDetailSheet({
             {card && onToggleSave && (
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={saved ? 'Remover dos salvos' : 'Salvar card'}
+                accessibilityLabel={saved ? t.card.removeFromSaved : t.card.saveCard}
                 accessibilityState={{ selected: saved }}
                 onPress={() => onToggleSave(card)}
                 hitSlop={12}
                 style={[styles.save, saved && styles.saveActive]}
               >
                 <Text style={[styles.saveLabel, saved && styles.saveLabelActive]}>
-                  {saved ? 'Salvo' : 'Salvar'}
+                  {saved ? t.common.saved : t.common.save}
                 </Text>
               </Pressable>
             )}
             <Pressable accessibilityRole="button" onPress={onClose} hitSlop={12}>
-              <Text style={styles.close}>Fechar</Text>
+              <Text style={styles.close}>{t.common.close}</Text>
             </Pressable>
           </View>
           {card && (

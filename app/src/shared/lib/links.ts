@@ -1,4 +1,5 @@
 import { Alert, Linking } from 'react-native';
+import { t } from '@/shared/i18n/pt-BR';
 
 const HTTPS = /^https:\/\/\S+$/i;
 
@@ -27,9 +28,6 @@ export async function openUrlOrWarn(
   alert: (title: string, message: string) => void = (title, message) => Alert.alert(title, message),
 ): Promise<void> {
   if (!(await openExternalUrl(url, open))) {
-    alert(
-      'Não foi possível abrir o link',
-      'Verifique se há um navegador instalado e tente de novo.',
-    );
+    alert(t.links.openFailedTitle, t.links.openFailedMessage);
   }
 }

@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { Story } from '@/features/content/contract';
 import { type Theme, useTheme } from '@/shared/ui/theme';
+import { t } from '@/shared/i18n/pt-BR';
 
 export const SLIDE_DURATION_MS = 5000;
 
@@ -48,24 +49,24 @@ export function StoryViewer({ story, areaName, onFinished, onClose, onOpenCard }
         <Text style={styles.area}>{areaName}</Text>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Fechar story"
+          accessibilityLabel={t.stories.closeLabel}
           onPress={onClose}
           hitSlop={12}
         >
-          <Text style={styles.close}>Fechar</Text>
+          <Text style={styles.close}>{t.common.close}</Text>
         </Pressable>
       </View>
 
       <View style={styles.body}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Manchete anterior"
+          accessibilityLabel={t.stories.previous}
           onPress={previous}
           style={[styles.tapZone, styles.left]}
         />
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Próxima manchete"
+          accessibilityLabel={t.stories.next}
           onPress={next}
           style={[styles.tapZone, styles.right]}
         />
@@ -75,15 +76,13 @@ export function StoryViewer({ story, areaName, onFinished, onClose, onOpenCard }
       </View>
 
       <View style={styles.bottom}>
-        <Text style={styles.counter}>
-          {index + 1} de {story.slides.length}
-        </Text>
+        <Text style={styles.counter}>{t.stories.counter(index + 1, story.slides.length)}</Text>
         <Pressable
           accessibilityRole="button"
           onPress={() => onOpenCard(slide.cardId)}
           style={styles.cardButton}
         >
-          <Text style={styles.cardButtonLabel}>Ler o card</Text>
+          <Text style={styles.cardButtonLabel}>{t.stories.readCard}</Text>
         </Pressable>
       </View>
     </View>

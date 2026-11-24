@@ -16,6 +16,7 @@ import { Pill } from '@/shared/ui/Pill';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import { CardDetailSheet } from './CardDetailSheet';
 import { CardPreview } from './CardPreview';
+import { t } from '@/shared/i18n/pt-BR';
 
 type OnViewableItemsChanged = NonNullable<FlatListProps<Card>['onViewableItemsChanged']>;
 
@@ -42,9 +43,6 @@ type Props = {
   cardsById: Record<string, Card>;
   onOpenUrl?(url: string): void;
 };
-
-export const UPDATE_SUGGESTION =
-  'Há conteúdo novo num formato que esta versão não lê. Atualize o app para recebê-lo.';
 
 /** Quantos cards já apareceram na tela: só aumenta e nunca passa do total. */
 export function updateSeenCount(previous: number, visibleIndexes: number[], total: number) {
@@ -105,20 +103,22 @@ export function FeedScreen({
   return (
     <View style={styles.screen}>
       <View testID="feed-header" style={styles.header}>
-        <Pill label="Áreas" accessibilityLabel="Editar áreas" onPress={onEditAreas} />
-        <Pill label="Salvos" accessibilityLabel="Ver salvos" onPress={onOpenSaved} />
-        <Pill label="Perfil" accessibilityLabel="Ver meu progresso" onPress={onOpenProfile} />
+        <Pill
+          label={t.feed.editAreas}
+          accessibilityLabel={t.feed.editAreasLabel}
+          onPress={onEditAreas}
+        />
+        <Pill label={t.feed.saved} accessibilityLabel={t.feed.savedLabel} onPress={onOpenSaved} />
+        <Pill
+          label={t.feed.profile}
+          accessibilityLabel={t.feed.profileLabel}
+          onPress={onOpenProfile}
+        />
         <View style={styles.spacer} />
-        <Text style={styles.progress}>
-          {seen} de {cards.length} vistos
-        </Text>
+        <Text style={styles.progress}>{t.feed.seen(seen, cards.length)}</Text>
       </View>
-      {stale && (
-        <Text style={styles.warning}>
-          O conteúdo de hoje ainda não chegou. Você está vendo o mais recente disponível.
-        </Text>
-      )}
-      {updateSuggested && <Text style={styles.warning}>{UPDATE_SUGGESTION}</Text>}
+      {stale && <Text style={styles.warning}>{t.feed.stale}</Text>}
+      {updateSuggested && <Text style={styles.warning}>{t.feed.updateSuggestion}</Text>}
       <FlatList
         testID="feed-list"
         data={cards}
@@ -140,17 +140,13 @@ export function FeedScreen({
         }
         ListFooterComponent={
           <View style={styles.end}>
-            <Text style={styles.endTitle}>Você chegou ao fim de hoje</Text>
+            <Text style={styles.endTitle}>{t.feed.endTitle}</Text>
             {expectedSize !== undefined && cards.length < expectedSize && (
-              <Text style={styles.endText}>
-                Hoje houve menos conteúdo nas áreas que você escolheu.
-              </Text>
+              <Text style={styles.endText}>{t.feed.shortFeed}</Text>
             )}
-            <Text style={styles.endText}>
-              Sem rolagem infinita: o conteúdo de amanhã chega cedo.
-            </Text>
+            <Text style={styles.endText}>{t.feed.endNote}</Text>
             <Pressable accessibilityRole="button" onPress={finishOnce} style={styles.endButton}>
-              <Text style={styles.endButtonLabel}>Concluir o dia</Text>
+              <Text style={styles.endButtonLabel}>{t.feed.finishDay}</Text>
             </Pressable>
           </View>
         }

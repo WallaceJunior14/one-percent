@@ -7,6 +7,7 @@ import { CardPreview } from '@/features/feed/CardPreview';
 import { Pill } from '@/shared/ui/Pill';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import type { SavedCard } from './savedCards';
+import { t } from '@/shared/i18n/pt-BR';
 
 type Props = {
   /** Já na ordem de exibição (mais recente primeiro). */
@@ -25,25 +26,23 @@ export function SavedScreen({ items, areaNames, onToggleSave, onBack }: Props) {
   const areasWithItems = [...new Set(items.map((saved) => saved.card.areaId))];
   const visible = items.filter((saved) => areaFilter === null || saved.card.areaId === areaFilter);
   const filters: { id: string | null; label: string }[] = [
-    { id: null, label: 'Todas' },
+    { id: null, label: t.saved.all },
     ...areasWithItems.map((id) => ({ id, label: areaNames[id] ?? id })),
   ];
 
   return (
     <View style={styles.screen}>
       <View style={styles.header}>
-        <Pill label="Voltar" onPress={onBack} />
+        <Pill label={t.common.back} onPress={onBack} />
         <Text accessibilityRole="header" style={styles.title}>
-          Salvos
+          {t.saved.title}
         </Text>
       </View>
 
       {items.length === 0 ? (
         <View style={styles.empty}>
-          <Text style={styles.emptyTitle}>Nenhum card salvo ainda</Text>
-          <Text style={styles.emptyText}>
-            Toque em “Salvar” no detalhe de um card para guardá-lo aqui, mesmo sem internet.
-          </Text>
+          <Text style={styles.emptyTitle}>{t.saved.emptyTitle}</Text>
+          <Text style={styles.emptyText}>{t.saved.emptyText}</Text>
         </View>
       ) : (
         <>
@@ -52,7 +51,7 @@ export function SavedScreen({ items, areaNames, onToggleSave, onBack }: Props) {
               <Pill
                 key={filter.id ?? 'all'}
                 label={filter.label}
-                accessibilityLabel={`Filtrar: ${filter.label}`}
+                accessibilityLabel={t.saved.filter(filter.label)}
                 selected={filter.id === areaFilter}
                 onPress={() => setAreaFilter(filter.id)}
               />

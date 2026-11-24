@@ -16,7 +16,8 @@ import type { KeyValueStore } from '@/shared/lib/keyValueStore';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import { composeFeed } from './composeFeed';
 import { resolveFeedSettings } from './feedSettings';
-import { FeedScreen, UPDATE_SUGGESTION } from './FeedScreen';
+import { FeedScreen } from './FeedScreen';
+import { t } from '@/shared/i18n/pt-BR';
 
 export type DailyFeedDependencies = {
   api: ContentApi;
@@ -161,7 +162,7 @@ export function DailyFeed({
     case 'loading':
       return (
         <View style={styles.center}>
-          <ActivityIndicator accessibilityLabel="Carregando o conteúdo do dia" />
+          <ActivityIndicator accessibilityLabel={t.feed.loading} />
         </View>
       );
     case 'redirect':
@@ -169,11 +170,11 @@ export function DailyFeed({
     case 'empty':
       return (
         <View style={styles.center}>
-          <Text style={styles.title}>Não foi possível carregar o conteúdo</Text>
-          <Text style={styles.text}>Verifique a internet e tente de novo.</Text>
-          {state.updateSuggested && <Text style={styles.text}>{UPDATE_SUGGESTION}</Text>}
+          <Text style={styles.title}>{t.feed.loadFailed}</Text>
+          <Text style={styles.text}>{t.feed.checkConnection}</Text>
+          {state.updateSuggested && <Text style={styles.text}>{t.feed.updateSuggestion}</Text>}
           <Pressable accessibilityRole="button" onPress={retry} style={styles.button}>
-            <Text style={styles.buttonLabel}>Tentar de novo</Text>
+            <Text style={styles.buttonLabel}>{t.feed.retry}</Text>
           </Pressable>
         </View>
       );

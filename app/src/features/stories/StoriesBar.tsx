@@ -2,6 +2,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { Story } from '@/features/content/contract';
 import { type Theme, useTheme } from '@/shared/ui/theme';
+import { t } from '@/shared/i18n/pt-BR';
 
 type Props = {
   /** Já filtrados para as áreas escolhidas que têm conteúdo hoje. */
@@ -29,7 +30,7 @@ export function StoriesBar({ stories, areaNames, seenAreaIds, onOpen }: Props) {
           <Pressable
             key={story.areaId}
             accessibilityRole="button"
-            accessibilityLabel={`Story: ${name}${seen ? ' (visto)' : ''}`}
+            accessibilityLabel={t.stories.story(name, seen)}
             onPress={() => onOpen(story.areaId)}
             style={styles.item}
           >

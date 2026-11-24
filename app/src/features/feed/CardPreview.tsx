@@ -4,6 +4,7 @@ import type { Card } from '@/features/content/contract';
 import { formatShortDate } from '@/shared/lib/dates';
 import { type Theme, useTheme } from '@/shared/ui/theme';
 import { Badge } from './cardParts';
+import { t } from '@/shared/i18n/pt-BR';
 
 export const TEASER_LINES = 4;
 
@@ -19,21 +20,24 @@ export function CardPreview({ card, areaName, onOpen }: Props) {
   const styles = makeStyles(theme);
   const meta =
     card.type === 'paper'
-      ? `${card.authors[0]}${card.authors.length > 1 || card.authorsTruncated ? ' et al.' : ''} · ${card.venue}`
-      : `${card.sourceName} · ${formatShortDate(card.publishedAt)}`;
+      ? t.common.byline(
+          `${card.authors[0]}${card.authors.length > 1 || card.authorsTruncated ? t.common.etAl : ''}`,
+          card.venue,
+        )
+      : t.common.byline(card.sourceName, formatShortDate(card.publishedAt));
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Ler mais: ${card.title}`}
+      accessibilityLabel={t.card.readMore(card.title)}
       onPress={() => onOpen(card)}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
       <View style={styles.badges}>
-        {card.type === 'paper' && <Badge label="Artigo científico" color={theme.colors.paper} />}
+        {card.type === 'paper' && <Badge label={t.card.paperBadge} color={theme.colors.paper} />}
         <Badge label={areaName} />
         {card.type === 'paper' && card.isPreprint && (
-          <Badge label="Preprint — não revisado por pares" color={theme.colors.warning} />
+          <Badge label={t.card.preprintBadge} color={theme.colors.warning} />
         )}
       </View>
       <Text style={styles.title} numberOfLines={4}>
@@ -45,7 +49,7 @@ export function CardPreview({ card, areaName, onOpen }: Props) {
       <Text style={styles.teaser} numberOfLines={TEASER_LINES}>
         {card.summary}
       </Text>
-      <Text style={styles.more}>Toque para ler mais</Text>
+      <Text style={styles.more}>{t.card.readMoreHint}</Text>
     </Pressable>
   );
 }
