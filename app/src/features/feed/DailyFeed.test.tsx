@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { configure, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
 import sampleDay from '../../../../contracts/examples/sample-day.json';
 import { ContentUnavailableError, type ContentApi } from '@/features/content/contentApi';
@@ -20,6 +20,9 @@ import {
   fixedClock,
 } from '@/test/fakes';
 import { DailyFeed, type DailyFeedDependencies } from './DailyFeed';
+
+// O padrão de 1 s do `findBy*` é curto para o primeiro render com a suíte rodando em paralelo.
+configure({ asyncUtilTimeout: 5000 });
 
 const SAMPLE = parseDailyContent(sampleDay); // date: 2026-11-01
 const TODAY = fixedClock(new Date(2026, 10, 1, 8, 0));
