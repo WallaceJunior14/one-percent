@@ -81,3 +81,8 @@ def test_unreadable_yaml_is_a_settings_error(tmp_path: Path) -> None:
 
     with pytest.raises(SettingsError):
         load_settings(path)
+
+
+def test_yaml_feed_matches_defaults_published_in_the_fixture() -> None:
+    # O app compara os padrões dele com a fixture, que é gerada com os padrões do código.
+    assert load_settings().feed == parse_settings({}).feed

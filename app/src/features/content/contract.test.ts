@@ -1,4 +1,5 @@
 import pipelineOutput from '../../../../contracts/examples/pipeline-output.json';
+import schema from '../../../../contracts/daily-content.schema.json';
 import sampleDay from '../../../../contracts/examples/sample-day.json';
 import {
   ContractViolationError,
@@ -258,4 +259,50 @@ test('reads_pipeline_output_fixture', () => {
   expect(content.diagnostics.droppedCards).toEqual([]);
   expect(content.cards).toHaveLength(pipelineOutput.cards.length);
   expect(content.settings).toEqual(pipelineOutput.settings);
+});
+
+describe('text_limits_match_contract_schema', () => {
+  const defs = schema.$defs;
+  const maxOf = (def: { maxLength: number }) => def.maxLength;
+  const paperFields: [string, number][] = [
+    ['title', maxOf(defs.shortText)],
+    ['summary', maxOf(defs.longText)],
+    ['whyItMatters', maxOf(defs.shortText)],
+    ['sourceName', maxOf(defs.shortText)],
+    ['venue', maxOf(defs.shortText)],
+    ['method', maxOf(defs.mediumText)],
+    ['result', maxOf(defs.mediumText)],
+    ['limitations', maxOf(defs.mediumText)],
+    ['originalTitle', defs.card.properties.originalTitle.maxLength],
+  ];
+
+  function droppedWith(mutate: (paper: Record<string, unknown>) => void): number {
+    const day = mutatedSample((d) => mutate(firstCardOfType(d, 'paper')));
+    return parseDailyContent(day).diagnostics.droppedCards.length;
+  }
+
+  test.each(paperFields)('%s accepts the schema maximum and refuses one more', (field, max) => {
+    expect(droppedWith((paper) => (paper[field] = 'x'.repeat(max)))).toBe(0);
+    expect(droppedWith((paper) => (paper[field] = 'x'.repeat(max + 1)))).toBe(1);
+  });
+
+  test('quiz options and authors follow the schema counts', () => {
+    const options = defs.quiz.properties.options;
+    const authors = defs.card.properties.authors;
+    const quizWith = (count: number) => (paper: Record<string, unknown>) =>
+      (paper.quiz = {
+        question: 'P?',
+        options: Array.from({ length: count }, (_, i) => `o${i}`),
+        answerIndex: 0,
+      });
+    const authorsWith = (count: number) => (paper: Record<string, unknown>) =>
+      (paper.authors = Array.from({ length: count }, (_, i) => `a${i}`));
+
+    expect(droppedWith(quizWith(options.maxItems))).toBe(0);
+    expect(droppedWith(quizWith(options.maxItems + 1))).toBe(1);
+    expect(droppedWith(quizWith(options.minItems))).toBe(0);
+    expect(droppedWith(quizWith(options.minItems - 1))).toBe(1);
+    expect(droppedWith(authorsWith(authors.maxItems))).toBe(0);
+    expect(droppedWith(authorsWith(authors.maxItems + 1))).toBe(1);
+  });
 });
