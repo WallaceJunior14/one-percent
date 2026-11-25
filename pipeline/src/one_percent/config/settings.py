@@ -83,12 +83,12 @@ class ContentSettings(_Strict):
 
 
 class FeedSettings(_Strict):
-    size: int = Field(default=15, ge=1)
+    size: int = Field(default=15, ge=1, le=50)
     min_paper_share: float = Field(default=0.3, ge=0, le=1)
-    quiz_questions: int = Field(default=3, ge=0)
-    publish_interval_hours: int = Field(default=24, gt=0)
-    freshness_tolerance_hours: int = Field(default=6, ge=0)
-    seconds_per_card: int = Field(default=40, gt=0)
+    quiz_questions: int = Field(default=3, ge=0, le=10)
+    publish_interval_hours: int = Field(default=24, gt=0, le=168)
+    freshness_tolerance_hours: int = Field(default=6, ge=0, le=168)
+    seconds_per_card: int = Field(default=40, gt=0, le=600)
 
 
 class PriceSettings(_Strict):

@@ -71,7 +71,8 @@
       "properties": {
         "feedSize": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 1,
+          "maximum": 50
         },
         "minPaperShare": {
           "type": "number",
@@ -80,19 +81,23 @@
         },
         "quizQuestions": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "maximum": 10
         },
         "publishIntervalHours": {
           "type": "number",
-          "exclusiveMinimum": 0
+          "exclusiveMinimum": 0,
+          "maximum": 168
         },
         "freshnessToleranceHours": {
           "type": "number",
-          "minimum": 0
+          "minimum": 0,
+          "maximum": 168
         },
         "secondsPerCard": {
           "type": "number",
-          "exclusiveMinimum": 0
+          "exclusiveMinimum": 0,
+          "maximum": 600
         }
       }
     }
@@ -175,7 +180,8 @@
         },
         "weight": {
           "type": "number",
-          "exclusiveMinimum": 0
+          "exclusiveMinimum": 0,
+          "maximum": 100
         }
       }
     },

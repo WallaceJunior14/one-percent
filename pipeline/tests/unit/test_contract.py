@@ -188,3 +188,31 @@ def test_producer_rejects_unknown_setting(sample_day: dict[str, Any]) -> None:
 
     with pytest.raises(ContractViolationError):
         validate_daily_content(day)
+
+
+@pytest.mark.parametrize(
+    ("section", "field", "value"),
+    [
+        ("settings", "feedSize", 51),
+        ("settings", "publishIntervalHours", 169),
+        ("settings", "freshnessToleranceHours", 169),
+        ("settings", "quizQuestions", 11),
+        ("settings", "secondsPerCard", 601),
+    ],
+)
+def test_published_settings_have_an_upper_bound(
+    sample_day: dict[str, Any], section: str, field: str, value: int
+) -> None:
+    day = copy.deepcopy(sample_day)
+    day[section][field] = value
+
+    with pytest.raises(ContractViolationError):
+        validate_daily_content(day)
+
+
+def test_area_weight_has_an_upper_bound(sample_day: dict[str, Any]) -> None:
+    day = copy.deepcopy(sample_day)
+    day["areas"][0]["weight"] = 101
+
+    with pytest.raises(ContractViolationError):
+        validate_daily_content(day)

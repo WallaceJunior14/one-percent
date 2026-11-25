@@ -56,6 +56,11 @@ def test_partial_section_keeps_other_defaults() -> None:
         ({"llm": {"prompt_target_overrides": {"titulo": 0.5}}}, "llm.prompt_target_overrides"),
         ({"budget": {"alert_ratio": 1.5}}, "budget.alert_ratio"),
         ({"llm": {"api_key": "segredo"}}, "llm.api_key"),
+        ({"feed": {"size": 51}}, "feed.size"),
+        ({"feed": {"publish_interval_hours": 169}}, "feed.publish_interval_hours"),
+        ({"feed": {"freshness_tolerance_hours": 169}}, "feed.freshness_tolerance_hours"),
+        ({"feed": {"quiz_questions": 11}}, "feed.quiz_questions"),
+        ({"feed": {"seconds_per_card": 601}}, "feed.seconds_per_card"),
     ],
 )
 def test_rejects_invalid_value_with_field_path(raw: dict[str, Any], field: str) -> None:

@@ -37,7 +37,7 @@ class AreaConfig(_Strict):
     name: str
     subareas: tuple[SubareaConfig, ...] = Field(min_length=1)
     group: str | None = None
-    weight: float = Field(default=1.0, gt=0)
+    weight: float = Field(default=1.0, gt=0, le=100)
     """Peso relativo da área na divisão do feed; subáreas não têm peso próprio."""
 
     @property

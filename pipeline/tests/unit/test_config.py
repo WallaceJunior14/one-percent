@@ -94,6 +94,11 @@ def test_weights_must_be_positive() -> None:
         parse_config(_grouped_config(weight=0))
 
 
+def test_weights_have_an_upper_bound() -> None:
+    with pytest.raises(ConfigError, match="weight"):
+        parse_config(_grouped_config(weight=101))
+
+
 def test_every_area_belongs_to_a_known_group() -> None:
     with pytest.raises(ConfigError, match="mercado"):
         parse_config(_grouped_config(group="mercado"))
