@@ -1,10 +1,11 @@
 import { AREA_CATALOG, BUNDLED_GROUPS } from '@/shared/config/areas';
+import { t } from '@/shared/i18n/pt-BR';
 import type { Area, Group } from './contract';
 
 export type CatalogArea = Area & { groupId: string; weight: number };
 export type Catalog = { groups: Group[]; areas: CatalogArea[] };
 
-const FALLBACK_GROUP: Group = { id: 'other', name: 'Outras áreas' };
+const FALLBACK_GROUP: Group = { id: 'other', name: t.onboarding.otherGroup };
 const FALLBACK_WEIGHT = 1;
 
 const bundledById = new Map(AREA_CATALOG.map((area) => [area.id, area]));

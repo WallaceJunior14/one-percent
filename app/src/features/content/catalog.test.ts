@@ -1,5 +1,6 @@
 import sampleDay from '../../../../contracts/examples/sample-day.json';
 import { AREA_CATALOG, BUNDLED_GROUPS } from '@/shared/config/areas';
+import { t } from '@/shared/i18n/pt-BR';
 import { BUNDLED_CATALOG, catalogFrom } from './catalog';
 import { parseDailyContent } from './contract';
 
@@ -43,4 +44,5 @@ test('unknown_area_without_weight_gets_weight_one_in_an_extra_group', () => {
     groupId: 'other',
   });
   expect(catalog.groups.map((group) => group.id)).toContain('other');
+  expect(catalog.groups.find((group) => group.id === 'other')?.name).toBe(t.onboarding.otherGroup);
 });

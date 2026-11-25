@@ -77,6 +77,7 @@ export const t = {
     subtitle:
       'Escolha as áreas do seu feed diário. Subáreas são opcionais: sem nenhuma, você recebe todas.',
     continue: 'Continuar',
+    otherGroup: 'Outras áreas',
   },
   dayComplete: {
     title: 'Dia concluído',
@@ -122,6 +123,8 @@ export const t = {
     subtitle:
       'Um aviso por dia, no horário que você escolher, quando o conteúdo estiver pronto. Se você já tiver concluído o dia, o aviso não aparece.',
     toggle: 'Lembrete diário',
+    channelName: 'Lembrete diário',
+    start: 'Começar',
     unavailable:
       'Não foi possível ativar o lembrete neste aparelho. O restante do app funciona normalmente.',
     permissionDenied:

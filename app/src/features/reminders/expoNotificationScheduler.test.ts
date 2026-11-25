@@ -1,5 +1,7 @@
 import * as Notifications from 'expo-notifications';
 
+import { t } from '@/shared/i18n/pt-BR';
+
 import { CHANNEL_ID, createExpoNotificationScheduler } from './expoNotificationScheduler';
 
 jest.mock('expo-notifications', () => ({
@@ -57,4 +59,13 @@ test('falls_back_to_the_default_channel_when_creating_ours_fails', async () => {
     content: { title: 't', body: 'b' },
     trigger: { type: 'date', date: AT },
   });
+});
+
+test('names_the_channel_from_the_catalog', async () => {
+  await createExpoNotificationScheduler().requestPermission();
+
+  expect(mocked.setNotificationChannelAsync).toHaveBeenCalledWith(
+    CHANNEL_ID,
+    expect.objectContaining({ name: t.reminder.channelName }),
+  );
 });

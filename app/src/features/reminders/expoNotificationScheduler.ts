@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { AndroidImportance } from 'expo-notifications';
+import { t } from '@/shared/i18n/pt-BR';
 
 import type { NotificationScheduler } from './reminderScheduler';
 
@@ -30,7 +31,7 @@ export function createExpoNotificationScheduler(): NotificationScheduler {
     if (channelReady) return;
     try {
       await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-        name: 'Lembrete diário',
+        name: t.reminder.channelName,
         importance: AndroidImportance.DEFAULT,
       });
       channelReady = true;
