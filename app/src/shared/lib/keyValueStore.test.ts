@@ -34,3 +34,19 @@ describe.each([
     expect(await store.getItem('key')).toBeNull();
   });
 });
+
+describe.each([
+  ['memory', () => createMemoryStore()],
+  ['asyncStorage', () => asyncStorageStore],
+])('%s store keys', (_name, makeStore) => {
+  beforeEach(() => AsyncStorage.clear());
+
+  test('lists_stored_keys', async () => {
+    const store = makeStore();
+    await store.setItem('a', '1');
+    await store.setItem('b', '2');
+    await store.removeItem('a');
+
+    expect(await store.getAllKeys()).toEqual(['b']);
+  });
+});

@@ -5,10 +5,12 @@ export interface KeyValueStore {
   getItem(key: string): Promise<string | null>;
   setItem(key: string, value: string): Promise<void>;
   removeItem(key: string): Promise<void>;
+  getAllKeys(): Promise<string[]>;
 }
 
 export const asyncStorageStore: KeyValueStore = {
   getItem: (key) => AsyncStorage.getItem(key),
   setItem: (key, value) => AsyncStorage.setItem(key, value),
   removeItem: (key) => AsyncStorage.removeItem(key),
+  getAllKeys: async () => [...(await AsyncStorage.getAllKeys())],
 };

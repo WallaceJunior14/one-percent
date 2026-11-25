@@ -48,6 +48,7 @@ function contentCache(cache: KeyValueStore, clock: Clock) {
     version: 2,
     schema: { parse: parseDailyContent },
     migrations: { 1: sameFormat },
+    disposable: true,
   });
 }
 

@@ -165,3 +165,76 @@ describe('preserves_unreadable_value', () => {
     expect(await things.read()).toEqual({ count: 1 });
   });
 });
+
+describe('does_not_grow_without_bound', () => {
+  function withMovableClock(initial: Record<string, string> = {}) {
+    const store = createMemoryStore(initial);
+    let at = NOW.getTime();
+    const things = createVersionedStore<Thing>({
+      store,
+      key: 'thing',
+      version: 2,
+      schema: thingSchema,
+      migrations: { 1: (data: unknown) => data },
+      clock: { now: () => new Date((at += 1000)) },
+      onUnreadable: jest.fn(),
+    });
+    return { store, things };
+  }
+
+  test('keeps_only_the_latest_unreadable_copy', async () => {
+    const { store, things } = withMovableClock({ thing: '{first' });
+
+    await things.read();
+    await store.setItem('thing', '{second');
+    await things.read();
+    await store.setItem('thing', '{third');
+    await things.read();
+
+    const copies = store.keys().filter((key) => key.startsWith('thing.unreadable.'));
+    expect(copies).toHaveLength(1);
+    expect(await store.getItem(copies[0])).toBe('{third');
+  });
+
+  test('a_failing_copy_does_not_stop_the_app', async () => {
+    const memory = createMemoryStore({ thing: '{not json' });
+    const store = {
+      ...memory,
+      setItem: async () => {
+        throw new Error('quota exceeded');
+      },
+    };
+    const onUnreadable = jest.fn();
+    const things = createVersionedStore<Thing>({
+      store,
+      key: 'thing',
+      version: 2,
+      schema: thingSchema,
+      migrations: { 1: (data: unknown) => data },
+      onUnreadable,
+    });
+
+    expect(await things.read()).toBeNull();
+    expect(await memory.getItem('thing')).toBe('{not json');
+    expect(onUnreadable).toHaveBeenCalledWith(expect.objectContaining({ copiedTo: null }));
+  });
+
+  test('disposable_data_is_neither_backed_up_nor_copied', async () => {
+    const store = createMemoryStore({ thing: '{"count": 5}', other: '{not json' });
+    const make = (key: string) =>
+      createVersionedStore<Thing>({
+        store,
+        key,
+        version: 2,
+        schema: thingSchema,
+        migrations: { 1: (data: unknown) => data },
+        disposable: true,
+        onUnreadable: jest.fn(),
+      });
+
+    expect(await make('thing').read()).toEqual({ count: 5 });
+    expect(await make('other').read()).toBeNull();
+
+    expect(store.keys().sort()).toEqual(['thing']);
+  });
+});

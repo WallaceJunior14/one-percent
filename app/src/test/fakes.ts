@@ -16,6 +16,7 @@ export function createMemoryStore(
     removeItem: async (key) => {
       data.delete(key);
     },
+    getAllKeys: async () => [...data.keys()],
   };
 }
 

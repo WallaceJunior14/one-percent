@@ -7,7 +7,8 @@ export type Migration = (data: unknown) => unknown;
 /** Para o passo em que os dados só ganharam o envelope, sem mudar de formato. */
 export const sameFormat: Migration = (data) => data;
 
-export type UnreadableData = { key: string; copiedTo: string; reason: string };
+/** `copiedTo` é `null` quando não foi possível copiar (ex.: sem espaço); o original fica onde estava. */
+export type UnreadableData = { key: string; copiedTo: string | null; reason: string };
 
 export type VersionedStoreOptions<T> = {
   store: KeyValueStore;
@@ -19,6 +20,8 @@ export type VersionedStoreOptions<T> = {
   migrations?: Record<number, Migration>;
   /** Chaves de versões anteriores do app, lidas só quando a chave atual não existe. */
   legacyKeys?: readonly string[];
+  /** Dado que dá para baixar de novo (ex.: cache): sem cópia de backup nem de ilegível. */
+  disposable?: boolean;
   clock?: Clock;
   onUnreadable?(event: UnreadableData): void;
 };
@@ -55,7 +58,9 @@ function reasonOf(error: unknown): string {
 function warnUnreadable(event: UnreadableData) {
   if (process.env.NODE_ENV === 'test') return;
   console.warn(
-    `Dados locais ilegíveis em "${event.key}", copiados para "${event.copiedTo}"`,
+    event.copiedTo
+      ? `Dados locais ilegíveis em "${event.key}", copiados para "${event.copiedTo}"`
+      : `Dados locais ilegíveis em "${event.key}", sem cópia`,
     event,
   );
 }
@@ -63,7 +68,8 @@ function warnUnreadable(event: UnreadableData) {
 /**
  * Dados locais com versão de formato. Nada é apagado: antes de gravar um valor migrado, o
  * original fica em `<key>.backup.v<versão>`, e um valor ilegível é movido para
- * `<key>.unreadable.<timestamp>` para o app seguir com dados vazios sem perdê-lo.
+ * `<key>.unreadable.<timestamp>` para o app seguir com dados vazios sem perdê-lo. Só a cópia
+ * ilegível mais recente de cada chave fica guardada, para o armazenamento não crescer sem teto.
  */
 export function createVersionedStore<T>({
   store,
@@ -72,6 +78,7 @@ export function createVersionedStore<T>({
   schema,
   migrations = {},
   legacyKeys = [],
+  disposable = false,
   clock = systemClock,
   onUnreadable = warnUnreadable,
 }: VersionedStoreOptions<T>): VersionedStore<T> {
@@ -90,11 +97,34 @@ export function createVersionedStore<T>({
 
   const write = (value: T) => store.setItem(key, JSON.stringify({ version, data: value }));
 
+  const dropOlderCopies = async (keep: string) => {
+    const older = (await store.getAllKeys()).filter(
+      (stored) => stored.startsWith(`${key}.unreadable.`) && stored !== keep,
+    );
+    await Promise.all(older.map((stored) => store.removeItem(stored)));
+  };
+
   const preserve = async (source: string, raw: string, error: unknown) => {
+    const reason = reasonOf(error);
+    if (disposable) {
+      await store.removeItem(source);
+      return;
+    }
     const copiedTo = `${key}.unreadable.${clock.now().getTime()}`;
-    await store.setItem(copiedTo, raw);
-    await store.removeItem(source);
-    onUnreadable({ key, copiedTo, reason: reasonOf(error) });
+    try {
+      await store.setItem(copiedTo, raw);
+      await store.removeItem(source);
+      await dropOlderCopies(copiedTo);
+    } catch (copyError) {
+      // Sem conseguir copiar, o original fica onde está e o app segue com dados vazios.
+      onUnreadable({
+        key,
+        copiedTo: null,
+        reason: `${reason}; cópia falhou: ${reasonOf(copyError)}`,
+      });
+      return;
+    }
+    onUnreadable({ key, copiedTo, reason });
   };
 
   const readFrom = async (source: string, raw: string): Promise<T | null> => {
@@ -108,7 +138,7 @@ export function createVersionedStore<T>({
       return null;
     }
     if (source !== key || stored.version !== version) {
-      await store.setItem(`${key}.backup.v${stored.version}`, raw);
+      if (!disposable) await store.setItem(`${key}.backup.v${stored.version}`, raw);
       await write(value);
       if (source !== key) await store.removeItem(source);
     }
