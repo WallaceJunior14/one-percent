@@ -86,11 +86,12 @@ const envelopeSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   generatedAt: utcTimestamp,
   groups: z.array(groupSchema).min(1).optional().catch(undefined),
-  areas: z.array(areaSchema).min(1),
+  /** Cada área e cada story são validadas uma a uma em `parseDailyContent`. */
+  areas: z.array(z.unknown()),
   /** Validado campo a campo por quem usa, com padrão para o que faltar. */
   settings: z.record(z.string(), z.unknown()).optional().catch(undefined),
   cards: z.array(z.unknown()),
-  stories: z.array(storySchema),
+  stories: z.array(z.unknown()),
 });
 
 const KNOWN_CARD_TYPES: ReadonlySet<unknown> = new Set(['news', 'paper']);
@@ -102,11 +103,21 @@ export type Card = z.infer<typeof cardSchema>;
 export type Area = z.infer<typeof areaSchema>;
 export type Group = z.infer<typeof groupSchema>;
 export type Story = z.infer<typeof storySchema>;
-export type DailyContent = Omit<z.infer<typeof envelopeSchema>, 'cards'> & { cards: Card[] };
+export type DailyContent = Omit<z.infer<typeof envelopeSchema>, 'cards' | 'areas' | 'stories'> & {
+  areas: Area[];
+  cards: Card[];
+  stories: Story[];
+};
 
 export type DroppedCard = { index: number; id?: string; reason: string };
+export type DroppedArea = { index: number; id?: string; reason: string };
+export type DroppedStory = { index: number; areaId?: string; reason: string };
 /** O que foi descartado na leitura, para diagnóstico. */
-export type ContentDiagnostics = { droppedCards: DroppedCard[] };
+export type ContentDiagnostics = {
+  droppedCards: DroppedCard[];
+  droppedAreas: DroppedArea[];
+  droppedStories: DroppedStory[];
+};
 export type ParsedDailyContent = DailyContent & { diagnostics: ContentDiagnostics };
 
 /** Maior versão principal do contrato que este app sabe ler. */
@@ -143,6 +154,28 @@ function parseCard(raw: unknown, index: number): { card: Card } | { dropped: Dro
   return result.success ? { card: result.data } : drop(describeIssues(result.error).join('; '));
 }
 
+function stringField(raw: unknown, key: string): string | undefined {
+  const value =
+    typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>)[key] : undefined;
+  return typeof value === 'string' ? value : undefined;
+}
+
+/** Valida cada item de uma lista com o schema; o inválido sai sozinho, com o motivo. */
+function parseEach<T, D>(
+  items: unknown[],
+  schema: z.ZodType<T>,
+  describeDropped: (raw: unknown, index: number, reason: string) => D,
+): { kept: T[]; dropped: D[] } {
+  const kept: T[] = [];
+  const dropped: D[] = [];
+  items.forEach((raw, index) => {
+    const result = schema.safeParse(raw);
+    if (result.success) kept.push(result.data);
+    else dropped.push(describeDropped(raw, index, describeIssues(result.error).join('; ')));
+  });
+  return { kept, dropped };
+}
+
 /** Tira das stories as manchetes de cards que não ficaram no dia; story sem manchete some. */
 function keepStoriesOf(stories: Story[], cards: Card[]): Story[] {
   const cardIds = new Set(cards.map((card) => card.id));
@@ -154,8 +187,9 @@ function keepStoriesOf(stories: Story[], cards: Card[]): Story[] {
 
 /**
  * Valida um payload desconhecido (ex.: resposta HTTP) e devolve o conteúdo tipado. Campos
- * desconhecidos são ignorados e cada card inválido sai sozinho; só um envelope inválido, ou um
- * dia sem nenhum card válido, recusa o conteúdo inteiro. A versão é conferida antes do resto
+ * desconhecidos são ignorados e cada card, story ou área inválida sai sozinha (a área leva
+ * seus cards junto); só um envelope inválido, ou um dia sem nenhuma área ou nenhum card válido,
+ * recusa o conteúdo inteiro. A versão é conferida antes do resto
  * porque uma versão principal nova pode mudar o formato de tudo.
  */
 export function parseDailyContent(input: unknown): ParsedDailyContent {
@@ -166,12 +200,30 @@ export function parseDailyContent(input: unknown): ParsedDailyContent {
   const envelope = envelopeSchema.safeParse(input);
   if (!envelope.success) throw new ContractViolationError(describeIssues(envelope.error));
 
+  const areas = parseEach(envelope.data.areas, areaSchema, (raw, index, reason) => {
+    const id = stringField(raw, 'id');
+    return { index, ...(id && { id }), reason };
+  });
+  if (areas.kept.length === 0) {
+    throw new ContractViolationError([
+      'areas: nenhuma área válida',
+      ...areas.dropped.map((d) => d.reason),
+    ]);
+  }
+  const droppedAreaIds = new Set(areas.dropped.flatMap((d) => (d.id ? [d.id] : [])));
+
   const cards: Card[] = [];
   const droppedCards: DroppedCard[] = [];
   envelope.data.cards.forEach((raw, index) => {
     const parsed = parseCard(raw, index);
-    if ('card' in parsed) cards.push(parsed.card);
-    else droppedCards.push(parsed.dropped);
+    if ('dropped' in parsed) droppedCards.push(parsed.dropped);
+    else if (droppedAreaIds.has(parsed.card.areaId)) {
+      droppedCards.push({
+        index,
+        id: parsed.card.id,
+        reason: `área descartada: ${parsed.card.areaId}`,
+      });
+    } else cards.push(parsed.card);
   });
   if (cards.length === 0) {
     throw new ContractViolationError([
@@ -180,10 +232,16 @@ export function parseDailyContent(input: unknown): ParsedDailyContent {
     ]);
   }
 
+  const stories = parseEach(envelope.data.stories, storySchema, (raw, index, reason) => {
+    const areaId = stringField(raw, 'areaId');
+    return { index, ...(areaId && { areaId }), reason };
+  });
+
   return {
     ...envelope.data,
+    areas: areas.kept,
     cards,
-    stories: keepStoriesOf(envelope.data.stories, cards),
-    diagnostics: { droppedCards },
+    stories: keepStoriesOf(stories.kept, cards),
+    diagnostics: { droppedCards, droppedAreas: areas.dropped, droppedStories: stories.dropped },
   };
 }

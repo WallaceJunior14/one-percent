@@ -10,8 +10,9 @@ import {
 
 type MutableDay = {
   date: string;
+  areas: Record<string, unknown>[];
   cards: Record<string, unknown>[];
-  stories: { slides: unknown[] }[];
+  stories: { areaId?: unknown; slides: unknown[] }[];
 };
 
 function mutatedSample(mutate: (day: MutableDay) => void): unknown {
@@ -157,9 +158,80 @@ describe('schema_version', () => {
   });
 });
 
+describe('drops_only_the_invalid_story', () => {
+  test('story with invalid headline leaves the others and all cards', () => {
+    const day = mutatedSample(
+      (d) => ((d.stories[0].slides[0] as { headline: unknown }).headline = ''),
+    );
+
+    const content = parseDailyContent(day);
+
+    expect(content.stories.map((story) => story.areaId)).toEqual([
+      'science',
+      'economy',
+      'finance',
+      'health',
+    ]);
+    expect(content.cards).toHaveLength(22);
+    expect(content.diagnostics.droppedStories).toEqual([
+      { index: 0, areaId: 'tech', reason: expect.stringMatching(/^slides\.0\.headline: /) },
+    ]);
+  });
+
+  test('story without slides is dropped alone', () => {
+    const day = mutatedSample((d) => (d.stories[1].slides = []));
+
+    const content = parseDailyContent(day);
+
+    expect(content.stories).toHaveLength(4);
+    expect(content.diagnostics.droppedStories).toHaveLength(1);
+  });
+});
+
+describe('drops_only_the_invalid_area_and_its_cards', () => {
+  test('area with invalid catalog data leaves the other areas', () => {
+    const day = mutatedSample((d) => (d.areas[0].subareas = []));
+    const techCards = (day as MutableDay).cards.filter((card) => card.areaId === 'tech');
+
+    const content = parseDailyContent(day);
+
+    expect(techCards.length).toBeGreaterThan(0);
+    expect(content.areas.map((area) => area.id)).not.toContain('tech');
+    expect(content.areas).toHaveLength(4);
+    expect(content.cards.some((card) => card.areaId === 'tech')).toBe(false);
+    expect(content.cards).toHaveLength(22 - techCards.length);
+    expect(content.stories.map((story) => story.areaId)).not.toContain('tech');
+    expect(content.diagnostics.droppedAreas).toEqual([
+      { index: 0, id: 'tech', reason: expect.stringMatching(/^subareas: /) },
+    ]);
+    expect(content.diagnostics.droppedCards).toHaveLength(techCards.length);
+    expect(content.diagnostics.droppedCards[0].reason).toMatch(/tech/);
+  });
+
+  test('area with invalid id is dropped by its raw id', () => {
+    const day = mutatedSample((d) => {
+      d.areas[0].id = 'real-estate';
+      for (const card of d.cards) if (card.areaId === 'tech') card.areaId = 'real-estate';
+    });
+
+    const content = parseDailyContent(day);
+
+    expect(content.areas).toHaveLength(4);
+    expect(content.cards.some((card) => card.areaId === 'real-estate')).toBe(false);
+    expect(content.diagnostics.droppedAreas[0]).toMatchObject({ id: 'real-estate' });
+  });
+});
+
+describe('rejects_day_without_any_valid_area', () => {
+  test('every area invalid', () => {
+    const day = mutatedSample((d) => d.areas.forEach((area) => (area.subareas = [])));
+
+    expect(() => parseDailyContent(day)).toThrow(/areas: nenhuma área válida/);
+  });
+});
+
 describe('rejects_invalid_payload', () => {
   test.each<[string, (day: MutableDay) => void]>([
-    ['story without slides', (day) => (day.stories[0].slides = [])],
     ['no valid card left', (day) => day.cards.forEach((card) => (card.type = 'video'))],
     ['cards is not a list', (day) => ((day as unknown as { cards: unknown }).cards = {})],
   ])('%s', (_name, mutate) => {
