@@ -93,3 +93,19 @@ test('reads_quiz_saved_by_the_previous_version', async () => {
   expect(await readJson(store, QUIZ_KEY)).toEqual({ version: 2, data: legacy });
   expect(await readJson(store, 'quiz.backup.v1')).toEqual(legacy);
 });
+
+test('an_invalid_question_does_not_take_the_history_with_it', async () => {
+  const history = [{ date: '2026-11-13', score: 2, total: 3 }];
+  const broken = { ...sampleDay.cards[0], title: '' };
+  const store = createMemoryStore({
+    [QUIZ_KEY]: JSON.stringify({
+      version: 2,
+      data: { current: { date: '2026-11-14', questions: [broken], score: null }, history },
+    }),
+  });
+  const repository = createQuizRepository(store, movableClock(NOV_14));
+
+  expect(await repository.history()).toEqual(history);
+  expect(await repository.today()).toBeNull();
+  expect(store.keys().filter((key) => key.includes('unreadable'))).toEqual([]);
+});

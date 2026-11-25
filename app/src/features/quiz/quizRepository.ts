@@ -14,13 +14,16 @@ const scoreEntrySchema = z.object({
 });
 
 const storedSchema = z.object({
+  // O quiz do dia é refeito a cada dia: se as perguntas guardadas deixarem de passar no leitor
+  // do contrato, só elas são descartadas, e o histórico continua legível.
   current: z
     .object({
       date: z.string(),
       questions: z.array(cardSchema),
       score: z.int().min(0).nullable(),
     })
-    .nullable(),
+    .nullable()
+    .catch(null),
   history: z.array(scoreEntrySchema),
 });
 

@@ -74,3 +74,33 @@ test('reads_cards_saved_by_the_previous_version', async () => {
   expect(await readJson(store, SAVED_KEY)).toEqual({ version: 2, data: legacy });
   expect(await readJson(store, 'saved.backup.v1')).toEqual(legacy);
 });
+
+describe('one invalid saved card does not hide the others', () => {
+  const invalid = {
+    card: { ...sampleDay.cards[1], title: '' },
+    savedAt: '2026-11-14T09:00:00.000Z',
+  };
+  const valid = { card: sampleDay.cards[0], savedAt: '2026-11-14T10:00:00.000Z' };
+  const storeWithBoth = () =>
+    createMemoryStore({ [SAVED_KEY]: JSON.stringify({ version: 2, data: [valid, invalid] }) });
+
+  test('lists_the_valid_ones_without_moving_the_list_aside', async () => {
+    const store = storeWithBoth();
+
+    expect(await newRepository(store).list()).toEqual([valid]);
+    expect(store.keys().filter((key) => key.includes('unreadable'))).toEqual([]);
+  });
+
+  test('keeps_the_invalid_one_in_storage_when_saving_another', async () => {
+    const store = storeWithBoth();
+
+    await newRepository(store).toggle(third);
+
+    const stored = (await readJson(store, SAVED_KEY)) as { data: { card: { id: string } }[] };
+    expect(stored.data.map((item) => item.card.id)).toEqual([
+      third.id,
+      valid.card.id,
+      invalid.card.id,
+    ]);
+  });
+});
