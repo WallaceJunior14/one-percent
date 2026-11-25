@@ -189,3 +189,61 @@ test('reads_cached_content_without_network', async () => {
   });
   expect(await readCachedContent(createMemoryStore(), clock)).toBeNull();
 });
+
+describe('published values cannot freeze the cache', () => {
+  test('interval_above_the_ceiling_is_ignored', async () => {
+    const api = contentApiReturning(published(1));
+    const cached = published(25, { settings: { publishIntervalHours: 240 } });
+
+    await resolveContent({ api, cache: cacheWith(cached), clock });
+
+    expect(api.calls).toBe(1);
+  });
+
+  test.each([
+    ['in the future', '2026-11-20T12:00:00Z'],
+    ['not a real date', '2026-13-45T99:99:99Z'],
+  ])('cache published %s is replaced by fetched content', async (_name, generatedAt) => {
+    const cache = cacheWith(published(1, { generatedAt }));
+    const fresh = published(2);
+
+    const state = await resolveContent({ api: contentApiReturning(fresh), cache, clock });
+
+    expect(state).toMatchObject({ status: 'today', content: { generatedAt: fresh.generatedAt } });
+    expect(await cachedGeneratedAt(cache)).toBe(fresh.generatedAt);
+  });
+
+  test.each([
+    ['in the future', '2026-11-20T12:00:00Z'],
+    ['not a real date', '2026-13-45T99:99:99Z'],
+  ])('offline cache published %s counts as late', async (_name, generatedAt) => {
+    const cache = cacheWith(published(1, { generatedAt }));
+
+    const state = await resolveContent({ api: offline(), cache, clock });
+
+    expect(state.status).toBe('stale');
+  });
+
+  test('small_clock_skew_does_not_count_as_late', async () => {
+    const cache = cacheWith(published(-0.05)); // publicado 3 min "no futuro" pelo relógio do celular
+
+    const state = await resolveContent({ api: offline(), cache, clock });
+
+    expect(state.status).toBe('today');
+  });
+});
+
+test('failing_cache_write_still_returns_the_fetched_content', async () => {
+  const memory = createMemoryStore();
+  const cache = {
+    ...memory,
+    setItem: async () => {
+      throw new Error('quota exceeded');
+    },
+  };
+  const fresh = published(1);
+
+  const state = await resolveContent({ api: contentApiReturning(fresh), cache, clock });
+
+  expect(state).toMatchObject({ status: 'today', content: { generatedAt: fresh.generatedAt } });
+});

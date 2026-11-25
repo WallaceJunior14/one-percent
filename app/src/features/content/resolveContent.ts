@@ -47,15 +47,27 @@ async function fetchLatest(api: ContentApi): Promise<FetchResult> {
 }
 
 const HOUR_MS = 60 * 60 * 1000;
+/** Folga para o relógio do celular estar um pouco atrasado em relação ao do servidor. */
+const CLOCK_SKEW_MS = 5 * 60 * 1000;
 
-function hoursSincePublished(content: DailyContent, now: Date): number {
-  return (now.getTime() - Date.parse(content.generatedAt)) / HOUR_MS;
+/** Momento de publicação, ou `null` se for inválido ou estiver no futuro: conta como atrasado. */
+function publishedAt(content: DailyContent, now: Date): number | null {
+  const time = Date.parse(content.generatedAt);
+  return Number.isNaN(time) || time > now.getTime() + CLOCK_SKEW_MS ? null : time;
 }
 
-function newest(a: DailyContent | null, b: DailyContent | null): DailyContent | null {
+function hoursSincePublished(content: DailyContent, now: Date): number {
+  const time = publishedAt(content, now);
+  return time === null ? Infinity : Math.max(0, now.getTime() - time) / HOUR_MS;
+}
+
+function newest(a: DailyContent | null, b: DailyContent | null, now: Date): DailyContent | null {
   if (a === null) return b;
   if (b === null) return a;
-  return Date.parse(b.generatedAt) > Date.parse(a.generatedAt) ? b : a;
+  const timeA = publishedAt(a, now);
+  const timeB = publishedAt(b, now);
+  if (timeA === null) return b;
+  return timeB !== null && timeB > timeA ? b : a;
 }
 
 /** Último conteúdo guardado, sem ir à rede (ex.: catálogo para o onboarding). */
@@ -84,10 +96,13 @@ export async function resolveContent({ api, cache, clock }: Dependencies): Promi
 
   const { content: fetched, updateSuggested } = await fetchLatest(api);
   const suggestion = updateSuggested ? { updateSuggested } : {};
-  const best = newest(cached, fetched);
+  const best = newest(cached, fetched, now);
   if (best === null) return { status: 'empty', ...suggestion };
 
-  if (best !== cached) await stored.write(best);
+  if (best !== cached) {
+    // Sem espaço para gravar, o conteúdo buscado ainda serve para esta abertura.
+    await stored.write(best).catch((error: unknown) => console.warn('cache não gravado', error));
+  }
   const { publishIntervalHours, freshnessToleranceHours } = resolveFeedSettings(best.settings);
   const late = hoursSincePublished(best, now) > publishIntervalHours + freshnessToleranceHours;
   return { status: late ? 'stale' : 'today', content: best, ...suggestion };
