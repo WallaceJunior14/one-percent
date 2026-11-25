@@ -110,7 +110,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [x] T250 Teste de fonte única que falta: catálogo embutido no app = `areas.yaml` (ids, nomes, grupos, pesos). Os outros já estão na T224 e na T233
   - Teste: `test_contract_sample_sync.py` e `shared/config/areas.test.ts` — `bundled_catalog_matches_pipeline_config`
   - Cobre: RNF-103
-- [ ] T251 `dev-code-review` do diff da spec 002 → `dev-review-fix`
-- [ ] T252 `dev-security` do diff da spec 002: leitura tolerante de conteúdo externo, dados locais preservados (cópias de ilegíveis), novos parâmetros publicados
+- [x] T251 `dev-code-review` do diff da spec 002 → `dev-review-fix`
+- [x] T252 `dev-security` do diff da spec 002: leitura tolerante de conteúdo externo, dados locais preservados (cópias de ilegíveis), novos parâmetros publicados
 - [x] T253 `dev-docs`: README (configuração do pipeline e do build), CHANGELOG `0.2.0` com a mudança de divisão por peso de área, spec 001 atualizada com remissões à 002
 - [ ] T254 **Marco**: app final da 002 no celular por 3 dias: feed, onboarding com catálogo publicado, lembrete e verificação com fonte grande do sistema
