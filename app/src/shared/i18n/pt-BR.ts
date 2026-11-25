@@ -1,15 +1,14 @@
-const pluralRules = new Intl.PluralRules('pt-BR');
-
 /**
- * Escolhe a forma pelo número. O zero fica no plural ("0 dias"): a regra do
- * idioma o trata como singular, mas assim a frase soa natural na tela.
+ * Escolhe a forma pelo número. Só 1 é singular: o zero fica no plural ("0 dias"), como soa
+ * natural na tela. Não usa `Intl.PluralRules`, que o Hermes do Android pode não ter.
  */
 export function plural(n: number, forms: { one: string; other: string }): string {
-  if (n === 0) return forms.other;
-  return pluralRules.select(n) === 'one' ? forms.one : forms.other;
+  return n === 1 ? forms.one : forms.other;
 }
 
 const days = (n: number) => `${n} ${plural(n, { one: 'dia', other: 'dias' })}`;
+const cards = (n: number) => `${n} ${plural(n, { one: 'card', other: 'cards' })}`;
+const questions = (n: number) => `${n} ${plural(n, { one: 'pergunta', other: 'perguntas' })}`;
 
 /** Textos da interface, agrupados por tela. Funções recebem os valores a inserir. */
 export const t = {
@@ -83,7 +82,7 @@ export const t = {
     title: 'Dia concluído',
     subtitle: 'Você ficou 1% mais sábio hoje.',
     quizScore: (score: number, total: number) => `Quiz: ${score} de ${total} acertos`,
-    startQuiz: (total: number) => `Fazer o quiz (${total} perguntas)`,
+    startQuiz: (total: number) => `Fazer o quiz (${questions(total)})`,
     review: 'Rever os cards',
   },
   streak: {
@@ -98,7 +97,7 @@ export const t = {
     byArea: 'Por área',
     noAreas: 'Conclua seu primeiro dia para ver a distribuição por área.',
     areaRow: (name: string, count: number, percent: number) =>
-      `${name}: ${count} cards, ${percent}%`,
+      `${name}: ${cards(count)}, ${percent}%`,
     reminder: 'Lembrete diário',
     reminderOff: 'desligado',
     reminderLabel: (value: string) => `Lembrete diário: ${value}`,
@@ -117,8 +116,8 @@ export const t = {
   },
   reminder: {
     appName: '1% ao Dia',
-    body: (cards: number, minutes: number) =>
-      `Seu dia está pronto: ${cards} cards, ~${minutes} min`,
+    body: (count: number, minutes: number) =>
+      `Seu dia está pronto: ${cards(count)}, ~${minutes} min`,
     title: 'Quer um lembrete?',
     subtitle:
       'Um aviso por dia, no horário que você escolher, quando o conteúdo estiver pronto. Se você já tiver concluído o dia, o aviso não aparece.',
