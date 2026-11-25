@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 
 import { catalogFrom } from '@/features/content/catalog';
 import { createHttpContentApi } from '@/features/content/contentApi';
-import { readCachedContent } from '@/features/content/resolveContent';
+import { contentForCatalog, readCachedContent } from '@/features/content/resolveContent';
 import type { DailyFeedDependencies } from '@/features/feed/DailyFeed';
 import { resolveFeedSettings } from '@/features/feed/feedSettings';
 import { createPreferencesRepository } from '@/features/onboarding/preferences';
@@ -20,8 +20,13 @@ export const CONTENT_BASE_URL = contentBaseUrlFrom(Constants.expoConfig?.extra);
 
 const cachedContent = () => readCachedContent(asyncStorageStore, systemClock);
 
-/** Catálogo do último conteúdo baixado (ou o embutido), para o onboarding. */
-export const loadCatalog = async () => catalogFrom(await cachedContent());
+const contentApi = createHttpContentApi(CONTENT_BASE_URL);
+
+/** Catálogo do último conteúdo baixado, do baixado agora no primeiro acesso ou o embutido. */
+export const loadCatalog = async () =>
+  catalogFrom(
+    await contentForCatalog({ api: contentApi, cache: asyncStorageStore, clock: systemClock }),
+  );
 
 /** Dependências reais do app; os testes usam as versões de `src/test/fakes`. */
 export const preferencesRepository = createPreferencesRepository(asyncStorageStore);
@@ -38,7 +43,7 @@ export const reminderService = createReminderService({
 });
 
 export const appDependencies: DailyFeedDependencies = {
-  api: createHttpContentApi(CONTENT_BASE_URL),
+  api: contentApi,
   cache: asyncStorageStore,
   clock: systemClock,
   preferences: preferencesRepository,

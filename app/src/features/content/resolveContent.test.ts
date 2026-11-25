@@ -8,7 +8,12 @@ import {
 } from '@/test/fakes';
 import { ContentUnavailableError } from './contentApi';
 import { type DailyContent, parseDailyContent, UnsupportedContentVersionError } from './contract';
-import { CONTENT_CACHE_KEY, readCachedContent, resolveContent } from './resolveContent';
+import {
+  CONTENT_CACHE_KEY,
+  contentForCatalog,
+  readCachedContent,
+  resolveContent,
+} from './resolveContent';
 
 const NOW = new Date(Date.UTC(2026, 10, 14, 12, 0));
 const clock = fixedClock(NOW);
@@ -287,5 +292,54 @@ describe('dropped cards are reported', () => {
     });
 
     expect(onDroppedCards).not.toHaveBeenCalled();
+  });
+});
+
+describe('content_for_the_onboarding_catalog', () => {
+  const withExtraArea = (): DailyContent => {
+    const content = published(1);
+    return {
+      ...content,
+      areas: [
+        ...content.areas,
+        { id: 'climate', name: 'Clima', subareas: [{ id: 'climate.air', name: 'Ar' }] },
+      ],
+    };
+  };
+
+  test('first_access_with_internet_downloads_and_caches_the_content', async () => {
+    const cache = createMemoryStore();
+    const fetched = withExtraArea();
+
+    const content = await contentForCatalog({ api: contentApiReturning(fetched), cache, clock });
+
+    expect(content?.areas.map((area) => area.id)).toContain('climate');
+    expect(await cachedGeneratedAt(cache)).toBe(fetched.generatedAt);
+  });
+
+  test('uses_the_cache_without_going_to_the_network', async () => {
+    const api = contentApiReturning(withExtraArea());
+
+    const content = await contentForCatalog({ api, cache: cacheWith(published(40)), clock });
+
+    expect(content?.generatedAt).toBe(published(40).generatedAt);
+    expect(api.calls).toBe(0);
+  });
+
+  test('first_access_offline_returns_null', async () => {
+    const content = await contentForCatalog({ api: offline(), cache: createMemoryStore(), clock });
+
+    expect(content).toBeNull();
+  });
+
+  test('gives_up_when_the_network_is_too_slow', async () => {
+    const hanging = { calls: 0, fetchLatest: () => new Promise<DailyContent>(() => undefined) };
+
+    const content = await contentForCatalog(
+      { api: hanging, cache: createMemoryStore(), clock },
+      10,
+    );
+
+    expect(content).toBeNull();
   });
 });

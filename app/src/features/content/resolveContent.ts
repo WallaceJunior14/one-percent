@@ -136,3 +136,27 @@ export async function resolveContent({
   const late = hoursSincePublished(best, now) > publishIntervalHours + freshnessToleranceHours;
   return { status: late ? 'stale' : 'today', content: best, ...suggestion };
 }
+
+/**
+ * Conteúdo de onde sai o catálogo do onboarding: o do cache e, se não houver (primeiro acesso),
+ * o baixado agora, que fica no cache. Devolve `null` sem internet ou se a rede demorar mais que
+ * `timeoutMs`; quem chama usa o catálogo embutido.
+ */
+export async function contentForCatalog(
+  dependencies: Dependencies,
+  timeoutMs = 5000,
+): Promise<DailyContent | null> {
+  const cached = await readCachedContent(dependencies.cache, dependencies.clock);
+  if (cached) return cached;
+
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<ContentState>((resolve) => {
+    timer = setTimeout(() => resolve({ status: 'empty' }), timeoutMs);
+  });
+  try {
+    const state = await Promise.race([resolveContent(dependencies), timeout]);
+    return state.status === 'empty' ? null : state.content;
+  } finally {
+    clearTimeout(timer);
+  }
+}
