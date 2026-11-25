@@ -18,7 +18,7 @@
       "const": 1
     },
     "date": {
-      "description": "Dia de referência no fuso America/Sao_Paulo (AAAA-MM-DD).",
+      "description": "Dia de referência no fuso de referência da operação (AAAA-MM-DD).",
       "type": "string",
       "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
     },

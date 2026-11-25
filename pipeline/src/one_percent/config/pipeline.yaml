@@ -5,7 +5,7 @@
 
 content:
   timezone: America/Sao_Paulo        # fuso que define a data do conteúdo
-  publish_deadline: "07:00"          # informativo: o agendador usa este horário
+  publish_deadline: "07:00"          # só documenta o horário: os crons do workflow são fixos e precisam mudar à mão
   retention_days: 7                  # dias em daily/ antes de apagar
   windows: { news_hours: 36, paper_days: 7 }
   min_cards: { total: 15, per_group: 7 }

@@ -3,7 +3,9 @@
 # - keywords: usadas para encaixar itens de feeds gerais na subárea certa (T024).
 #   A comparação ignora maiúsculas e acentos e casa palavras inteiras.
 # - default_subarea: subárea usada quando nenhuma palavra-chave da área casa.
-# - weight: peso editorial da fonte no ranking (1.0 = neutro).
+# - weight: há dois, com significados diferentes. Em cada fonte, é o peso editorial dela no
+#   ranking (1.0 = neutro). Em cada área, é a parte do feed que a área recebe (0 a 100, relativo
+#   às outras áreas escolhidas).
 
 # Grupos organizam as áreas na tela de escolha. A divisão do feed vem só dos pesos das áreas
 # (relativos entre as áreas escolhidas); subáreas não têm peso.
