@@ -164,7 +164,7 @@ budget:
 ### App: textos (RF-112, H8)
 
 - `shared/i18n/pt-BR.ts` exporta um objeto `t` com strings e funções (`t.feed.seen(n, total)`, `t.streak.days(n)`, `t.reminder.body(cards, minutes)`).
-- `plural(n, { one, other })` com `Intl.PluralRules('pt-BR')`.
+- `plural(n, { one, other })`: `one` só para 1, `other` para o resto, inclusive 0 ("0 dias"). Sem `Intl.PluralRules`, que o Hermes do Android pode não ter.
 - Componentes importam `t`, e nenhum texto visível fica escrito no JSX. Os testes continuam procurando os textos em português, o que prova que nada mudou para o usuário.
 
 ### App: endereço do conteúdo (RF-111)
@@ -215,3 +215,4 @@ Fakes: relógio (`fixedClock`), armazenamento (`createMemoryStore`), API de cont
 | Data | Mudança | Motivo |
 |---|---|---|
 | 2026-11-22 | Criação | Spec 002 aprovada |
+| 2026-11-24 | Plural sem `Intl.PluralRules` | Review da Fase 5 (CR-005, CR-006): risco de o Hermes não ter a API |
