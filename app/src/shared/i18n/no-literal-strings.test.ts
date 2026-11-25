@@ -3,15 +3,15 @@ import ts from 'typescript';
 /**
  * Guarda para que os textos da interface venham do catálogo (`pt-BR.ts`).
  *
- * Varre os `.tsx` (exceto testes) de `features/` e `shared/ui/` e acusa:
+ * Varre todos os `.tsx` de `src/` (exceto testes e o próprio catálogo) e acusa:
  *  - texto escrito entre as tags do JSX;
  *  - string literal (ou template) com letras dentro de uma expressão `{...}` filha do JSX,
  *    como `{ok ? 'Salvo' : 'Salvar'}`; comparações (`=== 'x'`) são ignoradas;
- *  - atributo `label`, `title`, `accessibilityLabel` ou `placeholder` com string literal
- *    ou template, direto ou dentro de uma expressão.
+ *  - atributo cujo nome sugere texto (`label`, `title`, `hint`, `message`, `saveLabel`...)
+ *    com string literal ou template, direto ou dentro de uma expressão.
  *
- * Não cobre: textos fora do JSX (ex.: constantes, `Alert`), outros atributos e literais
- * sem letras (como "✓" ou "+"). Esses casos ficam para a revisão de código.
+ * Não cobre: textos fora do JSX (ex.: constantes, `Alert`), props de texto com nomes que
+ * fogem do padrão e literais sem letras (como "✓" ou "+"). Esses casos ficam para a revisão de código.
  */
 
 // O projeto não instala os tipos do Node: só o que este teste usa está declarado aqui.
@@ -30,13 +30,16 @@ const path: {
 declare const __dirname: string;
 
 const SRC = path.resolve(__dirname, '..', '..');
-const ROOTS = ['features', 'shared/ui'].map((dir) => path.join(SRC, dir));
-const TEXT_ATTRIBUTES = new Set(['label', 'title', 'accessibilityLabel', 'placeholder']);
+const ROOTS = [SRC];
+const CATALOG_DIR = path.join(SRC, 'shared', 'i18n');
+// Nome de prop que costuma carregar texto: label, title, saveLabel, accessibilityHint, message...
+const TEXT_ATTRIBUTE = /label|title|text|hint|placeholder|message|subtitle/i;
 const HAS_LETTER = /\p{L}/u;
 
 function listComponentFiles(dir: string): string[] {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const full = path.join(dir, entry.name);
+    if (full === CATALOG_DIR) return [];
     if (entry.isDirectory()) return listComponentFiles(full);
     return full.endsWith('.tsx') && !/\.test\.tsx$/.test(full) ? [full] : [];
   });
@@ -96,7 +99,7 @@ export function findLiteralStrings(fileName: string, source: string): string[] {
 
     if (
       ts.isJsxAttribute(node) &&
-      TEXT_ATTRIBUTES.has(node.name.getText(file)) &&
+      TEXT_ATTRIBUTE.test(node.name.getText(file)) &&
       node.initializer
     ) {
       const found: ts.Node[] = [];
@@ -117,6 +120,15 @@ it('flags_literal_text_in_jsx', () => {
     'const D = () => <View accessibilityLabel={`Ler: ${x}`} />;',
   ].join('\n');
   expect(findLiteralStrings('sample.tsx', sample)).toHaveLength(5);
+});
+
+it('flags_literal_text_in_custom_text_props', () => {
+  const sample = [
+    'const A = () => <ReminderScreen saveLabel="Começar" />;',
+    'const B = () => <View accessibilityHint="Abre o card" />;',
+    "const C = () => <Screen saveLabel={fromOnboarding ? 'Começar' : 'Salvar'} />;",
+  ].join('\n');
+  expect(findLiteralStrings('sample.tsx', sample)).toHaveLength(4);
 });
 
 it('ignores_catalog_text_and_comparisons', () => {

@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { reminderService } from '@/dependencies';
 import type { ReminderSettings } from '@/features/reminders/reminderScheduler';
 import { ReminderScreen } from '@/features/reminders/ReminderScreen';
+import { t } from '@/shared/i18n/pt-BR';
 import { useLoaded } from '@/shared/lib/useLoaded';
 
 export default function ReminderRoute() {
@@ -25,7 +26,7 @@ export default function ReminderRoute() {
   return (
     <ReminderScreen
       initial={initial}
-      saveLabel={fromOnboarding ? 'Começar' : 'Salvar'}
+      saveLabel={fromOnboarding ? t.reminder.start : t.common.save}
       onSave={save}
       onBack={fromOnboarding ? undefined : () => router.back()}
     />
