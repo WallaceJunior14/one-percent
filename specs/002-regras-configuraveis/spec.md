@@ -82,7 +82,7 @@ Como mantenedor, quero definir o tamanho máximo de cada texto num único lugar,
 **Critérios de aceite**
 1. **Dado** que um limite muda no contrato, **quando** o pipeline roda, **então** a validação dos resumos e as instruções ao LLM usam o novo limite sem outra alteração.
 2. **Dado** os limites pedidos ao LLM, **quando** o prompt é montado, **então** eles são derivados dos limites do contrato com uma margem configurável, e não escritos à mão.
-3. **Dado** um texto do resumo acima do limite, **quando** é validado, **então** é encurtado no último fim de frase que caiba; se nenhuma frase couber, no último espaço, com reticências. O card só é descartado se o campo ficar vazio. Cada encurtamento entra no relatório da execução.
+3. **Dado** um texto do resumo acima do limite, **quando** é validado, **então** é encurtado no último fim de frase que caiba, sem contar o ponto de abreviações comuns (Dr., Sr., et al., p. ex.); se nenhuma frase couber, no último espaço, com reticências. O card só é descartado se o campo ficar vazio. Cada encurtamento entra no relatório da execução.
 
 ### H7 — Operação ajustável sem mexer no código (P2)
 
@@ -117,6 +117,7 @@ Como mantenedor, quero os textos da interface num só lugar, para poder traduzir
 - **RF-110**: o pipeline lê de configuração validada o modelo do LLM, o teto de itens, a retenção, o mínimo para publicar (total e por grupo) e o orçamento mensal.
 - **RF-111**: o endereço do conteúdo é configuração do build do app.
 - **RF-112**: os textos e a formatação de números da interface ficam num catálogo único.
+- **RF-113**: o app limita os valores publicados que controlam a montagem do feed e o cache: tamanho do feed de 1 a 50, peso de área até 100, intervalo de publicação até 168 h; `generatedAt` no futuro ou inválido conta como desatualizado. Fora do limite, vale o padrão. O alerta de orçamento do pipeline só avisa, não interrompe a execução.
 
 ## Requisitos não funcionais
 
@@ -165,3 +166,4 @@ Respostas do autor em 2026-11-22:
 |---|---|---|
 | 2026-11-22 | Criação | Revisão do código e das specs: regras fixas que travam a evolução do conteúdo e do app |
 | 2026-11-22 | Aprovada; dúvidas resolvidas: peso por área, 24 h + 6 h, encurtar textos longos, H8 entra agora | Respostas do autor |
+| 2026-11-24 | H6-3 ignora abreviações ao encurtar; RF-113 limita valores publicados; orçamento só alerta | Review e auditoria da spec 002 (CR-005, SEC-001, SEC-002, SEC-005), decisões do autor |
