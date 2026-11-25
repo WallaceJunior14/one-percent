@@ -1,7 +1,10 @@
-import { type DailyContent, parseDailyContent } from './contract';
+import { type ContentDiagnostics, type DailyContent, parseDailyContent } from './contract';
+
+/** `diagnostics` vem da leitura do payload; o que não passou pela leitura não o tem. */
+export type FetchedContent = DailyContent & { diagnostics?: ContentDiagnostics };
 
 export interface ContentApi {
-  fetchLatest(): Promise<DailyContent>;
+  fetchLatest(): Promise<FetchedContent>;
 }
 
 /** O mínimo de `fetch` que usamos; facilita testar sem polyfills. */

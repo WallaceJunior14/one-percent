@@ -242,8 +242,50 @@ test('failing_cache_write_still_returns_the_fetched_content', async () => {
     },
   };
   const fresh = published(1);
+  const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
   const state = await resolveContent({ api: contentApiReturning(fresh), cache, clock });
 
   expect(state).toMatchObject({ status: 'today', content: { generatedAt: fresh.generatedAt } });
+  expect(warn).toHaveBeenCalled();
+  warn.mockRestore();
+});
+
+describe('dropped cards are reported', () => {
+  test('fetched_content_reports_each_dropped_card', async () => {
+    const onDroppedCards = jest.fn();
+    const fetched = parseDailyContent({
+      ...(structuredClone(sampleDay) as object),
+      generatedAt: published(1).generatedAt,
+      cards: [
+        { ...sampleDay.cards[0], url: 'http://example.com/inseguro' },
+        ...sampleDay.cards.slice(1),
+      ],
+    });
+
+    await resolveContent({
+      api: contentApiReturning(fetched),
+      cache: createMemoryStore(),
+      clock,
+      onDroppedCards,
+    });
+
+    expect(onDroppedCards).toHaveBeenCalledTimes(1);
+    expect(onDroppedCards).toHaveBeenCalledWith([
+      { index: 0, id: sampleDay.cards[0].id, reason: expect.stringContaining('url') },
+    ]);
+  });
+
+  test('stays_silent_when_nothing_was_dropped', async () => {
+    const onDroppedCards = jest.fn();
+
+    await resolveContent({
+      api: contentApiReturning(published(1)),
+      cache: createMemoryStore(),
+      clock,
+      onDroppedCards,
+    });
+
+    expect(onDroppedCards).not.toHaveBeenCalled();
+  });
 });

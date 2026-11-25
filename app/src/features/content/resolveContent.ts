@@ -3,7 +3,12 @@ import type { Clock } from '@/shared/lib/dates';
 import type { KeyValueStore } from '@/shared/lib/keyValueStore';
 import { createVersionedStore, sameFormat } from '@/shared/lib/versionedStore';
 import type { ContentApi } from './contentApi';
-import { type DailyContent, parseDailyContent, UnsupportedContentVersionError } from './contract';
+import {
+  type DailyContent,
+  type DroppedCard,
+  parseDailyContent,
+  UnsupportedContentVersionError,
+} from './contract';
 
 export const CONTENT_CACHE_KEY = 'content.latest';
 
@@ -20,7 +25,20 @@ export type ContentState = (
   | { status: 'empty' }
 ) & { updateSuggested?: true };
 
-type Dependencies = { api: ContentApi; cache: KeyValueStore; clock: Clock };
+type Dependencies = {
+  api: ContentApi;
+  cache: KeyValueStore;
+  clock: Clock;
+  /** Chamado com os cards que o app descartou ao ler o conteúdo baixado. */
+  onDroppedCards?(dropped: readonly DroppedCard[]): void;
+};
+
+// Fora dos testes, o aviso no console é o registro; nos testes, quem quiser observar passa
+// `onDroppedCards`.
+function warnDroppedCards(dropped: readonly DroppedCard[]) {
+  if (process.env.NODE_ENV === 'test') return;
+  console.warn(`${dropped.length} card(s) descartado(s) ao ler o conteúdo`, dropped);
+}
 
 function contentCache(cache: KeyValueStore, clock: Clock) {
   return createVersionedStore<DailyContent>({
@@ -35,9 +53,15 @@ function contentCache(cache: KeyValueStore, clock: Clock) {
 
 type FetchResult = { content: DailyContent | null; updateSuggested?: true };
 
-async function fetchLatest(api: ContentApi): Promise<FetchResult> {
+async function fetchLatest(
+  api: ContentApi,
+  onDroppedCards: (dropped: readonly DroppedCard[]) => void,
+): Promise<FetchResult> {
   try {
-    return { content: await api.fetchLatest() };
+    const content = await api.fetchLatest();
+    const dropped = content.diagnostics?.droppedCards ?? [];
+    if (dropped.length > 0) onDroppedCards(dropped);
+    return { content };
   } catch (error) {
     if (error instanceof UnsupportedContentVersionError) {
       return { content: null, updateSuggested: true };
@@ -83,7 +107,12 @@ export function readCachedContent(
  * antes do intervalo esperado usa o cache; depois, busca o novo; passado o intervalo mais a
  * tolerância, mostra o aviso de conteúdo atrasado.
  */
-export async function resolveContent({ api, cache, clock }: Dependencies): Promise<ContentState> {
+export async function resolveContent({
+  api,
+  cache,
+  clock,
+  onDroppedCards = warnDroppedCards,
+}: Dependencies): Promise<ContentState> {
   const now = clock.now();
   const stored = contentCache(cache, clock);
   const cached = await stored.read();
@@ -94,7 +123,7 @@ export async function resolveContent({ api, cache, clock }: Dependencies): Promi
     }
   }
 
-  const { content: fetched, updateSuggested } = await fetchLatest(api);
+  const { content: fetched, updateSuggested } = await fetchLatest(api, onDroppedCards);
   const suggestion = updateSuggested ? { updateSuggested } : {};
   const best = newest(cached, fetched, now);
   if (best === null) return { status: 'empty', ...suggestion };
