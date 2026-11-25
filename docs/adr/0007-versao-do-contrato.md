@@ -13,6 +13,7 @@ O app instalado e o pipeline evoluem em ritmos diferentes: o pipeline muda a qua
 2. **`schemaVersion` é a versão principal.** Uma mudança **aditiva** (campo novo opcional, tipo novo de card, valor novo em uma lista aberta) mantém a versão. Uma mudança **incompatível** (remover campo, mudar tipo, mudar significado, tornar obrigatório um campo antes opcional) cria uma versão principal nova.
 3. **Transição de versão principal.** O conteúdo da versão nova é publicado em `latest-v<N>.json` e `daily/v<N>/` ao lado do atual. O formato anterior continua sendo publicado até que o app que lê a versão nova esteja instalado. Um app que encontra uma versão maior do que suporta continua com o último conteúdo compatível e sugere a atualização.
 4. **Ordem de entrega.** Quando uma mudança exige que o app saiba ler algo novo, o app tolerante sai primeiro; o pipeline só publica depois.
+5. **Afrouxar um limite** (ex.: `maxLength` maior, mais alternativas no quiz) continua sendo aditivo, mas o app antigo descarta os itens que passarem do limite dele. Por isso, o app com o limite novo sai antes de o pipeline começar a usar a folga.
 
 ## Alternativas consideradas
 

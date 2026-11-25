@@ -105,7 +105,7 @@ Como mantenedor, quero os textos da interface num só lugar, para poder traduzir
 
 ## Requisitos funcionais
 
-- **RF-101** (substitui a parte rígida do contrato): o app lê o conteúdo de forma tolerante. Ignora campos desconhecidos, descarta só os cards inválidos ou de tipo desconhecido e aceita qualquer versão secundária da versão principal que suporta.
+- **RF-101** (substitui a parte rígida do contrato): o app lê o conteúdo de forma tolerante. Ignora campos desconhecidos, descarta só os cards, stories e áreas inválidos (os cards de uma área descartada saem junto) e aceita qualquer versão secundária da versão principal que suporta.
 - **RF-102**: o contrato tem política de versão: acréscimos opcionais mantêm a versão principal; mudanças incompatíveis criam uma versão principal nova, publicada em paralelo durante uma transição.
 - **RF-103**: todo dado local tem versão de formato e migração para o formato atual; dado ilegível é preservado à parte, nunca apagado.
 - **RF-104** (substitui a tabela de áreas da H3 e o RF-011 da spec 001): o catálogo de áreas, subáreas e grupos, com o peso de cada área, faz parte do conteúdo publicado. Pesos existem só no nível da área (tema principal), nunca na subárea. O app embute uma cópia só para o primeiro acesso sem internet.
@@ -117,7 +117,7 @@ Como mantenedor, quero os textos da interface num só lugar, para poder traduzir
 - **RF-110**: o pipeline lê de configuração validada o modelo do LLM, o teto de itens, a retenção, o mínimo para publicar (total e por grupo) e o orçamento mensal.
 - **RF-111**: o endereço do conteúdo é configuração do build do app.
 - **RF-112**: os textos e a formatação de números da interface ficam num catálogo único.
-- **RF-113**: o app limita os valores publicados que controlam a montagem do feed e o cache: tamanho do feed de 1 a 50, peso de área até 100, intervalo de publicação até 168 h; `generatedAt` no futuro ou inválido conta como desatualizado. Fora do limite, vale o padrão. O alerta de orçamento do pipeline só avisa, não interrompe a execução.
+- **RF-113**: o app limita os valores publicados que controlam a montagem do feed e o cache: tamanho do feed de 1 a 50, peso de área até 100, intervalo de publicação e tolerância até 168 h, até 10 perguntas no quiz, até 600 s por card e resposta de até 2 MB; `generatedAt` mais de 5 min no futuro, ou inválido, conta como desatualizado. Fora do limite, vale o padrão. O alerta de orçamento do pipeline só avisa, não interrompe a execução.
 
 ## Requisitos não funcionais
 
