@@ -24,7 +24,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [x] T204 Repositórios (preferências, progresso, salvos, quiz, stories vistos, lembrete, cache do conteúdo) usam o store versionado, um por chave
   - Teste: testes existentes de cada repositório + `keeps_other_keys_when_one_is_unreadable`
   - Cobre: H2-3, RNF-102
-- [ ] T205 **Marco**: app da Fase 1 instalado no celular e lendo o `latest.json` atual sem regressão
+- [x] T205 **Marco**: app da Fase 1 instalado no celular e lendo o `latest.json` atual sem regressão
 
 ## Fase 2 — Contrato com campos novos (aditivo)
 
