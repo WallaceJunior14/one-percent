@@ -318,3 +318,27 @@ def test_no_budget_warning_within_limit(caplog: pytest.LogCaptureFixture) -> Non
         _summarizer(FakeBatches(results), _priced(monthly_usd=100)).summarize(items)
 
     assert "orçamento" not in caplog.text
+
+
+def test_budget_alert_becomes_an_actions_annotation(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    items = [make_item(), make_item()]
+    results = [_succeeded(card_id(item), VALID_NEWS) for item in items]
+
+    _summarizer(FakeBatches(results), _priced(monthly_usd=1)).summarize(items)
+
+    assert "::warning::" in capsys.readouterr().out
+
+
+def test_no_annotation_outside_actions(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    items = [make_item(), make_item()]
+    results = [_succeeded(card_id(item), VALID_NEWS) for item in items]
+
+    _summarizer(FakeBatches(results), _priced(monthly_usd=1)).summarize(items)
+
+    assert "::warning::" not in capsys.readouterr().out

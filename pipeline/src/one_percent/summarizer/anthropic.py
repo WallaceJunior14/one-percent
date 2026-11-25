@@ -3,6 +3,7 @@
 import html
 import json
 import logging
+import os
 import time
 from collections import Counter
 from collections.abc import Callable, Sequence
@@ -139,12 +140,14 @@ def check_budget(cost_usd: float, budget: BudgetSettings) -> None:
     logger.info("custo estimado: US$ %.4f (projeção mensal US$ %.2f; orçamento US$ %.2f)",
                 cost_usd, projected, budget.monthly_usd)  # fmt: skip
     if projected > limit:
-        logger.warning(
-            "custo projetado do mês (US$ %.2f) passa de %.0f%% do orçamento de US$ %.2f",
-            projected,
-            budget.alert_ratio * 100,
-            budget.monthly_usd,
+        message = (
+            f"custo projetado do mês (US$ {projected:.2f}) passa de "
+            f"{budget.alert_ratio * 100:.0f}% do orçamento de US$ {budget.monthly_usd:.2f}"
         )
+        logger.warning(message)
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            # Só esta linha vira anotação no resumo da execução; o log comum passa despercebido.
+            print(f"::warning::{message}", flush=True)
 
 
 def _describe(issue: ErrorDetails) -> str:
