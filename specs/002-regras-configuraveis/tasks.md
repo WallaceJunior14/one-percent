@@ -92,16 +92,16 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 
 ## Fase 5 — Textos da interface (H8)
 
-- [ ] T240 Catálogo `shared/i18n/pt-BR.ts` com `plural` via `Intl.PluralRules`
+- [x] T240 Catálogo `shared/i18n/pt-BR.ts` com `plural` (1 = singular, demais = plural)
   - Teste: `i18n/pt-BR.test.ts` — `pluralizes_days_and_cards`, `formats_feed_counter`
   - Cobre: H8-2, RF-112
-- [ ] T241 [P] Migrar telas do feed, detalhe, stories e salvos para o catálogo
+- [x] T241 [P] Migrar telas do feed, detalhe, stories e salvos para o catálogo
   - Teste: testes de componente existentes (os textos em português continuam os mesmos)
   - Cobre: H8-1
-- [ ] T242 [P] Migrar onboarding, dia concluído, quiz, perfil e lembrete para o catálogo
+- [x] T242 [P] Migrar onboarding, dia concluído, quiz, perfil e lembrete para o catálogo
   - Teste: testes de componente existentes
   - Cobre: H8-1
-- [ ] T243 Guarda contra texto escrito no componente: lint ou teste que falha com string literal visível no JSX
+- [x] T243 Guarda contra texto escrito no componente: lint ou teste que falha com string literal visível no JSX
   - Teste: `i18n/no-literal-strings.test.ts`
   - Cobre: H8-1
 
