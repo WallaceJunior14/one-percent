@@ -155,6 +155,33 @@ test('guarantees_the_configured_paper_share', () => {
   expect(papers(0.6)).toBeGreaterThanOrEqual(9);
 });
 
+test('fills_the_paper_share_from_papers_of_the_same_group_only', () => {
+  const content = buildContent([
+    ['tech.ai', 'news', 10],
+    ['science.ml', 'paper', 10],
+    ['economy.brazil', 'news', 10],
+    ['health.medicine', 'paper', 10],
+  ]);
+  const areaIds = ['tech', 'science', 'economy', 'health'];
+  const compose = (minPaperShare: number) =>
+    composeFeed(content, { areaIds }, { ...FEED_DEFAULTS, minPaperShare });
+  const fromArea = (feed: Card[], areaId: string) => feed.filter((c) => c.areaId === areaId);
+
+  const baseline = compose(0);
+  const feed = compose(0.7);
+
+  expect(feed.filter((card) => card.type === 'paper').length).toBeGreaterThan(
+    baseline.filter((card) => card.type === 'paper').length,
+  );
+  // tech só tem notícias: os artigos que entram no lugar delas vêm de science, do mesmo grupo
+  expect(fromArea(feed, 'science').length).toBeGreaterThan(fromArea(baseline, 'science').length);
+  expect(fromArea(feed, 'tech').length).toBeLessThan(fromArea(baseline, 'tech').length);
+  // economy e health são do outro grupo: não trocam cards com tech e science
+  expect(fromArea(feed, 'health').length).toBeGreaterThanOrEqual(
+    fromArea(baseline, 'health').length,
+  );
+});
+
 test('prefers_best_ranked_cards', () => {
   const feed = composeFeed(ABUNDANT, { areaIds: ['economy'] });
 
