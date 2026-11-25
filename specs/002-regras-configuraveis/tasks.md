@@ -61,7 +61,7 @@ Cada task segue Red → Green → Refactor: o teste indicado é escrito primeiro
 - [x] T227 Custo estimado no `RunReport` e alerta quando a projeção mensal passa do limite do orçamento
   - Teste: `test_pipeline_e2e.py` — `reports_estimated_cost`; `test_anthropic_summarizer.py` — `warns_when_projected_cost_exceeds_budget`
   - Cobre: H7-4
-- [ ] T228 **Marco**: execução real publicada com catálogo e `settings`, lida pelo app da Fase 1 sem regressão
+- [x] T228 **Marco**: execução real publicada com catálogo e `settings`, lida pelo app da Fase 1 sem regressão
 
 ## Fase 4 — App usa os parâmetros (H3, H4, H5, H7-5)
 
