@@ -7,6 +7,18 @@ from typing import Any
 ELLIPSIS = "…"
 _SENTENCE_END = re.compile(r"[.!?…](?=\s)")
 _TRAILING_PUNCTUATION = " ,;:-–—"
+# Palavra antes do ponto, em minúsculas. Cortar aí deixaria "O Dr." como texto inteiro.
+_ABBREVIATIONS = frozenset(
+    {"dr", "dra", "sr", "sra", "srta", "prof", "profa", "al", "ex", "p", "vs", "eua", "etc", "u.s"}
+)
+
+
+def _is_sentence_end(text: str, end: int) -> bool:
+    """`end` é a posição logo depois do sinal; pontos de abreviações comuns não contam."""
+    if text[end - 1] != ".":
+        return True
+    word = text[: end - 1].rsplit(None, 1)[-1] if text[: end - 1].strip() else ""
+    return word.strip("(\"'“").lower() not in _ABBREVIATIONS
 
 
 def shorten(text: str, limit: int) -> str:
@@ -16,7 +28,11 @@ def shorten(text: str, limit: int) -> str:
         return text
 
     # Um ponto exatamente no limite conta: o espaço depois dele fica fora do texto.
-    sentence_ends = [m.end() for m in _SENTENCE_END.finditer(text, 0, limit + 1)]
+    sentence_ends = [
+        m.end()
+        for m in _SENTENCE_END.finditer(text, 0, limit + 1)
+        if _is_sentence_end(text, m.end())
+    ]
     if sentence_ends:
         return text[: sentence_ends[-1]]
 

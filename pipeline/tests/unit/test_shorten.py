@@ -29,6 +29,24 @@ def test_single_long_word_is_cut_with_ellipsis() -> None:
     assert shorten("x" * 50, 10) == "x" * 9 + ELLIPSIS
 
 
+@pytest.mark.parametrize(
+    "abbreviation", ["Dr.", "Sr.", "Sra.", "et al.", "p. ex.", "EUA.", "etc.", "U.S."]
+)
+def test_does_not_cut_at_a_common_abbreviation(abbreviation: str) -> None:
+    text = f"O estudo citado por {abbreviation} Silva afirmou que a vacina reduz internações"
+
+    shortened = shorten(text, 45)
+
+    assert shortened.endswith(ELLIPSIS)
+    assert len(shortened) >= 30
+
+
+def test_still_cuts_at_a_real_sentence_end_before_an_abbreviation() -> None:
+    text = "A vacina funciona. O Dr. Silva afirmou que a vacina reduz internações"
+
+    assert shorten(text, 40) == "A vacina funciona."
+
+
 @pytest.mark.parametrize("limit", [1, 2, 7, 30, 99])
 def test_keeps_text_within_limit(limit: int) -> None:
     text = "Isto é um teste. Com várias frases, vírgulas e palavras! Será? Sim. " * 3
