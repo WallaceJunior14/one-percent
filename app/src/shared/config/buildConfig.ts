@@ -12,5 +12,6 @@ export function contentBaseUrlFrom(extra: unknown): string {
   if (!HTTPS.test(value)) {
     throw new Error(`expo.extra.contentBaseUrl precisa ser https: ${value}`);
   }
-  return value;
+  // Sem a barra final, `new URL('latest.json', base)` descartaria o último segmento do caminho.
+  return value.endsWith('/') ? value : `${value}/`;
 }

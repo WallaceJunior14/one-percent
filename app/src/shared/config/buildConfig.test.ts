@@ -15,3 +15,8 @@ test('fails_clearly_without_it', () => {
 test('app_json_defines_the_content_url', () => {
   expect(contentBaseUrlFrom(appJson.expo.extra)).toMatch(/^https:\/\//);
 });
+
+test('adds_the_trailing_slash_so_the_last_segment_is_kept', () => {
+  expect(contentBaseUrlFrom({ contentBaseUrl: 'https://x.io/app' })).toBe('https://x.io/app/');
+  expect(contentBaseUrlFrom({ contentBaseUrl: 'https://x.io/app/' })).toBe('https://x.io/app/');
+});
