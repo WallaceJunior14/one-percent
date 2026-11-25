@@ -17,16 +17,18 @@ export const FEED_DEFAULTS: FeedSettings = {
   secondsPerCard: 40,
 };
 
-const isPositiveInt = (value: number) => Number.isInteger(value) && value > 0;
-const isNonNegativeInt = (value: number) => Number.isInteger(value) && value >= 0;
+const isIntBetween = (min: number, max: number) => (value: number) =>
+  Number.isInteger(value) && value >= min && value <= max;
 
+// Os tetos impedem que um valor publicado por engano congele o cache ou monte um feed gigante;
+// o conteúdo publicado não consegue se corrigir sozinho se o app deixar de ir à rede.
 const IS_VALID: Record<keyof FeedSettings, (value: number) => boolean> = {
-  feedSize: isPositiveInt,
+  feedSize: isIntBetween(1, 50),
   minPaperShare: (value) => value >= 0 && value <= 1,
-  quizQuestions: isNonNegativeInt,
-  publishIntervalHours: (value) => value > 0,
-  freshnessToleranceHours: (value) => value >= 0,
-  secondsPerCard: (value) => value > 0,
+  quizQuestions: isIntBetween(0, 10),
+  publishIntervalHours: (value) => value > 0 && value <= 168,
+  freshnessToleranceHours: (value) => value >= 0 && value <= 168,
+  secondsPerCard: (value) => value > 0 && value <= 600,
 };
 
 /** Parâmetros publicados no conteúdo, cada um validado e trocado pelo padrão se inválido. */

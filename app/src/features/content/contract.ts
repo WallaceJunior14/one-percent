@@ -73,7 +73,7 @@ const areaSchema = z.object({
   name: shortText,
   subareas: z.array(z.object({ id: subareaId, name: shortText })).min(1),
   groupId: groupId.optional().catch(undefined),
-  weight: z.number().positive().optional().catch(undefined),
+  weight: z.number().positive().max(100).optional().catch(undefined),
 });
 
 const storySchema = z.object({

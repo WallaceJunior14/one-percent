@@ -233,6 +233,22 @@ describe('catalog_and_settings', () => {
     expect(content.groups).toBeUndefined();
     expect(content.cards.length).toBeGreaterThan(0);
   });
+
+  test.each([101, 1e308])('weight_above_the_ceiling_%d_is_ignored', (weight) => {
+    const day = mutatedSample((d) => {
+      (d as unknown as { areas: Record<string, unknown>[] }).areas[0].weight = weight;
+    });
+
+    expect(parseDailyContent(day).areas[0].weight).toBeUndefined();
+  });
+
+  test('weight_at_the_ceiling_is_kept', () => {
+    const day = mutatedSample((d) => {
+      (d as unknown as { areas: Record<string, unknown>[] }).areas[0].weight = 100;
+    });
+
+    expect(parseDailyContent(day).areas[0].weight).toBe(100);
+  });
 });
 
 describe('quiz_options', () => {
