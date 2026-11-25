@@ -33,7 +33,7 @@ it('loads_without_intl_plural_rules', () => {
       expect(catalog.t.streak.days(0)).toBe('0 dias');
     });
   } finally {
-    Intl.PluralRules = original;
+    (Intl as { PluralRules?: unknown }).PluralRules = original;
   }
 });
 
