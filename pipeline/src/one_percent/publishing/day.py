@@ -83,7 +83,8 @@ def build_day(
 
 def _cards_per_group(day: dict[str, Any]) -> dict[str, int]:
     group_of_area = {area["id"]: area.get("groupId") for area in day["areas"]}
-    counts = {group["id"]: 0 for group in day.get("groups", [])}
+    # Um grupo que nenhuma área usa não tem de onde tirar cards, então não entra na conta.
+    counts = {group: 0 for group in set(group_of_area.values()) if group is not None}
     for card in day["cards"]:
         group = group_of_area.get(card["areaId"])
         if group in counts:

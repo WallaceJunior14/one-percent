@@ -194,3 +194,11 @@ def test_publishes_when_every_group_reaches_the_minimum(tmp_path: Path) -> None:
     day = build_day(NOW, CONFIG, SETTINGS, cards)
 
     assert publish(day, tmp_path, MIN_CARDS, min_per_group=4) is True
+
+
+def test_group_without_areas_does_not_block_publishing(tmp_path: Path) -> None:
+    cards = _cards(20) + [_card(100 + n, "health", "health.mental") for n in range(4)]
+    day = build_day(NOW, CONFIG, SETTINGS, cards)
+    day["groups"].append({"id": "lifestyle", "name": "Estilo de vida"})
+
+    assert publish(day, tmp_path, MIN_CARDS, min_per_group=4) is True
