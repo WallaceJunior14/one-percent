@@ -1,6 +1,6 @@
 # Spec 002 — Regras configuráveis e contrato evolutivo
 
-- **Status**: Aprovada (2026-11-22), com as respostas às dúvidas
+- **Status**: Implementada (2026-11-25); uso de 3 dias no celular segue como acompanhamento
 - **Criada em**: 2026-11-22
 - **Corrige**: [Spec 001](../001-mvp-feed-diario/spec.md)
 
@@ -167,3 +167,4 @@ Respostas do autor em 2026-11-22:
 | 2026-11-22 | Criação | Revisão do código e das specs: regras fixas que travam a evolução do conteúdo e do app |
 | 2026-11-22 | Aprovada; dúvidas resolvidas: peso por área, 24 h + 6 h, encurtar textos longos, H8 entra agora | Respostas do autor |
 | 2026-11-24 | H6-3 ignora abreviações ao encurtar; RF-113 limita valores publicados; orçamento só alerta | Review e auditoria da spec 002 (CR-005, SEC-001, SEC-002, SEC-005), decisões do autor |
+| 2026-11-25 | Encerrada: todas as tasks feitas; o marco de uso de 3 dias (T254) fica como acompanhamento, sem bloquear | Decisão do autor |
